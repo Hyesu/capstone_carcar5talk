@@ -28,13 +28,16 @@ public class MainActivity extends Activity {
 	BluetoothSocket mmSocket;
 	
 	/*
-	 * 
+	 * 원격 블루투스 장비를 나타내며 여기서 제공하는 BluetoothSocket을 이요하여 연결된 장비에게 요청 혹은
+	 * name, address, class, bonding 상태 등의 정보를 질의한다.
 	 */
 	BluetoothDevice mmDevice = null;
 	
 	final byte delimiter = 33;
 	int readBufferPosition = 0;
 	
+	
+	// sendBtMsg 메소드 이어서 시작
 	
 	public void sendBtMsg(String msg2send){
         //UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); //Standard SerialPortService ID
@@ -70,87 +73,90 @@ public class MainActivity extends Activity {
 		final Button lightOnButton = (Button) findViewById(R.id.lightOn);
 		final Button lightOffButton = (Button) findViewById(R.id.lightOff);
 		
+		/*
+		 * - BluetoothAdapter
+		 * 로컬 블루투스 어댑터(Bluetooth radio)를 나타낸다. 모든 블루투스 블루투스 연동을 위한 entry-point로서
+		 * 이것을 사용하여 다른 블루투스 장비들을 찾고, 페어링된 장비들을 질의하고 알고있는 MAC 주소를 이용하여 
+		 * BluetoothDevice를 인스턴스화하며 다른 장비로부터 통신을 듣기 위해 BluetoothServerSocket을 생성한다.
+		 * 
+		 * .getDefaultAdapter()
+		 * 장비가 소유하고 있는 블루투스 어댑터에 대한 BluetoothAdapter 객체를 반환한다.
+		 * 만약 null이 반환될 경우, 장비는 블루투스를 지원하지 않는 것이다.
+		 */
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
+		
 		final class workerThread implements Runnable {
-			
+
 			private String btMsg;
- 
+
 			public workerThread(String msg) {
 				btMsg = msg;
 			}
-			
-	        public void run()
-			        {
-			           sendBtMsg(btMsg);
-			           while(!Thread.currentThread().isInterrupted())
-			           {
-			        	   int bytesAvailable;
-			        	   boolean workDone = false;
-			        	   
-						   try {
-							   
-							   
-							   
-							    final InputStream mmInputStream;
-							    mmInputStream = mmSocket.getInputStream();
-								bytesAvailable = mmInputStream.available();
-								if(bytesAvailable > 0)
-				                   {
-									
-				                       byte[] packetBytes = new byte[bytesAvailable];
-				                       Log.e("Aquarium recv bt","bytes available");
-				                       byte[] readBuffer = new byte[1024];
-				                       mmInputStream.read(packetBytes);
-				                       
-				                       for(int i=0;i<bytesAvailable;i++)
-			                            {
-			                                byte b = packetBytes[i];
-			                                if(b == delimiter)
-			                                {
-			                                    byte[] encodedBytes = new byte[readBufferPosition];
-			                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-			                                    final String data = new String(encodedBytes, "US-ASCII");
-			                                    readBufferPosition = 0;
-			
-			                                    //The variable data now contains our full command
-			                                    handler.post(new Runnable()
-			                                    {
-			                                        public void run()
-			                                        {
-			                                            myLabel.setText(data);
-			                                        }
-			                                    });
-			                                    
-			                                    workDone = true;
-			                                    break;
-			                                    
-			                                    
-			                                }
-			                                else
-			                                {
-			                                    readBuffer[readBufferPosition++] = b;
-			                                }
-			                            }
-				                       
-				                       if (workDone == true){
-				                    	   mmSocket.close();
-				                    	   break;
-				                       }
-				                       
-				                   }
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+
+			public void run() {
+				sendBtMsg(btMsg);
+				while (!Thread.currentThread().isInterrupted()) {
+					int bytesAvailable;
+					boolean workDone = false;
+
+					try {
+
+						final InputStream mmInputStream;
+						mmInputStream = mmSocket.getInputStream();
+						bytesAvailable = mmInputStream.available();
+						if (bytesAvailable > 0) {
+
+							byte[] packetBytes = new byte[bytesAvailable];
+							Log.e("Aquarium recv bt", "bytes available");
+							byte[] readBuffer = new byte[1024];
+							mmInputStream.read(packetBytes);
+
+							for (int i = 0; i < bytesAvailable; i++) {
+								byte b = packetBytes[i];
+								if (b == delimiter) {
+									byte[] encodedBytes = new byte[readBufferPosition];
+									System.arraycopy(readBuffer, 0,
+											encodedBytes, 0,
+											encodedBytes.length);
+									final String data = new String(
+											encodedBytes, "US-ASCII");
+									readBufferPosition = 0;
+
+									// The variable data now contains our full
+									// command
+									handler.post(new Runnable() {
+										public void run() {
+											myLabel.setText(data);
+										}
+									});
+
+									workDone = true;
+									break;
+
+								} else {
+									readBuffer[readBufferPosition++] = b;
+								}
 							}
-			               
-			           }
-			        }
-			    };
+
+							if (workDone == true) {
+								mmSocket.close();
+								break;
+							}
+
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			}
+		}
+		;
 	    
 		
 		// start temp button handler
-		
 		tempButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on temp button click
@@ -186,23 +192,43 @@ public class MainActivity extends Activity {
         });
 		
 		// end light off button handler
-		
+		/*
+		 * .isEnabled()
+		 * 현재 블루투스가 활성화된 상태인지를 확인(true: 활성화 상태)
+		 * 
+		 * ACTION_REQUEST_ENABLE
+		 * 비활성화 상태인 블루투스를 활성화 상태로 변경하기 위한 옵션
+		 * 
+		 * startActivityForResult()
+		 * 앱의 중단없이 시스템의 설정을 통해 블루투스를 활성화시킨다.
+		 */
 		if(!mBluetoothAdapter.isEnabled())
 		{
 		   Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 		   startActivityForResult(enableBluetooth, 0);
 		}
 		
+		/*
+		 * .getBondedDevices()
+		 * 장비 탐색을 진행하기에 앞서 만약 연결하고자 하는 장비가 이미 페어링된 것인지를 페어링된 장비들의
+		 * 집합을 질의할 필요가 있다. 
+		 * return value : 페어링된 장비들을 나타내는 BluetoothDevice들의 집합
+		 * 
+		 *  Set<BluetoothDevice>
+		 *  모든 페어링된 장비들을 질의하고 사용자에게 ArrayAdapter를 이용하여 장비의 이름을 보여준다.
+		 */
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if(pairedDevices.size() > 0)
-        {
-            for(BluetoothDevice device : pairedDevices)
-            {
-                if(device.getName().equals("raspberrypi-0")) //Note, you will need to change this to match the name of your device
-                {
-                	Log.e("Aquarium",device.getName());
-                    mmDevice = device;
-                    break;
+       
+		if(pairedDevices.size() > 0) {
+			for(BluetoothDevice device : pairedDevices) {
+				
+				// sudo hciconfig hci0 name 'raspberrypi-0'
+				if(device.getName().equals("raspberrypi-0")) {
+					Log.e("Paired Device.", device.getName());
+                  
+					mmDevice = device;
+                  
+					break;
                 }
             }
         }
