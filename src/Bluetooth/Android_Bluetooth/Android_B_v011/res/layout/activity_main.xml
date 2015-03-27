@@ -9,33 +9,22 @@
         android:id="@+id/btResult"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-		android:stackFromBottom="true"
+        android:stackFromBottom="true"
         android:transcriptMode="alwaysScroll"
         android:layout_weight="1"
         android:text="" />
     
-    <LinearLayout
+   <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
        
 		<Button 
-	        android:id="@+id/tempButton"
-	        android:layout_width="wrap_content"
+	        android:id="@+id/connectButton"
+	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="tempButton" />
-        
-        <Button 
-	        android:id="@+id/lightOn"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="lightOn" />
-    
-	    <Button 
-	        android:id="@+id/lightOff"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="lightOff" />
+	        android:text="connectButton" />
+
     </LinearLayout>
 </LinearLayout>
 
