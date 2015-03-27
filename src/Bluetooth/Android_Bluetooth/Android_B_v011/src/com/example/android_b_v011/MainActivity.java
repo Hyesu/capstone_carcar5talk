@@ -1,3 +1,7 @@
+/*
+ * 해야할 일 : BluetoothChat 처럼 editText 만들기
+ */
+
 package com.example.android_b_v011;
 
 import java.io.IOException;
@@ -161,18 +165,15 @@ public class MainActivity extends Activity {
 		}
 		;
 	    
-		
 		// connect button handler
 		connectButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on temp button click
-            	
-            	(new Thread(new workerThread("Connecting..."))).start();
-            	
-            }
-        });
-		
+			public void onClick(View v) {
+				// Perform action on connect button click
 
+				(new Thread(new workerThread("Connecting..."))).start();
+
+			}
+		});
 		
 		
 		/*
