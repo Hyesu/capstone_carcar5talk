@@ -36,17 +36,24 @@ public class MainActivity extends Activity {
 	final byte delimiter = 33;
 	int readBufferPosition = 0;
 	
-	
-	// sendBtMsg 메소드 이어서 시작
-	
+	/*
+	 * 
+	 * .createRfcommSocketToServiceRecord()
+	 * BluetoothDevice에 연결할 수 있도록 BluetoothSocket을 초기화하며 인자로 전달하는 값은 서버에서
+	 * BluetoothSocket을 오픈할 때 사용했던 UUID와 일치해야 한다.
+	 * 
+	 * .connect()
+	 * 시스템이 UUID를 매치시키기 위하여 원격 장비의 SDP를 조회한다.
+	 * Success : 조회되면 원격 장비는 연결을 수락하고 연결되어 있는 동안 사용할 수 있는 RFCOMM 채널을 공유하고 메소드를 마친다.
+	 * Fail or Timeout : 예외 처리(IOException). 
+	 */
 	public void sendBtMsg(String msg2send){
-        //UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); //Standard SerialPortService ID
-        UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"); //Standard SerialPortService ID
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Standard SerialPortServiceClass_UUID
+        //UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"); //Standard SerialPortService ID
         try {
-        	
         	mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
         	if (!mmSocket.isConnected()){
-        		mmSocket.connect();
+        		mmSocket.connect();			// 연결 시도
         	}
 			
 			String msg = msg2send;
@@ -69,9 +76,7 @@ public class MainActivity extends Activity {
 		final Handler handler = new Handler();
 		
 		final TextView myLabel = (TextView) findViewById(R.id.btResult);
-		final Button tempButton = (Button) findViewById(R.id.tempButton);
-		final Button lightOnButton = (Button) findViewById(R.id.lightOn);
-		final Button lightOffButton = (Button) findViewById(R.id.lightOff);
+		final Button connectButton = (Button) findViewById(R.id.connectButton);
 		
 		/*
 		 * - BluetoothAdapter
@@ -82,33 +87,37 @@ public class MainActivity extends Activity {
 		 * .getDefaultAdapter()
 		 * 장비가 소유하고 있는 블루투스 어댑터에 대한 BluetoothAdapter 객체를 반환한다.
 		 * 만약 null이 반환될 경우, 장비는 블루투스를 지원하지 않는 것이다.
+		 * 
+		 * .read(byte[])
+		 * 스트림으로부터 읽기를 마칠 때까지 블로킹된다.
+		 * 
+		 * .write(byte[])
+		 * 보통 블로킹되지 않지만 만약 원격 장비에서 충분히 빠르게 read(byte[]) 메소드를 호출하지 않고
+		 * 버퍼가 꽉 찰 경우 흐름에 따라 블로킹될 수 있다.
 		 */
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
-		
 		final class workerThread implements Runnable {
-
 			private String btMsg;
-
 			public workerThread(String msg) {
 				btMsg = msg;
 			}
 
 			public void run() {
 				sendBtMsg(btMsg);
+				
 				while (!Thread.currentThread().isInterrupted()) {
 					int bytesAvailable;
 					boolean workDone = false;
 
 					try {
-
 						final InputStream mmInputStream;
 						mmInputStream = mmSocket.getInputStream();
 						bytesAvailable = mmInputStream.available();
 						if (bytesAvailable > 0) {
-
 							byte[] packetBytes = new byte[bytesAvailable];
-							Log.e("Aquarium recv bt", "bytes available");
+							Log.e("PacketBytes", "bytes available");
+							
 							byte[] readBuffer = new byte[1024];
 							mmInputStream.read(packetBytes);
 
@@ -116,15 +125,12 @@ public class MainActivity extends Activity {
 								byte b = packetBytes[i];
 								if (b == delimiter) {
 									byte[] encodedBytes = new byte[readBufferPosition];
-									System.arraycopy(readBuffer, 0,
-											encodedBytes, 0,
-											encodedBytes.length);
-									final String data = new String(
-											encodedBytes, "US-ASCII");
+									System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+									
+									final String data = new String(encodedBytes, "US-ASCII");
 									readBufferPosition = 0;
 
-									// The variable data now contains our full
-									// command
+									// The variable data now contains our full command
 									handler.post(new Runnable() {
 										public void run() {
 											myLabel.setText(data);
@@ -156,42 +162,19 @@ public class MainActivity extends Activity {
 		;
 	    
 		
-		// start temp button handler
-		tempButton.setOnClickListener(new View.OnClickListener() {
+		// connect button handler
+		connectButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on temp button click
             	
-            	(new Thread(new workerThread("temp"))).start();
+            	(new Thread(new workerThread("Connecting..."))).start();
             	
             }
         });
 		
+
 		
-		//end temp button handler
 		
-		//start light on button handler
-		lightOnButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on temp button click
-            	
-            	(new Thread(new workerThread("lightOn"))).start();
-            	
-            }
-        });
-		//end light on button handler
-		
-		//start light off button handler
-		
-		lightOffButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on temp button click
-            	
-            	(new Thread(new workerThread("lightOff"))).start();
-            	
-            }
-        });
-		
-		// end light off button handler
 		/*
 		 * .isEnabled()
 		 * 현재 블루투스가 활성화된 상태인지를 확인(true: 활성화 상태)
@@ -202,11 +185,13 @@ public class MainActivity extends Activity {
 		 * startActivityForResult()
 		 * 앱의 중단없이 시스템의 설정을 통해 블루투스를 활성화시킨다.
 		 */
-		if(!mBluetoothAdapter.isEnabled())
-		{
+		if(!mBluetoothAdapter.isEnabled()) {
 		   Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 		   startActivityForResult(enableBluetooth, 0);
 		}
+		
+		
+		
 		
 		/*
 		 * .getBondedDevices()
@@ -221,13 +206,11 @@ public class MainActivity extends Activity {
        
 		if(pairedDevices.size() > 0) {
 			for(BluetoothDevice device : pairedDevices) {
-				
 				// sudo hciconfig hci0 name 'raspberrypi-0'
 				if(device.getName().equals("raspberrypi-0")) {
-					Log.e("Paired Device.", device.getName());
-                  
 					mmDevice = device;
-                  
+					Log.e("Paired Device.", device.getName());
+					
 					break;
                 }
             }
