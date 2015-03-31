@@ -13,6 +13,7 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 int getGPSvalue(const int gps, unsigned char* gprmc);
 int extractGPSvalue(const unsigned char* gprmc);
 float knot2kmhr(float knot);
+void printValid(char isValid);
 
 int main(int argc, char** argv) {
 	int gps;
@@ -53,6 +54,10 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 	options->c_lflag = 0;
 	tcflush(*gps, TCIFLUSH);
 	tcsetattr(*gps, TCSANOW, options);
+
+	wiringPiSetup();
+	pinMode(LED_RED, OUTPUT);
+	pinMode(LED_GREEN, OUTPUT);
 
 	return 0;
 }
@@ -100,6 +105,8 @@ printf("prot(%s)\n", prot);
 			temp[i] = '\0';
 			gv.speed = knot2kmhr(atof(temp));
 
+			printValid(prot[GPS_VALID]);
+
 printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 //		}	
 		
@@ -108,4 +115,13 @@ printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.lati
 }
 float knot2kmhr(float knot) {
 	return knot * 1.852;
+}
+void printValid(char isValid) {
+	if(isValid == 'V') {
+		digitalWrite(LED_RED, HIGH);
+		digitalWrite(LED_GREEN, LOW);
+	} else {
+		digitalWrite(LED_GREEN, HIGH);
+		digitalWrite(LED_RED, LOW);
+	}
 }

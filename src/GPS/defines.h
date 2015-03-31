@@ -20,6 +20,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <wiringPi.h>
 
 ////////////////////////////////////////
 // constants for getting gps value
@@ -42,19 +43,10 @@
 #define LONGILEN	10
 
 ////////////////////////////////////////
-// constants for ipc & synchronization
+// constants for physical output
 ////////////////////////////////////////
-#define SHMKEY1	(key_t)0x10
-#define SHMKEY2	(key_t)0x15
-#define SEMKEY	(key_t)0x20
-#define NUMSEM	2
-#define IPCPERM	0600		// can read and write using shared memory
-#define IPCFLAG	IPC_CREAT | IPC_EXCL
-
-////////////////////////////////////////
-// constants for amending gps value
-////////////////////////////////////////
-#define ENTRY	8		// number of gps value entries for amending value. 
+#define LED_RED		4
+#define LED_GREEN	5
 
 ////////////////////////////////////////
 // sturctures 
@@ -67,19 +59,10 @@ typedef struct gpsValue {
 	char lonAxis;		// E(East) or W(West)
 	float speed;
 } GPSValue;
-typedef union Semun {
-	int val;
-	struct semid_ds *buf;
-	ushort *array;
-} semun;
-
-struct sembuf p1 = {0, -1, 0}, p2 = {1, -1, 0};
-struct sembuf v1 = {0,  1, 0}, v2 = {1,  1, 0};
 
 ////////////////////////////////////////
 // static variables 
 ////////////////////////////////////////
-static int shmid1, shmid2, semid;
 static char gpsProtocol[] = "$GPR";
 
 #endif
