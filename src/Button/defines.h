@@ -11,10 +11,14 @@
 #define __DEFINES_H__
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <wiringPi.h>
 
 ////////////////////////////////////////
 // constants for getting button value
 ////////////////////////////////////////
-#define BUTTON	11
-#define DELAY	500
+#define BUTTON		11
+#define DELAY		500
+#define LED_YELLOW	1
+
+#endif
