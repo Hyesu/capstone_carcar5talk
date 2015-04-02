@@ -1,37 +1,55 @@
-"""
-import bluetooth
+import os
+from bluetooth import *
 
-name="bluetooth_server"
-target_name="target_name"
+server_sock = BluetoothSocket(RFCOMM)
+server_sock.bind(("", PORT_ANY))
+server_sock.listen(1)
+
+port = server_sock.getsockname()[1]
+
 uuid="00001101-0000-1000-8000-00805f9b34fb"
 
-def runServer():
-	serverSocket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-	port = bluetooth.PORT_ANY
-	serverSocket.bind(("", port))
-	
-	print "Listening for connections on port: ", port
+advertise_service(
+	server_sock, "Raspberry Pi",
+	service_id = uuid,
+	service_classes = [ uuid, SERIAL_PORT_CLASS ],
+	profiles = [ SERIAL_PORT_PROFILE ],
+)
 
-	serverSocket.Listen(1)
-	port = serverSocket.getsockname()[1]
+print "Waiting for connection on RFCOMM channel %d" % port
 
-	advertise_service( server_sock, "Sample Server",
-			service_id = uuid,
-			service_class = [ uuid, bluetooth.SERIAL_PORT_CLASS ],
-			profiles = [ bluetooth.SERIAL_PORT_PROFILE ]
-	)
+client_sock, client_info = server_sock.accept()
 
-	inputSocket, address = serverSocket.accept()
-	
-	print "Success to connection with ", address
-
-	data = inputSocket.recv("1024")
-	print "received [%s] \n" % data
-	inputSocket.close()
-	serverSocket.close()
-
-runServer()
-"""
+print "Accepted connection from ", client_info
 
 
+client_sock.send("Hello World")
 
+try:
+	while True:
+		data = client_sock.recv(1024)
+		if len(data) == 0: break
+		print "[Android] %s" % data
+
+		#message = input()
+		client_sock.send("hello world")		
+
+		"""
+		if not message: break
+
+		if len(message) == 0:
+			break
+		else:
+
+		print "Raspberry Pi: %s" % message
+		"""
+		
+except IOError:
+	pass
+
+print "Disconnected."
+
+client_sock.close()
+server_sock.close()
+
+print "Server is closed."
