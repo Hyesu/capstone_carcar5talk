@@ -7,6 +7,7 @@ class Bluetooth:
         def __init__(self):
                 os.system("sudo /etc/init.d/bluetooth restart")
 		self.f = open("case01.normal.bin", "rb")
+		#self.f = open("input.txt", "r")
                 self.uuid = "00001101-0000-1000-8000-00805f9b34fb"
                 self.server_sock = BluetoothSocket(RFCOMM)
 
@@ -30,23 +31,23 @@ class Bluetooth:
                         profiles = [ SERIAL_PORT_PROFILE ],
                 )
                 self.client_sock, client_info = self.server_sock.accept()
-                #print "Accepted connection from ", client_info[0]
+                print "Accepted connection from ", client_info[0]
 
         def process(self):
                 try:
+			byte = self.f.read(30)
+			data = byte.decode('utf-8')
+			print(data)
+			self.client_sock.send(data)
+
                         while True:
-                                #message = raw_input()
+				time.sleep(1)
 
-				time.sleep(4)
-				data = self.f.read()
+				byte = self.f.read(35)
+				data = byte.decode('utf-8')
+				if len(data) == 0: break
+				print(data)
 	                        self.client_sock.send(data)
-
-
-                                """
-                                data = self.client_sock.recv(1024)
-                                if len(data) == 0: break
-                                print "[Android] %s" % data
-                                """
                 except IOError:
                         pass
                 print "Disconnected."
