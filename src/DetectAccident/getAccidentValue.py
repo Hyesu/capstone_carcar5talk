@@ -20,7 +20,7 @@ Z_CHANNEL = 2
 LED_YELLOW = 18
 BUTTON = 7
 
-DELAY = 1
+DELAY = 0.5
 
 COEFF = [0.001861, 0.004444, 0.007667]
 CONST = [1.65, 1.65, 2.31]
@@ -67,9 +67,13 @@ def getValue(data, axis):
 	return value
 
 def LEDThread():
-	GPIO.output(LED_YELLOW, True)
-	time.sleep(DELAY)
-	GPIO.output(LED_YELLOW, False)
+	numBlink = 5
+	for i in range(0, numBlink):
+		GPIO.output(LED_YELLOW, True)
+		time.sleep(DELAY)
+		GPIO.output(LED_YELLOW, False)
+		time.sleep(DELAY)
+		i = i + 1
 
 def isCollision(rVector, mVector):
 	aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
