@@ -9,7 +9,7 @@ class EchoHandler (DatagramRequestHandler):
 		message = self.rfile.read()
 		if message == "quit":
 			return
-		print "Client sent : ", message
+		print "Vehicle sent::: ", message
 		self.wfile.write(message)
 if len(argv) !=2:
 	print __doc__ % argv[0]

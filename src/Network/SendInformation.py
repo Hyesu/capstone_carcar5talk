@@ -2,6 +2,7 @@
 "USEAGE: %s <receiverIp> <receiverPort>"
 from socket import * # import *, but we'll avoid name conflict
 from sys import argv, exit
+import time
 
 if len(argv) != 3:
 	print __doc__ % argv[0]
@@ -9,19 +10,17 @@ if len(argv) != 3:
 
 sock = socket(AF_INET, SOCK_DGRAM)
 
+velocity = 60
+lat = 36.54323
+long = 127.3572
 while 1:
-	messout = raw_input("message to send : ")
+	messout = "Velocity : "+str(velocity)+"km/h"+" GPS : ("+str(lat)+","+str(long)+")"
+	
+	velocity += 1
+	lat += 0.4533
+	long += 0.3257
 	sock.sendto(messout, (argv[1], int(argv[2])))
-	messin, server = sock.recvfrom(255)
-
-	if messin == "quit":
-		break
-
-	if messin != messout:
-		print "Failed to receive idential message"
-		break
-	else:
-		print "Received:", messin
+	time.sleep(0.7)
 
 sock.close()
 
