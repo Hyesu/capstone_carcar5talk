@@ -6,8 +6,7 @@ from bluetooth import *
 class Bluetooth:
         def __init__(self):
                 os.system("sudo /etc/init.d/bluetooth restart")
-		self.f = open("case01.normal.bin", "rb")
-		#self.f = open("input.txt", "r")
+		self.f = open("case01.normal.bin", "r")
                 self.uuid = "00001101-0000-1000-8000-00805f9b34fb"
                 self.server_sock = BluetoothSocket(RFCOMM)
 
@@ -34,20 +33,63 @@ class Bluetooth:
                 print "Accepted connection from ", client_info[0]
 
         def process(self):
-                try:
-			byte = self.f.read(30)
-			data = byte.decode('utf-8')
-			print(data)
-			self.client_sock.send(data)
+                try:	
+			time.sleep(1)
 
+			byte = self.f.read(1)
+			data = ord(byte)
+			print "Flag: %d" % (data)
+			data = byte.decode('utf-8')
+			self.client_sock.send(data)	# Flag
+
+			time.sleep(2)
+
+			byte = self.f.read(28)
+			data = byte.decode('utf-8')
+			print "GPS, Speed: %s" % (data)
+			self.client_sock.send(data)	# GPS, Speed
+			
+			time.sleep(2)
+
+			byte = self.f.read(1)
+			data = ord(byte)
+			print "# of Cars: %d" % (data)
+			data = byte.decode('utf-8')
+			self.client_sock.send(data)	# Num_cars
+
+			time.sleep(2)
+
+			i = 0
+			while i < 4:	
+				byte = self.f.read(6)
+				data = byte.decode('utf-8')
+				print "ID(MAC addr): %s" % (data)
+				self.client_sock.send(data)	# ID
+				
+				byte = self.f.read(1)
+				data = ord(byte)
+				print "Flag: %d" % (data)
+				data = byte.decode('utf-8')
+				self.client_sock.send(data)	# Flag
+
+				byte = self.f.read(28)
+				data = byte.decode('utf-8')
+				print "GPS, Speed: %s" % (data)
+				self.client_sock.send(data)	# GPS, Speed
+
+				i += 1
+				time.sleep(2)
+
+			"""
                         while True:
-				time.sleep(1)
+				time.sleep(3)
 
 				byte = self.f.read(35)
 				data = byte.decode('utf-8')
 				if len(data) == 0: break
 				print(data)
 	                        self.client_sock.send(data)
+			"""
                 except IOError:
                         pass
                 print "Disconnected."
