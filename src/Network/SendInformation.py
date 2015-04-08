@@ -9,6 +9,7 @@ if len(argv) != 3:
 	exit(0)
 
 sock = socket(AF_INET, SOCK_DGRAM)
+sock.setsockopt(SOL_SOCKET,SO_BROADCAST,1)
 
 velocity = 60
 lat = 36.54323
