@@ -39,23 +39,23 @@ class Bluetooth:
 			byte = self.f.read(1)
 			data = ord(byte)
 			print "Flag: %d" % (data)
-			data = byte.decode('utf-8')
-			self.client_sock.send(data)	# Flag
+			#data = byte.decode('utf-8')
+			self.client_sock.send(byte)	# Flag
 
 			time.sleep(2)
 
 			byte = self.f.read(28)
 			data = byte.decode('utf-8')
 			print "GPS, Speed: %s" % (data)
-			self.client_sock.send(data)	# GPS, Speed
+			self.client_sock.send(byte)	# GPS, Speed
 			
 			time.sleep(2)
 
 			byte = self.f.read(1)
 			data = ord(byte)
 			print "# of Cars: %d" % (data)
-			data = byte.decode('utf-8')
-			self.client_sock.send(data)	# Num_cars
+			#data = byte.decode('utf-8')
+			self.client_sock.send(byte)	# Num_cars
 
 			time.sleep(2)
 
@@ -64,18 +64,18 @@ class Bluetooth:
 				byte = self.f.read(6)
 				data = byte.decode('utf-8')
 				print "ID(MAC addr): %s" % (data)
-				self.client_sock.send(data)	# ID
+				self.client_sock.send(byte)	# ID
 				
 				byte = self.f.read(1)
 				data = ord(byte)
 				print "Flag: %d" % (data)
-				data = byte.decode('utf-8')
-				self.client_sock.send(data)	# Flag
+				#data = byte.decode('utf-8')
+				self.client_sock.send(byte)	# Flag
 
 				byte = self.f.read(28)
 				data = byte.decode('utf-8')
 				print "GPS, Speed: %s" % (data)
-				self.client_sock.send(data)	# GPS, Speed
+				self.client_sock.send(byte)	# GPS, Speed
 
 				i += 1
 				time.sleep(2)
