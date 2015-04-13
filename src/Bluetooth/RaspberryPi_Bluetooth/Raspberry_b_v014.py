@@ -32,55 +32,32 @@ class Bluetooth:
                 self.client_sock, client_info = self.server_sock.accept()
                 print "Accepted connection from ", client_info[0]
 
+	def send(self, size):
+		byte = self.f.read(size)
+		self.client_sock.send(byte)
+
         def process(self):
-                try:	
+                try:
 			time.sleep(1)
-
-			byte = self.f.read(1)
-			data = ord(byte)
-			print "Flag: %d" % (data)
-			#data = byte.decode('utf-8')
-			self.client_sock.send(byte)	# Flag
-
-			time.sleep(2)
-
-			byte = self.f.read(28)
-			data = byte.decode('utf-8')
-			print "GPS, Speed: %s" % (data)
-			self.client_sock.send(byte)	# GPS, Speed
+			self.send(1)		# Flag
 			
 			time.sleep(2)
-
-			byte = self.f.read(1)
-			data = ord(byte)
-			print "# of Cars: %d" % (data)
-			#data = byte.decode('utf-8')
-			self.client_sock.send(byte)	# Num_cars
+			self.send(28)		# GPS, Speed
 
 			time.sleep(2)
+			self.send(1)		# Num_cars
 
+			time.sleep(2)
 			i = 0
-			while i < 4:	
-				byte = self.f.read(6)
-				data = byte.decode('utf-8')
-				print "ID(MAC addr): %s" % (data)
-				self.client_sock.send(byte)	# ID
-				
-				byte = self.f.read(1)
-				data = ord(byte)
-				print "Flag: %d" % (data)
-				#data = byte.decode('utf-8')
-				self.client_sock.send(byte)	# Flag
-
-				byte = self.f.read(28)
-				data = byte.decode('utf-8')
-				print "GPS, Speed: %s" % (data)
-				self.client_sock.send(byte)	# GPS, Speed
+			while i < 4:
+				self.send(6)	# ID
+				self.send(1)	# Flag
+				self.send(28)	# GPS, Speed
 
 				i += 1
 				time.sleep(2)
-
-			"""
+			
+			"""	
                         while True:
 				time.sleep(3)
 
