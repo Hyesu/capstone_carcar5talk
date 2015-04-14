@@ -6,7 +6,7 @@ from bluetooth import *
 class Bluetooth:
         def __init__(self):
                 os.system("sudo /etc/init.d/bluetooth restart")
-		self.f = open("case01.normal.bin", "rb")
+		self.f = open("case01.normal.bin", "r")
                 self.uuid = "00001101-0000-1000-8000-00805f9b34fb"
                 self.server_sock = BluetoothSocket(RFCOMM)
 
@@ -30,23 +30,43 @@ class Bluetooth:
                         profiles = [ SERIAL_PORT_PROFILE ],
                 )
                 self.client_sock, client_info = self.server_sock.accept()
-                #print "Accepted connection from ", client_info[0]
+                print "Accepted connection from ", client_info[0]
+
+	def send(self, size):
+		byte = self.f.read(size)
+		self.client_sock.send(byte)
 
         def process(self):
                 try:
+			time.sleep(1)
+			self.send(1)		# Flag
+			
+			time.sleep(2)
+			self.send(28)		# GPS, Speed
+
+			time.sleep(2)
+			self.send(1)		# Num_cars
+
+			time.sleep(2)
+			i = 0
+			while i < 4:
+				self.send(6)	# ID
+				self.send(1)	# Flag
+				self.send(28)	# GPS, Speed
+
+				i += 1
+				time.sleep(2)
+			
+			"""	
                         while True:
-                                #message = raw_input()
+				time.sleep(3)
 
-				time.sleep(4)
-				data = self.f.read()
+				byte = self.f.read(35)
+				data = byte.decode('utf-8')
+				if len(data) == 0: break
+				print(data)
 	                        self.client_sock.send(data)
-
-
-                                """
-                                data = self.client_sock.recv(1024)
-                                if len(data) == 0: break
-                                print "[Android] %s" % data
-                                """
+			"""
                 except IOError:
                         pass
                 print "Disconnected."

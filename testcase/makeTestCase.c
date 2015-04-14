@@ -45,10 +45,13 @@ int main(int argc, char** argv) {
 
 	for(i=0; i<numCar; i++) {
 		int flag;
+		int j;
 
 		// get ID of other cars
 		prot[idx] = (char)i;
 		idx++;
+
+		for(j=0; j<5; j++) prot[idx++] = (char)0;
 
 		// get flag of other cars
 		scanf("%d", &flag);
