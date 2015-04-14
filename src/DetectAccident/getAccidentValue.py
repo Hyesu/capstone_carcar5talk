@@ -80,7 +80,7 @@ def isCollision(rVector, mVector):
 	aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
 	aCrash = math.sqrt(aCrash)
 	
-	if aCrash >= -COLLISION_THR and aCrash <= COLLISION_THR:
+	if aCrash <= COLLISION_THR:
 		return False
 	else:
 		try:
