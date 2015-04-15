@@ -24,8 +24,6 @@ public class CarView extends SurfaceView implements Callback {
 	private static MyCar mMyCar; 			// 사용자 차량
 	private static OtherCars mOtherCars;	// 주위 차량
 	private static Background background;	// 배경
-
-	Random random = new Random();
 	
 	// 테스트용 변수
 	public int thread_i = 0;
@@ -36,7 +34,9 @@ public class CarView extends SurfaceView implements Callback {
 	// 주위에 있는 차량 출력시 사용됐다는걸 표시
 	boolean[] otherCarsBoolean = new boolean[5];
 	boolean otherCarsStart = false;
-
+	
+	
+	
 	public CarView(Context context) {
 		super(context);
 
@@ -66,19 +66,14 @@ public class CarView extends SurfaceView implements Callback {
 			e.printStackTrace();
 		}
 
-		for (int i = 0; i < 5; i++) {
-			int randomInt = random.nextInt(deviceWidth - mOtherCars.posX);
-
-			otherCarsX[i] = randomInt;
-			otherCarsBoolean[i] = false;
-			otherCarsY[i] = -mOtherCars.posY;
-
-		}
+		otherCarsStart = true;
+		otherCarsX[0] = deviceWidth / 6;
+		otherCarsY[0] = deviceWidth / 2;
 	}
 
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+		
 	}
 
 	@Override
@@ -88,17 +83,32 @@ public class CarView extends SurfaceView implements Callback {
 	}
 
 	@Override
-	public void draw(Canvas canvas) {// 벌, 뱀이 출력된다고 알리는문구 출력
+	public void draw(Canvas canvas) {// 주위 차량이 출력된다고 알리는 문구 출력
 		super.draw(canvas);
 
 		Paint paint = new Paint();
 		paint.setColor(Color.GRAY);
-		paint.setTextSize(70);
-
-		if (otherCarsStart) // 각 boolean이 true가 되면 출력
-			canvas.drawText("Other cars detected.", 100, 180, paint);
+		paint.setTextSize(30);
+		
+		
+		
+		if (otherCarsBoolean[0]) // 각 boolean이 true가 되면 출력
+			canvas.drawText("Other cars detected.", 10, 10, paint);
 	}
 
+	
+	// 배경 이미지 출력
+	public void BackgroundDraw(Canvas canvas){
+		canvas.drawBitmap(background.background, 0, 0, null);
+	}
+	
+	
+	public void MyCarDraw(Canvas canvas) {
+		canvas.drawBitmap(mMyCar.myCar, deviceWidth / 2, deviceHeight / 2, null);
+	}
+	
+	
+	
 	/** CarThread class */
 	class CarThread extends Thread {
 		boolean canRun = true;
@@ -110,40 +120,15 @@ public class CarView extends SurfaceView implements Callback {
 
 		/***************** 주위 차량 이미 출력 **********************/
 		public void OtherCarsDraw(Canvas canvas) {
-			int a = random.nextInt(100);
-			switch (a) {
-			case 0:
-				otherCarsBoolean[0] = true; // true로 변하면 출력시작
-				break;
-			case 1:
-				otherCarsBoolean[1] = true;
-				break;
-			case 2:
-				otherCarsBoolean[2] = true;
-				break;
-			case 3:
-				otherCarsBoolean[3] = true;
-				break;
-			case 4:
-				otherCarsBoolean[4] = true;
-				break;
-			}
+			// 다른 차량 출력조건 만족시 출력
+			if (otherCarsY[0] < deviceHeight)
+				canvas.drawBitmap(mOtherCars.cars, otherCarsX[0], otherCarsY[0], null);
 
-			for (int i = 0; i < 5; i++) {
-				// 다른 차량 출력조건 만족시 출력
-				if (otherCarsY[i] < deviceHeight && otherCarsBoolean[i])
-					canvas.drawBitmap(mOtherCars.cars, otherCarsX[i],
-							otherCarsY[i], null);
-
-				// 화면 아래로 내려가면 주위 차량 사라짐
-				if (otherCarsY[i] > deviceHeight) {
-					int randomInt = random.nextInt(deviceWidth
-							- mOtherCars.posY);
-					otherCarsX[i] = randomInt; // x좌표 재설정
-
-					otherCarsY[i] = -mOtherCars.posY; 	// 시작위치초기화
-					otherCarsBoolean[i] = false; 		// 출력안되게 설정
-				}
+			// 화면 아래로 내려가면 주위 차량 사라짐
+			if (otherCarsY[0] > deviceHeight) {
+				otherCarsY[0] = -mOtherCars.posY; 	// 시작위치초기화
+				otherCarsBoolean[0] = false; 		// 출력안되게 설정
+				otherCarsStart = false;
 			}
 		}
 
@@ -162,10 +147,10 @@ public class CarView extends SurfaceView implements Callback {
 		public void run() {
 			Object viewLock = new Object(); // 동기화용
 			Canvas canvas = null; // canvas 만들기
-
+			
 			while (canRun) {
 				canvas = mHolder.lockCanvas(); // canvas잠그고 버퍼 할당
-
+				
 				// null체크를 안하면 destroy로 canRun이 false가 될 때 단한번 실행되는순간
 				// canvas가 제대로 생성되지않아 nullpointer익셉션 발생
 				if (canvas != null) {
@@ -175,8 +160,13 @@ public class CarView extends SurfaceView implements Callback {
 								/** 주위 차량 출력 구문 */
 								Log.i("Thread", thread_i++ + " Thread is running.");
 								
+								BackgroundDraw(canvas);
+								MyCarDraw(canvas);
 								OtherCarsDraw(canvas);
 								/** 주위 차량 출력 끝 */
+								
+								//otherCarsX[0]++;
+								otherCarsY[0]++;
 
 								// sleep(25); //속도 느리게 하려면 조절
 
