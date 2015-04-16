@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 public class OtherCars {
 	public int posX, posY; // 가로, 세로
 	public Bitmap cars;
+	public boolean isDetected;
 	
 	
 	public OtherCars(int x, int y) {
@@ -13,8 +14,7 @@ public class OtherCars {
 		this.posY = y;
 
 		cars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car2);
-		//cars = resizeBitmapImage(cars, 100);
-		Bitmap.createScaledBitmap(cars, this.posX, this.posY, false);
+		cars = Bitmap.createScaledBitmap(cars, this.posX, this.posY, false);
 	}
 
 

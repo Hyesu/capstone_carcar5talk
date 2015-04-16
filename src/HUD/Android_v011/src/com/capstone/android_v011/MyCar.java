@@ -13,6 +13,6 @@ public class MyCar {
 		this.posY = y;
 		
 		myCar = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car1);
-		Bitmap.createScaledBitmap(myCar, posX, posY, false);
+		myCar = Bitmap.createScaledBitmap(myCar, posX, posY, false);
 	}
 }
