@@ -1,7 +1,5 @@
 package com.capstone.android_v011;
 
-import java.util.Random;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -22,23 +19,16 @@ public class CarView extends SurfaceView implements Callback {
 	public static int deviceWidth, deviceHeight; // 장비의 가로,세로길이
 
 	private static MyCar mMyCar; 			// 사용자 차량
-	private static OtherCars mOtherCars;	// 주위 차량
-	private static Background background;	// 배경
-	
-	// 테스트용 변수
-	public int thread_i = 0;
+	private static OtherCars[] mOtherCars;	// 주위 차량
+	private static Background background; 	// 배경
 
-	int[] otherCarsX = new int[5];
-	int[] otherCarsY = new int[5];
+	private int numOtherCar;
 
-	// 주위에 있는 차량 출력시 사용됐다는걸 표시
-	boolean[] otherCarsBoolean = new boolean[5];
-	boolean otherCarsStart = false;
-	
-	
-	
-	public CarView(Context context) {
+	public CarView(Context context, int numCar) {
 		super(context);
+
+		numOtherCar = numCar;
+		mOtherCars = new OtherCars[numOtherCar];
 
 		// 생성시 서피스홀더와 컨텍스트 모두 생성. 그리기부분은 내부클래스로 이것들을 바로 가져다씀
 		mHolder = getHolder();
@@ -56,9 +46,11 @@ public class CarView extends SurfaceView implements Callback {
 		deviceWidth = getWidth();
 		deviceHeight = getHeight();
 
-		mMyCar = new MyCar(deviceWidth / 2, deviceHeight / 2); // 사용자의 자동차 위치
-		mOtherCars = new OtherCars(100, 100); // 주위 차량 생성
-		background = new Background(); // 배경 생성
+		mMyCar = new MyCar(150, 150); 				// 사용자의 자동차
+		mOtherCars[0] = new OtherCars(150, 150); 	// 주위 차량 생성
+		mOtherCars[1] = new OtherCars(150, 150);
+		
+		background = new Background(); 				// 배경 생성
 
 		try {
 			mThread.start();
@@ -66,14 +58,16 @@ public class CarView extends SurfaceView implements Callback {
 			e.printStackTrace();
 		}
 
-		otherCarsStart = true;
-		otherCarsX[0] = deviceWidth / 6;
-		otherCarsY[0] = deviceWidth / 2;
+		mOtherCars[0].posX = 50;
+		mOtherCars[0].posY = deviceHeight / 2;
+		
+		mOtherCars[1].posX = deviceWidth - 200;
+		mOtherCars[1].posY = deviceHeight / 4;
 	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		
+
 	}
 
 	@Override
@@ -89,26 +83,51 @@ public class CarView extends SurfaceView implements Callback {
 		Paint paint = new Paint();
 		paint.setColor(Color.GRAY);
 		paint.setTextSize(30);
+
+		if (mOtherCars[0].isDetected)
+			canvas.drawText("Other cars detected.", 10, 20, paint);
+		else
+			canvas.drawText("Nothing is detected.", 10, 20, paint);
 		
 		
-		
-		if (otherCarsBoolean[0]) // 각 boolean이 true가 되면 출력
-			canvas.drawText("Other cars detected.", 10, 10, paint);
 	}
 
-	
 	// 배경 이미지 출력
-	public void BackgroundDraw(Canvas canvas){
+	public void BackgroundDraw(Canvas canvas) {
 		canvas.drawBitmap(background.background, 0, 0, null);
 	}
-	
-	
+
 	public void MyCarDraw(Canvas canvas) {
-		canvas.drawBitmap(mMyCar.myCar, deviceWidth / 2, deviceHeight / 2, null);
+		canvas.drawBitmap(mMyCar.myCar, deviceWidth / 3 + 42, deviceHeight / 2, null);
 	}
-	
-	
-	
+
+	public void OtherCarsDraw(Canvas canvas) {
+		// 다른 차량 출력조건 만족시 출력
+		if (mOtherCars[0].posY < deviceHeight) {
+			canvas.drawBitmap(mOtherCars[0].cars, mOtherCars[0].posX, mOtherCars[0].posY, null);
+			mOtherCars[0].isDetected = true;
+		}
+
+		// 화면 위로 올라가면 주위 차량 사라짐
+		if (mOtherCars[0].posY < 0) {
+			mOtherCars[0].posY = deviceHeight; // 시작 위치 초기화
+			mOtherCars[0].isDetected = false; // 출력 안되게 설정
+		}
+		
+		
+		// 다른 차량 출력조건 만족시 출력
+		if (mOtherCars[1].posY < deviceHeight) {
+			canvas.drawBitmap(mOtherCars[1].cars, mOtherCars[1].posX, mOtherCars[1].posY, null);
+			mOtherCars[1].isDetected = true;
+		}
+
+		// 화면 위로 올라가면 주위 차량 사라짐
+		if (mOtherCars[1].posY < 0) {
+			mOtherCars[1].posY = deviceHeight; // 시작 위치 초기화
+			mOtherCars[1].isDetected = false; // 출력 안되게 설정
+		}		
+	}
+
 	/** CarThread class */
 	class CarThread extends Thread {
 		boolean canRun = true;
@@ -118,24 +137,8 @@ public class CarView extends SurfaceView implements Callback {
 
 		}
 
-		/***************** 주위 차량 이미 출력 **********************/
-		public void OtherCarsDraw(Canvas canvas) {
-			// 다른 차량 출력조건 만족시 출력
-			if (otherCarsY[0] < deviceHeight)
-				canvas.drawBitmap(mOtherCars.cars, otherCarsX[0], otherCarsY[0], null);
-
-			// 화면 아래로 내려가면 주위 차량 사라짐
-			if (otherCarsY[0] > deviceHeight) {
-				otherCarsY[0] = -mOtherCars.posY; 	// 시작위치초기화
-				otherCarsBoolean[0] = false; 		// 출력안되게 설정
-				otherCarsStart = false;
-			}
-		}
-
-		/***************** 주위 차량 출력끝 **********************/
-
-		// 이지미 출력시 출력된다는 구문을 띄우기 위한 핸들러
-		// 핸들러 없이는 외부쓰레드라 invalidate가 적용이 안됨
+		// 이미지 출력시 출력됐다는 구문을 띄우기 위한 핸들러
+		// 핸들러가 없으면 외부쓰레드라 invalidate 적용 안됨
 		final Handler handler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
@@ -147,29 +150,23 @@ public class CarView extends SurfaceView implements Callback {
 		public void run() {
 			Object viewLock = new Object(); // 동기화용
 			Canvas canvas = null; // canvas 만들기
-			
+
 			while (canRun) {
 				canvas = mHolder.lockCanvas(); // canvas잠그고 버퍼 할당
-				
+
 				// null체크를 안하면 destroy로 canRun이 false가 될 때 단한번 실행되는순간
-				// canvas가 제대로 생성되지않아 nullpointer익셉션 발생
+				// canvas가 제대로 생성되지않아 널포인트 익셉션 발생
 				if (canvas != null) {
 					try {
 						synchronized (viewLock) { // 동기화 유지
 							try {
-								/** 주위 차량 출력 구문 */
-								Log.i("Thread", thread_i++ + " Thread is running.");
-								
-								BackgroundDraw(canvas);
-								MyCarDraw(canvas);
-								OtherCarsDraw(canvas);
-								/** 주위 차량 출력 끝 */
-								
-								//otherCarsX[0]++;
-								otherCarsY[0]++;
+								BackgroundDraw(canvas); 	// 배경 출력
+								MyCarDraw(canvas); 		// 사용자 차량 출력
+								OtherCarsDraw(canvas); 	// 주위 차량 출력
 
-								// sleep(25); //속도 느리게 하려면 조절
-
+								mOtherCars[0].posY--;
+								mOtherCars[1].posY -= 3;
+								
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
