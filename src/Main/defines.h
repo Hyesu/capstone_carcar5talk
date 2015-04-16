@@ -12,28 +12,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/stat.h>
-#include <mqueue.h>
 #include <pthread.h>
+#include <mqueue.h>
+#include <sys/sem.h>
 #include <errno.h>
 
 #define MAC_FILE	"/sys/class/net/eth0/address"
 #define LEN_MAC		18
-
-#define MSGQ_NAME	"CarTalk_MsgQ"
-#define MSGQ_PERM	0644
-#define MAX_MSG		1024
-#define MSG_SIZE	4096
-
-#define SEM_KEY		(key_t) 0x81
-#define SEM_PERM	0600
-#define SEM_FLAG	IPC_CREAT | IPC_EXCL
-#define NUM_SEM		4
 
 #define NUM_THREAD	4			// for 4 modules: GPS, DetectAccident, Bluetooth, Network 
 #define THREAD_GPS	0
@@ -45,12 +31,6 @@
 #define LEN_GPS		22
 #define LEN_SPEED	6
 
-
-typedef union _semun {
-	int val;
-	struct semid_ds* buf;
-	ushort* array;
-} semun;
 typedef struct carInfo {
 	char id[LEN_ID];
 	char flag; // for one byte
@@ -59,20 +39,21 @@ typedef struct carInfo {
 	char dirVector[LEN_GPS + 1];
 } CarInfo;
 
-struct sembuf p_GPS  = {THREAD_GPS,  -1, 0}; 
-struct sembuf p_Acci = {THREAD_ACCI, -1, 0};
-struct sembuf p_Blue = {THREAD_BLUE, -1, 0};
-struct sembuf p_Net  = {THREAD_NET,  -1, 0};
-
-struct sembuf v_GPS  = {THREAD_GPS,  1, 0}; 
-struct sembuf v_Acci = {THREAD_ACCI, 1, 0};
-struct sembuf v_Blue = {THREAD_BLUE, 1, 0};
-struct sembuf v_Net  = {THREAD_NET,  1, 0};
-
 static pthread_t thrid[NUM_THREAD];
 static char* thrName[] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
 static CarInfo myInfo;
-static int semid;
-static mqd_t mqid;
+
+static struct sembuf p_GPS  = {THREAD_GPS,  -1, 0}; 
+static struct sembuf p_Acci = {THREAD_ACCI, -1, 0};
+static struct sembuf p_Blue = {THREAD_BLUE, -1, 0};
+static struct sembuf p_Net  = {THREAD_NET,  -1, 0};
+
+static struct sembuf v_GPS  = {THREAD_GPS,  1, 0}; 
+static struct sembuf v_Acci = {THREAD_ACCI, 1, 0};
+static struct sembuf v_Blue = {THREAD_BLUE, 1, 0};
+static struct sembuf v_Net  = {THREAD_NET,  1, 0};
+
+static int semid = 0;
+static mqd_t mqid = (mqd_t) 0;
 
 #endif

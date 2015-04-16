@@ -9,10 +9,6 @@
 **************************************************/
 #include "defines.h"
 
-int getsem();
-int getmsgq();
-int rmipc();
-
 int init();
 void* runThread(void* arg);
 
@@ -37,12 +33,12 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	rmipc();
+	rmipc(semid, mqid, NUM_THREAD);
 	return 0;
 }
 
 int init() {
-	semid = getsem();
+	semid = getsem(NUM_THREAD);
 	mqid = getmsgq();
 	if(getMACAddress() < 0) {
 		perror("get MAC Address error");
@@ -61,60 +57,11 @@ void* runThread(void* arg) {
 	} else if(pthread_equal(id, thrid[THREAD_BLUE])) {
 		if(thr_Bluetooth() < 0)		perror("Bluetooth thread error");
 	} else if(pthread_equal(id, thrid[THREAD_NET])) {
-		if(thr_Netword() < 0)		perror("Network thread error");
+		if(thr_Network() < 0)		perror("Network thread error");
 	} else {
 		perror("abnormal thread id");
 		return NULL;
 	}
-}
-
-
-int getsem() {
-	semun x;
-	int id;
-	int i;
-
-	x.val = 1;
-	if((id = semget(SEM_KEY, NUM_SEM, SEM_PERM | SEM_FLAG)) == -1) {
-		perror("semget error");
-		return -1;
-	}
-	for(i=0; i<NUM_SEM; i++) {
-		if(semctl(id, i, SETVAL, x) == -1) {
-			printf("semctl: set initial value for semaphore for %s error", thrName[i]);
-			return -1;
-		}
-	}
-	return id;
-}
-mqd_t getmsgq() {
-	mqd_t id;
-	struct mq_attr attr;
-	attr.mq_flags = O_NONBLOCK;
-	attr.mq_maxmsg = MAX_MSG;
-	attr.mq_msgsize = MSG_SIZE;
-	attr.mq_curmsgs = 0;
-	
-	if((id = mq_open(MSGQ_NAME, O_CREAT | O_RDWR, MSGQ_PERM, &attr)) < 0) {
-		perror("mq_open error");
-		return -1;
-	}
-	return id;
-}
-int rmsem() {
-	int i;
-
-	for(i=0; i<NUM_SEM; i++) {
-		if(semctl(semid, i, IPC_RMID, NULL) == -1) {
-			perror("semctl: remove semaphore error");
-			return -1;
-		}
-	}
-	if(mq_close(mqid) < 0) {
-		perror("mq_close error");
-		return -1;
-	}
-	return 0;
 }
 
 int thr_GPS() {
