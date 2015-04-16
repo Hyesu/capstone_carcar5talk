@@ -15,27 +15,20 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
-#include <sys/sem.h>
 #include <sys/stat.h>
+#include <semaphore.h>
 #include <mqueue.h>
 
-#define MSGQ_NAME	"CarTalk_MsgQ"
 #define MSGQ_PERM	0644
-#define MAX_MSG		1024
+#define MAX_MSG		10
 #define MSG_SIZE	4096
 
-#define SEM_KEY		(key_t) 0x81
 #define SEM_PERM	0600
-#define SEM_FLAG	IPC_CREAT | IPC_EXCL
+#define SEM_FLAG	O_CREAT
 
-typedef union _semun {
-	int val;
-	struct semid_ds* buf;
-	ushort* array;
-} semun;
-
-int getsem(const int numSem);
-int getmsgq();
-int rmipc(const int semid, const mqd_t mqid, const int numSem);
+sem_t* getsem(const char* semName);
+int getmsgq(const char* msgqName);
+int rmmsgq(const mqd_t mqid);
+int rmsem(const char* semName);
 
 #endif

@@ -17,9 +17,8 @@
 #include <termios.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/sem.h>
+#include <semaphore.h>
+#include <mqueue.h>
 #include <wiringPi.h>
 
 ////////////////////////////////////////
@@ -42,11 +41,21 @@
 #define LATILEN		9
 #define LONGILEN	10
 
+#define LEN_GPS		22
+#define LEN_SPEED	6
+
 ////////////////////////////////////////
 // constants for physical output
 ////////////////////////////////////////
 #define LED_RED		4
 #define LED_GREEN	5
+
+////////////////////////////////////////
+// constants for ipc
+////////////////////////////////////////
+#define SEM_NAME	"CarTalk_sem_gps"
+#define MSGQ_NAME	"CarTalk_msgq"
+#define MSG_TYPE	0
 
 ////////////////////////////////////////
 // sturctures 
@@ -64,5 +73,7 @@ typedef struct gpsValue {
 // static variables 
 ////////////////////////////////////////
 static char gpsProtocol[] = "$GPR";
+static mqd_t mqid;
+static sem_t* semid;
 
 #endif

@@ -33,13 +33,27 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	rmipc(semid, mqid, NUM_THREAD);
+	for(i=0; i<NUM_THREAD; i++) {
+		if(pthread_join(thrid[i], NULL) < 0) {
+			printf("join %s thread error", thrName[i]);
+		}
+	}
+
+	rmmsgq(MSGQ_NAME);
+	rmsem(SEM_NAME_GPS);
+	rmsem(SEM_NAME_ACCI);
+	rmsem(SEM_NAME_BLUE);
+	rmsem(SEM_NAME_NET);
 	return 0;
 }
 
 int init() {
-	semid = getsem(NUM_THREAD);
-	mqid = getmsgq();
+	int i;
+	semid_gps = getsem(SEM_NAME_GPS);
+	semid_acci = getsem(SEM_NAME_ACCI);
+	semid_blue = getsem(SEM_NAME_BLUE);
+	semid_net = getsem(SEM_NAME_NET);
+	mqid = getmsgq(MSGQ_NAME);
 	if(getMACAddress() < 0) {
 		perror("get MAC Address error");
 		return -1;
@@ -68,8 +82,8 @@ int thr_GPS() {
 	char buf[LEN_GPS+LEN_SPEED+1];
 	int priority = THREAD_GPS;
 
-	semop(semid, &p_GPS, 1);
-	while(mq_receive(mqid, buf, LEN_GPS + LEN_SPEED, &priority) > 0);
+	sem_wait(semid_gps);
+	while(mq_receive(mqid, buf, LEN_GPS + LEN_SPEED + 1, &priority) > 0);
 	if(errno == EAGAIN) {
 		char oldGPS[LEN_GPS + 1];
 		strcpy(oldGPS, myInfo.gps);
@@ -81,26 +95,17 @@ int thr_GPS() {
 
 		updateDirInfo(oldGPS);
 	}
+	sem_post(semid_gps);
 
-	semop(semid, &v_GPS, 1);
 	return 0;
 }
 int thr_DetectAccident() {
-	semop(semid, &p_Acci, 1);
-
-	semop(semid, &v_Acci, 1);	
 	return 0;
 }
 int thr_Bluetooth()  {
-	semop(semid, &p_Blue, 1);
-
-	semop(semid, &v_Blue, 1);	
 	return 0;
 }
 int thr_Network() {
-	semop(semid, &p_Net, 1);
-
-	semop(semid, &v_Net, 1);	
 	return 0;
 }
 

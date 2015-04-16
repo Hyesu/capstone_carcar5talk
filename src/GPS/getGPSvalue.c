@@ -38,6 +38,8 @@ int main(int argc, char** argv) {
 		}
 	}
 	close(gps);
+	rmmsgq(MSGQ_NAME);
+	rmsem(SEM_NAME);
 	return 0;
 }
 
@@ -58,6 +60,9 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 	wiringPiSetup();
 	pinMode(LED_RED, OUTPUT);
 	pinMode(LED_GREEN, OUTPUT);
+
+	mqid = getmsgq(MSGQ_NAME);
+	semid = getsem(SEM_NAME);
 
 	return 0;
 }
@@ -84,8 +89,9 @@ int extractGPSvalue(const unsigned char* gprmc) {
 	int i;
 
 	if(((prot = strstr(gprmc, "$GPRMC")) != NULL) && strlen(prot) >= PROTLEN) {
-printf("prot(%s)\n", prot);
 //		if(prot[GPS_VALID] == 'A') {
+//debug
+			char buf[LEN_GPS + LEN_SPEED + 1];
 			strncpy(gv.time, prot + GPS_TIME, TIMELEN);
 			gv.time[TIMELEN] = '\0';
 			
@@ -107,7 +113,17 @@ printf("prot(%s)\n", prot);
 
 			printValid(prot[GPS_VALID]);
 
-printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+			// print value for log
+			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+
+			// ipc
+			sem_wait(semid);
+			sprintf(buf, "%s%c%s%c%s", gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+			if(mq_send(mqid, buf, LEN_GPS + LEN_SPEED + 1, MSG_TYPE) < 0) {
+				perror("mq_send error");
+				return -1;
+			}	
+			sem_post(semid);
 //		}	
 		
 	}

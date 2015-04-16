@@ -15,7 +15,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <mqueue.h>
-#include <sys/sem.h>
+#include <semaphore.h>
 #include <errno.h>
 
 #define MAC_FILE	"/sys/class/net/eth0/address"
@@ -31,6 +31,12 @@
 #define LEN_GPS		22
 #define LEN_SPEED	6
 
+#define MSGQ_NAME	"CarTalk_msgq"
+#define SEM_NAME_GPS	"CarTalk_sem_gps"
+#define SEM_NAME_ACCI	"CarTalk_sem_acci"
+#define SEM_NAME_BLUE	"CarTalk_sem_blue"
+#define SEM_NAME_NET	"CarTalk_sem_net"
+
 typedef struct carInfo {
 	char id[LEN_ID];
 	char flag; // for one byte
@@ -43,17 +49,10 @@ static pthread_t thrid[NUM_THREAD];
 static char* thrName[] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
 static CarInfo myInfo;
 
-static struct sembuf p_GPS  = {THREAD_GPS,  -1, 0}; 
-static struct sembuf p_Acci = {THREAD_ACCI, -1, 0};
-static struct sembuf p_Blue = {THREAD_BLUE, -1, 0};
-static struct sembuf p_Net  = {THREAD_NET,  -1, 0};
-
-static struct sembuf v_GPS  = {THREAD_GPS,  1, 0}; 
-static struct sembuf v_Acci = {THREAD_ACCI, 1, 0};
-static struct sembuf v_Blue = {THREAD_BLUE, 1, 0};
-static struct sembuf v_Net  = {THREAD_NET,  1, 0};
-
-static int semid = 0;
+static sem_t* semid_gps = (sem_t*) 0;
+static sem_t* semid_acci = (sem_t*) 0;
+static sem_t* semid_blue = (sem_t*) 0;
+static sem_t* semid_net = (sem_t*) 0;
 static mqd_t mqid = (mqd_t) 0;
 
 #endif
