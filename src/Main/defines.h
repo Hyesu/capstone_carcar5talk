@@ -20,6 +20,10 @@
 #include <sys/stat.h>
 #include <mqueue.h>
 #include <pthread.h>
+#include <errno.h>
+
+#define MAC_FILE	"/sys/class/net/eth0/address"
+#define LEN_MAC		18
 
 #define MSGQ_NAME	"CarTalk_MsgQ"
 #define MSGQ_PERM	0644
@@ -66,7 +70,7 @@ struct sembuf v_Blue = {THREAD_BLUE, 1, 0};
 struct sembuf v_Net  = {THREAD_NET,  1, 0};
 
 static pthread_t thrid[NUM_THREAD];
-static char thrName[][] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
+static char* thrName[] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
 static CarInfo myInfo;
 static int semid;
 static mqd_t mqid;

@@ -21,6 +21,9 @@ int thr_DetectAccident();
 int thr_Bluetooth();
 int thr_Network();
 
+int updateDirInfo(const char* oldGPS);
+int getMACAddress();
+
 int main(int argc, char** argv) {
 	int i;
 
@@ -30,7 +33,7 @@ int main(int argc, char** argv) {
 	}
 	for(i=0; i<NUM_THREAD; i++) {
 		if(pthread_create(thrid + i, NULL, &runThread, NULL) < 0) {
-			perror("create %s thread error", thrName[i]);
+			printf("create %s thread error", thrName[i]);
 		}
 	}
 
@@ -41,8 +44,11 @@ int main(int argc, char** argv) {
 int init() {
 	semid = getsem();
 	mqid = getmsgq();
+	if(getMACAddress() < 0) {
+		perror("get MAC Address error");
+		return -1;
+	}
 
-	// debug: init myInfo.id from RPi's MAC address
 	return 0;
 }
 void* runThread(void* arg) {
@@ -65,7 +71,7 @@ void* runThread(void* arg) {
 
 int getsem() {
 	semun x;
-	int id
+	int id;
 	int i;
 
 	x.val = 1;
@@ -75,7 +81,7 @@ int getsem() {
 	}
 	for(i=0; i<NUM_SEM; i++) {
 		if(semctl(id, i, SETVAL, x) == -1) {
-			perror("semctl: set initial value for semaphore for %s error", thrName[i]);
+			printf("semctl: set initial value for semaphore for %s error", thrName[i]);
 			return -1;
 		}
 	}
@@ -96,9 +102,13 @@ mqd_t getmsgq() {
 	return id;
 }
 int rmsem() {
-	if(semctl(semid, IPC_RMID, NULL) == -1) {
-		perror("semctl: remove semaphore error");
-		return -1;
+	int i;
+
+	for(i=0; i<NUM_SEM; i++) {
+		if(semctl(semid, i, IPC_RMID, NULL) == -1) {
+			perror("semctl: remove semaphore error");
+			return -1;
+		}
 	}
 	if(mq_close(mqid) < 0) {
 		perror("mq_close error");
@@ -122,7 +132,7 @@ int thr_GPS() {
 		strncpy(myInfo.speed, buf + LEN_GPS, LEN_SPEED);
 		myInfo.speed[LEN_SPEED] = '\0';
 
-		// debug: calc direction & update myInfo.dirVector & update myInfo.flag 
+		updateDirInfo(oldGPS);
 	}
 
 	semop(semid, &v_GPS, 1);
@@ -145,4 +155,61 @@ int thr_Network() {
 
 	semop(semid, &v_Net, 1);	
 	return 0;
+}
+
+int updateDirInfo(const char* oldGPS) {
+	char latitude[11];
+	char longitude[11];
+
+	strncpy(latitude, myInfo.gps, 10);
+	latitude[11] = '\0';
+	strncpy(longitude, myInfo.gps + 11, 10);
+	longitude[11] = '\0';
+
+	if(!strlen(oldGPS))
+		sprintf(myInfo.dirVector, "%c%s%c%s", atof(latitude) >= 0 ? '+' : '-', latitude, atof(longitude) >= 0 ? '+' : '-', longitude);
+	else {
+		float lat, lon;
+		char oldLat[11], oldLon[11];
+
+		strncpy(oldLat, oldGPS, 10);
+		oldLat[11] = '\0';
+		strncpy(oldLon, oldGPS + 11, 10);
+		oldLon[11] = '\0';
+
+		lat = atof(latitude) - atof(oldLat);
+		lon = atof(longitude) - atof(oldLon);
+
+		sprintf(myInfo.dirVector, "%c%10.5f%c%10.4f", lat >= 0 ? '+' : '-', lat, lon >= 0 ? '+' : '-', lon);
+	}
+
+	return 0;
+}
+int getMACAddress() {
+	FILE* macFile;
+	char macAddr[LEN_MAC];
+	int i, j;
+
+	if((macFile = fopen(MAC_FILE, "r")) == NULL) {
+		perror("MAC_FILE open error");
+		return -1;
+	}
+	
+	if(fscanf(macFile, "%s", macAddr) < 0) {
+		perror("MAC_FILE read error");
+		return -1;
+	}
+
+	for(i=0, j=0; i<LEN_ID; i++) {
+		char hexa[3];
+		int hex;
+		hexa[0] = macAddr[j++];
+		hexa[1] = macAddr[j++];
+		hexa[2] = '\0', j++;
+
+		sscanf(hexa, "%x", &hex);
+		myInfo.id[i] = (char) hex;
+	}
+
+	fclose(macFile);
 }
