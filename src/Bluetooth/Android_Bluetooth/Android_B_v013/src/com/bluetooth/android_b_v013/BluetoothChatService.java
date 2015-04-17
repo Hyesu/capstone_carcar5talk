@@ -29,7 +29,7 @@ public class BluetoothChatService {
 	// Name for the SDP record when creating server socket
 	private static final String NAME_SECURE = "BluetoothChatSecure";
 
-	// Unique UUID for this application
+	// SerialPortServiceClass_UUID
 	private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
 	// Member fields
@@ -397,8 +397,7 @@ public class BluetoothChatService {
 			try {
 				mmSocket.close();
 			} catch (IOException e) {
-				Log.e(TAG, "close() of connect " + mSocketType
-						+ " socket failed", e);
+				Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
 			}
 		}
 	}
@@ -425,10 +424,7 @@ public class BluetoothChatService {
 
 			mmInStream = tmpIn;
 		}
-
 		
-		
-		@Override
 		public void run() {
 			Log.i(TAG, "BEGIN mConnectedThread");
 			byte[] buffer = new byte[4096];
@@ -440,11 +436,17 @@ public class BluetoothChatService {
 					// Read from the InputStream
 					bytes = mmInStream.read(buffer);
 
-					// Send the obtained bytes to the UI Activity
-					mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+					//if(bytes > 0) {
+						// Send the obtained bytes to the UI Activity
+						mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+					//}
+						
+					Log.i("bytes", Integer.toString(bytes));	
+						
 				} catch (IOException e) {
 					Log.e(TAG, "disconnected", e);
 					connectionLost();
+					
 					// Start the service over to restart listening mode
 					BluetoothChatService.this.start();
 					break;

@@ -1,5 +1,7 @@
 package com.bluetooth.android_b_v013;
 
+import java.io.UnsupportedEncodingException;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -187,9 +189,81 @@ public class BluetoothChat extends Activity {
 				break;
 			case MESSAGE_READ:
 				byte[] readBuf = (byte[]) msg.obj;
+				
+				try {
+					// construct a string from the valid bytes in the buffer
+					final String data = new String(readBuf, "UTF-8");
+					
+//					mConversationArrayAdapter.add(data);
+//					Log.i("readMsg", data);
+					
+					String parseData;
+					parseData = data.substring(1, 23);
+					mConversationArrayAdapter.add(parseData);
+					
+					//mConversationArrayAdapter.add("end");
+					//Toast.makeText(getApplicationContext(), parseData, Toast.LENGTH_SHORT).show();
+					Log.i("readMsg", parseData); 
+					
+//					final String flag = data.substring(0, 1);
+//					mConversationArrayAdapter.add(flag);
+//					Log.i("readMsg", flag); 
+//					
+//					// GPS
+//					final String myGps = data.substring(1, 23);
+//					mConversationArrayAdapter.add(myGps);
+//					Log.i("readMsg", myGps);
+//					
+//					// Speed
+//					final String mySpeed = data.substring(23, 29);
+//					mConversationArrayAdapter.add(mySpeed);
+//					Log.i("readMsg", mySpeed);
+//					
+//					// # of Cars
+//					final String numOfCars = data.substring(29, 30);
+//					mConversationArrayAdapter.add(numOfCars);
+//					Log.i("readMsg", numOfCars);
+					
+					// Other Cars
+//					final String otherCars = data.substring(30, 30);
+//					mConversationArrayAdapter.add(otherCars);
+//					Log.i("readMsg", otherCars);
+//					
+//					// Flag
+//					parseData = data.substring(0, 1);
+//					mConversationArrayAdapter.add(parseData);
+//					Log.i("readMsg", parseData);
+//					
+//					// GPS
+//					parseData = data.substring(1, 22);
+//					mConversationArrayAdapter.add(parseData);
+//					Log.i("readMsg", parseData);
+//					
+//					// Speed
+//					parseData = data.substring(22, 28);
+//					mConversationArrayAdapter.add(parseData);
+//					Log.i("readMsg", parseData);
+//					
+//					// # of Cars
+//					parseData = data.substring(28, 29);
+//					mConversationArrayAdapter.add(parseData);
+//					Log.i("readMsg", parseData);
+//					
+//					// Other Cars
+//					parseData = data.substring(29, msg.arg1);
+//					mConversationArrayAdapter.add(parseData);
+//					Log.i("readMsg", parseData);
+//					
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				
 				// construct a string from the valid bytes in the buffer
-				String readMessage = new String(readBuf, 0, msg.arg1);
-				mConversationArrayAdapter.add(readMessage);
+				//String readMessage = new String(readBuf, 0, msg.arg1);
+				
+				//mConversationArrayAdapter.add(readMessage);
+				//Log.i("readMsg", readMessage);
+				
 				break;
 			case MESSAGE_DEVICE_NAME:
 				// save the connected device's name
@@ -203,6 +277,8 @@ public class BluetoothChat extends Activity {
 		}
 	};
 
+	
+	
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
