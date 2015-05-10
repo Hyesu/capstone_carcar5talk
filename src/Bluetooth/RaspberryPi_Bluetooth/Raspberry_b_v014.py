@@ -1,3 +1,11 @@
+"""
+	file: Raspberry_b_v014.py
+
+	Kookmin University
+	Department of compurt science
+	20103310 Sungjung Kim 
+
+"""
 import os
 import sys
 import time
@@ -32,15 +40,39 @@ class Bluetooth:
                 self.client_sock, client_info = self.server_sock.accept()
                 print "Accepted connection from ", client_info[0]
 
-        def process(self):
-                try:
-			byte = self.f.read()
-			self.client_sock.send(byte)
 
-			# Set non-blocking - loop and poll for data
-			self.client_sock.settimeout(0)
-                except IOError:
-                        pass
+	def receive(self):
+		return self.client_sock.recv(4)		# SYN, ACK
+
+	def send(self, data):
+		return self.client_sock.send(data);
+
+        def process(self):
+		#data = self.receive()
+		#data = data.decode(encoding='UTF-8')		# byte data
+		#if data == "SYN":
+
+		#print "Sent [%s] packet." % data
+		#n = os.path.getsize("case01.normal.bin")	# get file size
+
+		#print "File size is %d." % n
+
+		#ret = self.send(bytes(n))
+		#print "Send [%d] OK" % ret
+		#print "Size [%d]" % sys.getsizeof(bytes(n))
+
+		#data = self.receive()
+		#data = data.decode(encoding='UTF-8')
+		#print "Sent [%s] packet." % data
+
+		#if data == "ACK":
+		data = self.f.read(1000)
+		ret = self.send(data)
+
+		print "Send [%d] OK" % ret
+
+		# Set non-blocking - loop and poll for data
+		self.client_sock.settimeout(0)
                 print "Disconnected."
 
 
