@@ -9,9 +9,16 @@
 **************************************************/
 #include "defines.h"
 
+//debug
+#include <errno.h>
+
 int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2);
+void finalize(int gps);
+
 int getGPSvalue(const int gps, unsigned char* gprmc);
 int extractGPSvalue(const unsigned char* gprmc);
+int sendGPSvalue(const GPSValue gv);
+
 float knot2kmhr(float knot);
 void printValid(char isValid);
 
@@ -37,9 +44,7 @@ int main(int argc, char** argv) {
 			exit(0);
 		}
 	}
-	close(gps);
-	rmmsgq(MSGQ_NAME);
-	rmsem(SEM_NAME);
+	finalize(gps);
 	return 0;
 }
 
@@ -66,6 +71,11 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 
 	return 0;
 }
+void finalize(int gps) {
+	close(gps);
+	rmmsgq(MSGQ_NAME);
+	rmsem(SEM_NAME);
+}
 int getGPSvalue(const int gps, unsigned char* gprmc) {
 	unsigned char buf[BUFSIZE];
 	int loop = GPRMC / BUFSIZE;
@@ -89,7 +99,7 @@ int extractGPSvalue(const unsigned char* gprmc) {
 	int i;
 
 	if(((prot = strstr(gprmc, "$GPRMC")) != NULL) && strlen(prot) >= PROTLEN) {
-//		if(prot[GPS_VALID] == 'A') {
+//		if(prot[GPS_VALID] == 'A') { // for getting only valid value
 			char buf[LEN_GPS + LEN_SPEED + 1];
 
 			strncpy(gv.time, prot + GPS_TIME, TIMELEN);
@@ -114,26 +124,54 @@ int extractGPSvalue(const unsigned char* gprmc) {
 			printValid(prot[GPS_VALID]);
 
 			// print value for log
-			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
+				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
-//debug
-printf("GPS: before sprintf\n");
-			sprintf(buf, "%010.5f%c%010.4f%c%06.2f", gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
-printf("GPS: buf(%s)\n", buf);
-
-			// ipc
-printf("GPS: before acquire lock\n");
-			sem_wait(semid);
-printf("GPS: acquire lock\n");
-			if(mq_send(mqid, buf, LEN_GPS + LEN_SPEED + 1, MSG_TYPE) < 0) {
-				perror("mq_send error");
+			if(sendGPSvalue(gv) < 0) {
+				perror("sendGPSvalue");
 				return -1;
-			}	
-			sem_post(semid);
-printf("GPS: release lock\n");
+			}
 //		}	
 		
 	}
+	return 0;
+}
+int sendGPSvalue(const GPSValue gv) {
+	char buf[LEN_GPS+LEN_SPEED+1];
+
+//debug
+int temp_semValue;
+int priority = MSG_TYPE;
+char msg[1024];
+int nread;
+
+	// send message to queue
+	sprintf(buf, "%010.5f%c%010.4f%c%06.2f", 
+		gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+
+	sem_wait(semid);
+//debug
+printf("GPS::sendGPSvalue : in critical section ********************\n");
+printf("GPS::sendGPSvalue : buf(%s)\n", buf);
+
+	if(mq_send(mqid, buf, strlen(buf), MSG_TYPE) < 0) {
+		perror("mq_send error");
+		return -1;
+	}	
+printf("GPS::sendGPSvalue : send err(%s)\n", strerror(errno));
+
+nread = mq_receive(mqid, msg, 1024, &priority);
+printf("GPS::sendGPSvalue : receive err(%s)\n", strerror(errno));
+
+printf("GPS::sendGPSvalue : nread(%d)\n", nread);
+printf("GPS::sendGPSvalue : priority(%d)\n", priority);
+msg[nread] = '\0';
+printf("GPS::sendGPSvalue : msg(%s)\n", msg);
+
+
+printf("GPS::sendGPSvalue : end critical section ********************\n");
+	sem_post(semid);
+
 	return 0;
 }
 float knot2kmhr(float knot) {

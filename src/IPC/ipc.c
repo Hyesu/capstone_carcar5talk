@@ -11,8 +11,17 @@
 
 sem_t* getsem(const char* semName) {
 	sem_t* id;
-	if((id = sem_open(semName, SEM_FLAG, SEM_PERM, 1)) == NULL) {
+
+//debug
+sem_unlink(semName);
+
+	if((id = sem_open(semName, SEM_FLAG | O_EXCL, SEM_PERM, 1)) == NULL) {
 		perror("sem_open error");
+		return (sem_t*) SEM_FAILED;
+	}
+
+	if(sem_init(id, 1, 1) < 0) {
+		perror("sem_init");
 		return (sem_t*) SEM_FAILED;
 	}
 	return id;
@@ -24,6 +33,9 @@ mqd_t getmsgq(const char* msgqName) {
 	attr.mq_maxmsg = MAX_MSG;
 	attr.mq_msgsize = MSG_SIZE;
 	attr.mq_curmsgs = 0;
+
+//debug
+mq_unlink(msgqName);
 	
 	if((id = mq_open(msgqName, O_CREAT | O_RDWR, MSGQ_PERM, &attr)) < 0) {
 		perror("mq_open error");

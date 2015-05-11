@@ -19,12 +19,12 @@
 #include <semaphore.h>
 #include <mqueue.h>
 
-#define MSGQ_PERM	0644
+#define MSGQ_PERM	0777
 #define MAX_MSG		10
-#define MSG_SIZE	4096
+#define MSG_SIZE	1024
 
-#define SEM_PERM	0600
-#define SEM_FLAG	O_CREAT
+#define SEM_PERM	0777
+#define SEM_FLAG	O_CREAT | O_RDWR
 
 sem_t* getsem(const char* semName);
 int getmsgq(const char* msgqName);
