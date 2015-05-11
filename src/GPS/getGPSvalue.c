@@ -90,8 +90,8 @@ int extractGPSvalue(const unsigned char* gprmc) {
 
 	if(((prot = strstr(gprmc, "$GPRMC")) != NULL) && strlen(prot) >= PROTLEN) {
 //		if(prot[GPS_VALID] == 'A') {
-//debug
 			char buf[LEN_GPS + LEN_SPEED + 1];
+
 			strncpy(gv.time, prot + GPS_TIME, TIMELEN);
 			gv.time[TIMELEN] = '\0';
 			
@@ -116,14 +116,21 @@ int extractGPSvalue(const unsigned char* gprmc) {
 			// print value for log
 			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
+//debug
+printf("GPS: before sprintf\n");
+			sprintf(buf, "%010.5f%c%010.4f%c%06.2f", gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+printf("GPS: buf(%s)\n", buf);
+
 			// ipc
+printf("GPS: before acquire lock\n");
 			sem_wait(semid);
-			sprintf(buf, "%s%c%s%c%s", gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+printf("GPS: acquire lock\n");
 			if(mq_send(mqid, buf, LEN_GPS + LEN_SPEED + 1, MSG_TYPE) < 0) {
 				perror("mq_send error");
 				return -1;
 			}	
 			sem_post(semid);
+printf("GPS: release lock\n");
 //		}	
 		
 	}

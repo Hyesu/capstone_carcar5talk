@@ -10,6 +10,9 @@
 #include "defines.h"
 
 int init();
+int run();
+int join();
+void finalize();
 void* runThread(void* arg);
 
 int thr_GPS();
@@ -21,29 +24,20 @@ int updateDirInfo(const char* oldGPS);
 int getMACAddress();
 
 int main(int argc, char** argv) {
-	int i;
-
 	if(init() < 0) {
 		perror("init error");
 		exit(1);
 	}
-	for(i=0; i<NUM_THREAD; i++) {
-		if(pthread_create(thrid + i, NULL, &runThread, NULL) < 0) {
-			printf("create %s thread error", thrName[i]);
-		}
+	if(run() < 0) {
+		perror("run error");
+		exit(1);
 	}
-
-	for(i=0; i<NUM_THREAD; i++) {
-		if(pthread_join(thrid[i], NULL) < 0) {
-			printf("join %s thread error", thrName[i]);
-		}
+	if(join() < 0) {
+		perror("join error");
+		exit(1);
 	}
+	finalize();
 
-	rmmsgq(MSGQ_NAME);
-	rmsem(SEM_NAME_GPS);
-	rmsem(SEM_NAME_ACCI);
-	rmsem(SEM_NAME_BLUE);
-	rmsem(SEM_NAME_NET);
 	return 0;
 }
 
@@ -60,6 +54,33 @@ int init() {
 	}
 
 	return 0;
+}
+int run() {
+	int i;
+	for(i=0; i<NUM_THREAD; i++) {
+		if(pthread_create(thrid + i, NULL, &runThread, NULL) < 0) {
+			printf("create %s thread error", thrName[i]);
+			return -1;
+		}
+	}
+	return 0;
+}
+int join() {
+	int i;
+	for(i=0; i<NUM_THREAD; i++) {
+		if(pthread_join(thrid[i], NULL) < 0) {
+			printf("join %s thread error", thrName[i]);
+			return -1;
+		}
+	}
+	return 0;
+}
+void finalize() {
+	rmmsgq(MSGQ_NAME);
+	rmsem(SEM_NAME_GPS);
+	rmsem(SEM_NAME_ACCI);
+	rmsem(SEM_NAME_BLUE);
+	rmsem(SEM_NAME_NET);
 }
 void* runThread(void* arg) {
 	pthread_t id = pthread_self();
@@ -79,23 +100,35 @@ void* runThread(void* arg) {
 }
 
 int thr_GPS() {
-	char buf[LEN_GPS+LEN_SPEED+1];
+	char old[LEN_GPS+LEN_SPEED+1];
+	char new[LEN_GPS+LEN_SPEED+1];
 	int priority = THREAD_GPS;
+//debug
+printf("************************* GPS Thread ***********************\n");
+	while(1) {
+		sleep(INTERVAL);
+printf("CarTalk: after sleep! before get lock\n");
+		sem_wait(semid_gps);
+printf("CarTalk: get lock\n");
+		while(mq_receive(mqid, new, LEN_GPS + LEN_SPEED + 1, &priority) > 0){
+printf("CarTalk: gps from mq(%s)\n", new);
+			strcpy(old, new);
+		}
+		if(errno == EAGAIN) {
+			char oldGPS[LEN_GPS + 1];
 
-	sem_wait(semid_gps);
-	while(mq_receive(mqid, buf, LEN_GPS + LEN_SPEED + 1, &priority) > 0);
-	if(errno == EAGAIN) {
-		char oldGPS[LEN_GPS + 1];
-		strcpy(oldGPS, myInfo.gps);
+printf("CarTalk: gps from mq(%s)\n", old);
+			strcpy(oldGPS, myInfo.gps);
 
-		strncpy(myInfo.gps, buf, LEN_GPS);
-		myInfo.gps[LEN_GPS] = '\0';
-		strncpy(myInfo.speed, buf + LEN_GPS, LEN_SPEED);
-		myInfo.speed[LEN_SPEED] = '\0';
+			strncpy(myInfo.gps, old, LEN_GPS);
+			myInfo.gps[LEN_GPS] = '\0';
+			strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
+			myInfo.speed[LEN_SPEED] = '\0';
 
-		updateDirInfo(oldGPS);
+			updateDirInfo(oldGPS);
+		}
+		sem_post(semid_gps);
 	}
-	sem_post(semid_gps);
 
 	return 0;
 }

@@ -53,8 +53,8 @@
 ////////////////////////////////////////
 // constants for ipc
 ////////////////////////////////////////
-#define SEM_NAME	"CarTalk_sem_gps"
-#define MSGQ_NAME	"CarTalk_msgq"
+#define SEM_NAME	"/CarTalk_sem_gps"
+#define MSGQ_NAME	"/CarTalk_msgq"
 #define MSG_TYPE	0
 
 ////////////////////////////////////////

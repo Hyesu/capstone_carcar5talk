@@ -31,11 +31,13 @@
 #define LEN_GPS		22
 #define LEN_SPEED	6
 
-#define MSGQ_NAME	"CarTalk_msgq"
-#define SEM_NAME_GPS	"CarTalk_sem_gps"
-#define SEM_NAME_ACCI	"CarTalk_sem_acci"
-#define SEM_NAME_BLUE	"CarTalk_sem_blue"
-#define SEM_NAME_NET	"CarTalk_sem_net"
+#define MSGQ_NAME	"/CarTalk_msgq"
+#define SEM_NAME_GPS	"/CarTalk_sem_gps"
+#define SEM_NAME_ACCI	"/CarTalk_sem_acci"
+#define SEM_NAME_BLUE	"/CarTalk_sem_blue"
+#define SEM_NAME_NET	"/CarTalk_sem_net"
+
+#define INTERVAL	1			// seconds
 
 typedef struct carInfo {
 	char id[LEN_ID];
