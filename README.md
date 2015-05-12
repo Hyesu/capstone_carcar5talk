@@ -1,6 +1,10 @@
 # capstone_carcar5talk
 Kookmin Universary 2015 capstone team
 
+
+According to the statistics of 2013 traffic accident, the 72.1% of traffic accident occurs between cars. The accidents between cars are classified into two categories; the collision, the rollover. The reason of traffic accident is mostly caused by nonfulfillment of safe driving. The factor that makes nonfulfillment of safe driving is divided into the outside factor of car and the inside factor of car. The example of outside factor of car is to drive in bad weather or in dark. The examples of inside factor of car are intentional reckless driving of some drivers, inexperienced driving and the carelessness about blind spot. The latest traffic accident, 100-car collision of yeongjong bridge, shows extreme case that drivers couldn't have secured a clear view of front side by the outside factor of car. Therefore the existing car system is not good enough and there may be situation that the driver couldn't have secured a clear view in driving. *CarTalk* System helps secure driving despite in situation that the drive couldn't have secured a clear view in driving.
+
+
 This project, called 'CarTalk System', has purpose for helping driver to drive securely by providing driver with information of car environment. *CarTalk System* provides driver with some information about position and relative velocity of perimetric cars. Driver can maintain safety distance with perimetric cars because *CarTalk System* has driver know position of perimetric cars. And by *CarTalk System*, driver can know relative velocity of perimetric cars so can easily do picky driving; lane changing. Moreover, *CarTalk System* warns accident event of the front to driver, so driver can know information of car environment widely.
 
 ---
