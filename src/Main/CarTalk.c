@@ -22,6 +22,7 @@ int thr_Network();
 
 int updateDirInfo(const char* oldGPS);
 int getMACAddress();
+int getMsg(const int id, char* old, char* new, const int msgSize);
 
 int main(int argc, char** argv) {
 	if(init() < 0) {
@@ -45,25 +46,25 @@ int init() {
 	int i;
 
 	sem_unlink(SEM_NAME_GPS);
-	//sem_unlink(SEM_NAME_DA);
+	sem_unlink(SEM_NAME_DA);
 	//sem_unlink(SEM_NAME_NET_R);
 	//sem_unlink(SEM_NAME_NET_S);
 	//sem_unlink(SEM_NAME_BLUE);
 
 	mq_unlink(MQ_NAME_GPS);
-	//mq_unlink(MQ_NAME_DA);
+	mq_unlink(MQ_NAME_DA);
 	//mq_unlink(MQ_NAME_NET_R);
 	//mq_unlink(MQ_NAME_NET_S);
 	//mq_unlink(MQ_NAME_BLUE);
 
 	semid[GPS] = getsem(SEM_NAME_GPS);
-	//semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
+	semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
 	//semid[NETWORKE] = getsem(SEM_NAME_NET_R);
 	//semid[NETWORK+1] = getsem(SEM_NAME_NET_S); 
 	//semid[BLUETOOTH] = getsem(SEM_NAME_BLUETOOTH); 
 
 	mqid[GPS] = getmsgq(MQ_NAME_GPS, MSG_SIZE_GPS); 
-//	mqid[DETECT_ACCIDENT] = getmsgq(MQ_NAME_DA, MSG_SIZE_DA); 
+	mqid[DETECT_ACCIDENT] = getmsgq(MQ_NAME_DA, MSG_SIZE_DA); 
 //	mqid[NETWORK_RECEIVE] = getmsgq(MQ_NAME_NET_R, MSG_SIZE_NET);
 //	mqid[NETWORK_SEND] = getmsgq(MQ_NAME_NET_S, MSG_SIZE_NET);
 //	mqid[BLUETOOTH] = getmsgq(MQ_NAME_BLUE, MSG_SIZE_BLUE);
@@ -97,13 +98,13 @@ int join() {
 }
 void finalize() {
 	rmmsgq(mqid, MQ_NAME_GPS);
-//	rmmsgq(mqid, MQ_NAME_DA);
+	rmmsgq(mqid, MQ_NAME_DA);
 //	rmmsgq(mqid, MQ_NAME_NET_R);
 //	rmmsgq(mqid, MQ_NAME_NET_S);
 //	rmmsgq(mqid, MQ_NAME_BLUE);
 
 	rmsem(SEM_NAME_GPS);
-//	rmsem(SEM_NAME_DA);
+	rmsem(SEM_NAME_DA);
 //	rmsem(SEM_NAME_NET_R);
 //	rmsem(SEM_NAME_NET_S);
 //	rmsem(SEM_NAME_BLUE);
@@ -128,19 +129,13 @@ void* runThread(void* arg) {
 int thr_GPS() {
 	char old[MSG_SIZE_GPS];
 	char new[MSG_SIZE_GPS];
+	int res;
 
 	old[0] = new[0] = '\0';
 	while(1) {
 		sleep(INTERVAL);
-		sem_wait(semid[GPS]);
-
-		// receive message; while for newest message(last message)
-		while(mq_receive(mqid[GPS], new, MSG_SIZE_GPS, NULL) > 0){
-			strcpy(old, new);
-		}
-		sem_post(semid[GPS]);
-
-		if(old[0] != '\0' && errno == EAGAIN) { // when no existing message in queue
+		res = getMsg(GPS, old, new, MSG_SIZE_GPS);
+		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
 
 			strcpy(oldGPS, myInfo.gps);
@@ -156,6 +151,22 @@ int thr_GPS() {
 	return 0;
 }
 int thr_DetectAccident() {
+	char old[MSG_SIZE_DA];
+	char new[MSG_SIZE_DA];
+	int res;
+
+	old[0] = new[0] = '\0';
+	while(1) {
+		sleep(INTERVAL);
+		res = getMsg(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
+		if(old[0] != '0' && res < 0 && errno == EAGAIN) {
+			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
+			else if(myInfo.flag % 2)	myInfo.flag--;
+		}
+
+//debug
+printf("Main::thr_DA\t after update isAccident(%c)\n", myInfo.flag%2 ? 'T' : 'F');
+	}
 	return 0;
 }
 int thr_Bluetooth()  {
@@ -221,4 +232,15 @@ int getMACAddress() {
 		myInfo.id[i] = (char) hex;
 	}
 	fclose(macFile);
+}
+int getMsg(const int id, char* old, char* new, const int msgSize) {
+	int res;
+
+	sem_wait(semid[id]);
+	// receive message; while for newest message(last message)
+	while((res = mq_receive(mqid[id], new, msgSize, NULL)) > 0){
+		strcpy(old, new);
+	}
+	sem_post(semid[id]);
+	return res;
 }

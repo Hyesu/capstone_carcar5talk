@@ -52,7 +52,7 @@
 
 typedef struct carInfo {
 	char id[LEN_ID];
-	char flag; // for one byte
+	char flag; 				// for one byte. LSB is used for "isAccident"
 	char gps[LEN_GPS + 1];
 	char speed[LEN_SPEED + 1];
 	char dirVector[LEN_GPS + 1];

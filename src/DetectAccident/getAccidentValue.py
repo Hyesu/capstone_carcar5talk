@@ -11,7 +11,9 @@
 import spidev, os, time
 import math
 import RPi.GPIO as GPIO
-import thread
+import threading
+import posix_ipc
+
 
 #################### Constants ####################
 X_CHANNEL = 0
@@ -37,6 +39,19 @@ ROLLOVER_MAX = 180
 COLLISION_COEF = 0.19
 ROLLOVER_COEF = 45.535
 
+MQ_NAME = '/CarTalk_mq_da'
+SEM_NAME = 'CarTalk_sem_da'
+
+MQ_FLAG = posix_ipc.O_CREAT | posix_ipc.O_NONBLOCK
+MQ_PERM = 0777
+MQ_MSG = 10
+MSG_SIZE = 2
+
+
+###################### Global Vars ##################
+mq = None
+sem = None
+
 
 ###################### Functions ##################
 def init():
@@ -51,107 +66,140 @@ def init():
 
 	GPIO.output(LED_YELLOW, False)
 
+#debug
+
+	mq = posix_ipc.MessageQueue(name=MQ_NAME, flags=MQ_FLAG, mode=MQ_PERM, max_messages=MQ_MSG, max_message_size=MSG_SIZE, read=True, write=True)
+	sem = posix_ipc.Semaphore(SEM_NAME)
+
 	return spi
 
-def readChannel(spi, channel):
-	adc = spi.xfer2([1, (8 + channel) << 4, 0])
-	data = ((adc[1] & 3) << 8) + adc[2]
-	return data
-
-def getValue(data, axis):
-	value = ((data * POWER_VOLT / float(CONV_CONST)) - CONST[axis]) / COEFF[axis]
-	if value < MIN[axis]:
-		value = MIN[axis]
-	if value > MAX[axis]:
-		value = MAX[axis]
-	return value
-
-def LEDThread():
-	numBlink = 5
-	for i in range(0, numBlink):
-		GPIO.output(LED_YELLOW, True)
-		time.sleep(DELAY)
-		GPIO.output(LED_YELLOW, False)
-		time.sleep(DELAY)
-		i = i + 1
-
-def isCollision(rVector, mVector):
-	aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
-	aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
-	aCrash = math.sqrt(aCrash)
-	
-	if aCrash <= COLLISION_THR:
-		return False
+def sendMsg(isAccident):
+	sem.acquire()
+	if isAccident:
+		mq.send("T", 0)
 	else:
-		try:
-			thread.start_new_thread(LEDThread, ())
-		except:
-			print "Error: unable to start LED Thread"
-		return True
+		mq.send("F", 0)
+	sem.release()
 
-def isRollOver(rVector, mVector):
-	exp1 = rVector[0]*mVector[0] + rVector[1]*mVector[1] + rVector[2]*mVector[2] 
-	exp2 = math.sqrt(pow(rVector[0],2) + pow(rVector[1],2) + pow(rVector[2],2))
-	exp3 = math.sqrt(pow(mVector[0],2) + pow(mVector[1],2) + pow(mVector[2],2))
-	exp4 = exp1 / (exp2 * exp3)
-	if exp4 > 1:
-		exp4 = 1
-	if exp4 < -1:
-		exp4 = -1
-	theta = math.acos(exp4)
 
-	if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
-		try:
-			thread.start_new_thread(LEDThread, ())
-		except:
-			print "Error: unable to start LED Thread"
-		return True
-	else:
-		return False
+class LEDThread(threading.Thread):
+	numBlink = None
 
-def isPushed():
-	if not GPIO.input(BUTTON):
-		try:
-			thread.start_new_thread(LEDThread, ())
-		except:
-			print "Error: unable to start LED Thread"
+	def __init__(self):
+		threading.Thread.__init__(self)
+		self.numBlink = 5
 
-def TriAxisThread(spi):
-	rVector = []
-	while True:
-		xData = readChannel(spi, X_CHANNEL)
-		yData = readChannel(spi, Y_CHANNEL)
-		zData = readChannel(spi, Z_CHANNEL)
+	def run(self):
+		for i in range(0, self.numBlink):
+			GPIO.output(LED_YELLOW, True)
+			time.sleep(DELAY)
+			GPIO.output(LED_YELLOW, False)
+			time.sleep(DELAY)
+			i = i + 1
 
-		xValue = getValue(xData, X_CHANNEL)
-		yValue = getValue(yData, Y_CHANNEL)
-		zValue = getValue(zData, Z_CHANNEL)
 
-		if rVector == []:
-			rVector = [xValue, yValue, zValue]
-			pass
+class TriAxisThread(threading.Thread):
+	spi = None
+	rVector = None
+	def __init__(self, spi):
+		threading.Thread.__init__(self)
+		self.spi = spi
+		self.rVector = []
 
-		mVector = [xValue, yValue, zValue]
-		print("isCollision: {}".format(isCollision(rVector, mVector)))
-		print("isRollOver: {}\n".format(isRollOver(rVector, mVector)))
+	def readChannel(self, spi, channel):
+		adc = spi.xfer2([1, (8 + channel) << 4, 0])
+		data = ((adc[1] & 3) << 8) + adc[2]
+		return data
 
-		time.sleep(DELAY/2)
+	def getValue(self, data, axis):
+		value = ((data * POWER_VOLT / float(CONV_CONST)) - CONST[axis]) / COEFF[axis]
+		if value < MIN[axis]:
+			value = MIN[axis]
+		if value > MAX[axis]:
+			value = MAX[axis]
+		return value
 
-def ButtonThread():
-	while True:
-		isPushed()
+	def isCollision(self, rVector, mVector):
+		aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
+		aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
+		aCrash = math.sqrt(aCrash)
+		
+		if aCrash <= COLLISION_THR:
+			return False
+		else:
+			LED = LEDThread()
+			LED.start()
+
+			return True
+
+	def isRollOver(self, rVector, mVector):
+		exp1 = rVector[0]*mVector[0] + rVector[1]*mVector[1] + rVector[2]*mVector[2] 
+		exp2 = math.sqrt(pow(rVector[0],2) + pow(rVector[1],2) + pow(rVector[2],2))
+		exp3 = math.sqrt(pow(mVector[0],2) + pow(mVector[1],2) + pow(mVector[2],2))
+		exp4 = exp1 / (exp2 * exp3)
+		if exp4 > 1:
+			exp4 = 1
+		if exp4 < -1:
+			exp4 = -1
+		theta = math.acos(exp4)
+
+		if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
+			LED = LEDThread()
+			LED.start()
+
+			return True
+		else:
+			return False
+
+	def run(self):
+		while True:
+			xData = self.readChannel(spi, X_CHANNEL)
+			yData = self.readChannel(spi, Y_CHANNEL)
+			zData = self.readChannel(spi, Z_CHANNEL)
+
+			xValue = self.getValue(xData, X_CHANNEL)
+			yValue = self.getValue(yData, Y_CHANNEL)
+			zValue = self.getValue(zData, Z_CHANNEL)
+
+			if self.rVector == []:
+				self.rVector = [xValue, yValue, zValue]
+				pass
+
+			mVector = [xValue, yValue, zValue]
+			print("isCollision: {}".format(self.isCollision(self.rVector, mVector)))
+			print("isRollOver: {}\n".format(self.isRollOver(self.rVector, mVector)))
+
+			time.sleep(DELAY/2)
+
+class ButtonThread(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self)
+
+	def isPushed(self):
+		if not GPIO.input(BUTTON):
+			LED = LEDThread()
+			LED.start()
+
+	def run(self):
+		while True:
+			self.isPushed()
 
 	
 ####################### Main ######################
 spi = init()
-try:
-	thread.start_new_thread(TriAxisThread, (spi))
-except:
-	print "Error: unable to start TriAxis thread"
 
-try:
-	thread.start_new_thread(ButtonThread, ())
-except:
-	print "Error: unable to start Button thread"
+TriAxis = TriAxisThread(spi)
+TriAxis.start()
+TriAxis.join()
+
+Button = ButtonThread()
+Button.start()
+Button.join()
+
 
 GPIO.cleanup()
+
+if sem is not None:
+	sem.close()
+if mq is not None:
+	mq.close()
