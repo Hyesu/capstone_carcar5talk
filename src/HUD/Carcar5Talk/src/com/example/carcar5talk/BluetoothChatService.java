@@ -72,8 +72,7 @@ public class BluetoothChatService {
 		mState = state;
 
 		// Give the new state to the Handler so the UI Activity can update
-		mHandler.obtainMessage(Carcar5Talk.MESSAGE_STATE_CHANGE, state, -1)
-				.sendToTarget();
+		mHandler.obtainMessage(Carcar5Talk.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
 	}
 
 	/**

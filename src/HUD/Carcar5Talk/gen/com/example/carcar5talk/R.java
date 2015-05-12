@@ -28,12 +28,13 @@ public final class R {
         public static final int road=0x7f020003;
     }
     public static final class id {
-        public static final int button_scan=0x7f080004;
-        public static final int new_devices=0x7f080003;
-        public static final int paired_devices=0x7f080001;
-        public static final int secure_connect_scan=0x7f080005;
-        public static final int title_new_devices=0x7f080002;
-        public static final int title_paired_devices=0x7f080000;
+        public static final int button_scan=0x7f080005;
+        public static final int in=0x7f080000;
+        public static final int new_devices=0x7f080004;
+        public static final int paired_devices=0x7f080002;
+        public static final int secure_connect_scan=0x7f080006;
+        public static final int title_new_devices=0x7f080003;
+        public static final int title_paired_devices=0x7f080001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,7 +38,6 @@ public class Carcar5Talk extends Activity {
 	private BluetoothChatService mChatService = null;		// Member object for the chat services
 
 	// View Carcar5Talk
-	private Context mContext;
 	private CarView cv;
 	private int numCar = 2;
 	
@@ -50,14 +48,9 @@ public class Carcar5Talk extends Activity {
 		if (D)
 			Log.e(TAG, "+++ ON CREATE +++");
 
-		// Set up the window layout
-//		setContentView(R.layout.activity_main);
-		
-//		// Set up the Car view
+		// Set up the Car view
 		cv = new CarView(this, numCar);
 		setContentView(cv);
-	    
-		
 		
 		// Get local Bluetooth adapter
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -75,8 +68,7 @@ public class Carcar5Talk extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (D)
-			Log.e(TAG, "++ ON START ++");
+		if (D) Log.e(TAG, "++ ON START ++");
 
 		// If BT is not on, request that it be enabled.
 		// setupChat() will then be called during onActivityResult
@@ -99,8 +91,7 @@ public class Carcar5Talk extends Activity {
 
 		// Performing this check in onResume() covers the case in which BT was
 		// not enabled during onStart(), so we were paused to enable it...
-		// onResume() will be called when ACTION_REQUEST_ENABLE activity
-		// returns.
+		// onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
 		if (mChatService != null) {
 			// Only if the state is STATE_NONE, do we know that we haven't
 			// started already
@@ -129,8 +120,7 @@ public class Carcar5Talk extends Activity {
 	@Override
 	public void onStop() {
 		super.onStop();
-		if (D)
-			Log.e(TAG, "-- ON STOP --");
+		if (D) Log.e(TAG, "-- ON STOP --");
 	}
 
 	@Override
@@ -138,21 +128,18 @@ public class Carcar5Talk extends Activity {
 		super.onDestroy();
 
 		// Stop the Bluetooth chat services
-		if (mChatService != null)
+		if (mChatService != null) 
 			mChatService.stop();
-		if (D)
-			Log.e(TAG, "--- ON DESTROY ---");
+		
+		if (D) Log.e(TAG, "--- ON DESTROY ---");
 	}
 
 	private void ensureDiscoverable() {
-		if (D)
-			Log.d(TAG, "ensure discoverable");
+		if (D) Log.d(TAG, "ensure discoverable");
 
 		if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-			Intent discoverableIntent = new Intent(
-					BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-			discoverableIntent.putExtra(
-					BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+			Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 			startActivity(discoverableIntent);
 		}
 	}
@@ -192,7 +179,7 @@ public class Carcar5Talk extends Activity {
 	public char[] convertByteToCharArray(byte [] data, int size, int start ){
 		return (new String(data)).substring(start,size).toCharArray();
 	}
-	
+
 	
 	
 	private String tokenizer(String str_in) {
@@ -217,7 +204,9 @@ public class Carcar5Talk extends Activity {
 		// # of cars
 		str_out += str_in.charAt(i);
 		idx++; 	// idx = 30
-
+		Log.d("[+]# of card", idx - 1 + "");
+		Log.d("[+]# of card", Integer.valueOf(str_out.charAt(idx - 1)) + "");
+		
 		/* Set Other Car */
 		for(i = 0; i < Integer.valueOf(str_out.charAt(idx - 1)); i++) {
 			// ID
@@ -240,14 +229,12 @@ public class Carcar5Talk extends Activity {
 			idx = j;
 		}
 		
-		
-		str_out += '\0';
-		idx++;
 		Log.d("[+]idx", idx + "");
 		
 		return str_out;
 	}
 
+	
 	// The Handler that gets information back from the BluetoothChatService
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -289,17 +276,16 @@ public class Carcar5Talk extends Activity {
 		}
 	};
 
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (D)
-			Log.d(TAG, "onActivityResult " + resultCode);
+		if (D) Log.d(TAG, "onActivityResult " + resultCode);
 
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE_SECURE:
 			// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
+			if (resultCode == Activity.RESULT_OK)
 				connectDevice(data, true);
-			}
 			break;
 		case REQUEST_ENABLE_BT:
 			// When the request to enable Bluetooth returns
@@ -315,6 +301,7 @@ public class Carcar5Talk extends Activity {
 		}
 	}
 
+	
 	private void connectDevice(Intent data, boolean secure) {
 		// Get the device MAC address
 		String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
@@ -339,8 +326,11 @@ public class Carcar5Talk extends Activity {
 		case R.id.secure_connect_scan:
 			// Launch the DeviceListActivity to see devices and do scan
 			serverIntent = new Intent(this, DeviceListActivity.class);
+			
+			Log.d(TAG, "onOptionsItemSelected secure_connect_scan");
 			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
-
+			Log.d(TAG, "onOptionsItemSelected REQUEST_CONNECT_DEVICE_SECURE");
+			
 			return true;
 		}
 		return false;

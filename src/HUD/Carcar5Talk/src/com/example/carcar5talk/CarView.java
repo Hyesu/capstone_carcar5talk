@@ -1,8 +1,6 @@
 package com.example.carcar5talk;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -35,15 +33,14 @@ public class CarView extends SurfaceView implements Callback {
 		this.mContext = context;
 		this.mHolder = getHolder();
 		this.mHolder.addCallback(this);
-		this.mThread = new CarThread();
-		
 		
 		setFocusable(true);
-		
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		this.mThread = new CarThread();
+		
 		setWillNotDraw(false); // draw에서 그리도록 설정
 
 		deviceWidth = getWidth();
@@ -70,13 +67,13 @@ public class CarView extends SurfaceView implements Callback {
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+		
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		mThread.canRun = false;
-		((Activity) mContext).finish();
+		//((Activity) mContext).finish();
 	}
 
 	@Override
@@ -153,10 +150,10 @@ public class CarView extends SurfaceView implements Callback {
 		public void run() {
 			Object viewLock = new Object(); // 동기화용
 			Canvas canvas = null; // canvas 만들기
-
-			while (canRun) {
+			
+			while (canRun) {		
 				canvas = mHolder.lockCanvas(); // canvas잠그고 버퍼 할당
-
+	
 				// null체크를 안하면 destroy로 canRun이 false가 될 때 단한번 실행되는순간
 				// canvas가 제대로 생성되지않아 널포인트 익셉션 발생
 				if (canvas != null) {
@@ -166,19 +163,20 @@ public class CarView extends SurfaceView implements Callback {
 								BackgroundDraw(canvas); 	// 배경 출력
 								MyCarDraw(canvas); 		// 사용자 차량 출력
 								OtherCarsDraw(canvas); 	// 주위 차량 출력
-
+	
 								mOtherCars[0].posY--;
 								mOtherCars[1].posY -= 3;
 								
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
-
+	
 						}
 					} finally { // 버퍼작업이 끝나면
 						if (canvas != null) // 버퍼 내용을 view에 전송
 							mHolder.unlockCanvasAndPost(canvas);
 					}
+				
 				}
 			}// while
 		}// run
