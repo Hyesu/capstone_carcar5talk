@@ -40,12 +40,12 @@ COLLISION_COEF = 0.19
 ROLLOVER_COEF = 45.535
 
 MQ_NAME = '/CarTalk_mq_da'
-SEM_NAME = 'CarTalk_sem_da'
-
 MQ_FLAG = posix_ipc.O_CREAT | posix_ipc.O_NONBLOCK
 MQ_PERM = 0777
 MQ_MSG = 10
 MSG_SIZE = 2
+
+SEM_NAME = '/CarTalk_sem_da'
 
 
 ###################### Global Vars ##################
@@ -66,12 +66,10 @@ def init():
 
 	GPIO.output(LED_YELLOW, False)
 
-#debug
-
 	mq = posix_ipc.MessageQueue(name=MQ_NAME, flags=MQ_FLAG, mode=MQ_PERM, max_messages=MQ_MSG, max_message_size=MSG_SIZE, read=True, write=True)
 	sem = posix_ipc.Semaphore(SEM_NAME)
 
-	return spi
+	return spi, mq, sem
 
 def sendMsg(isAccident):
 	sem.acquire()
@@ -166,8 +164,12 @@ class TriAxisThread(threading.Thread):
 				pass
 
 			mVector = [xValue, yValue, zValue]
-			print("isCollision: {}".format(self.isCollision(self.rVector, mVector)))
-			print("isRollOver: {}\n".format(self.isRollOver(self.rVector, mVector)))
+			if self.isCollision(self.rVector, mVector) or self.isRollOver(self.rVector, mVector):
+				isAccident = True
+			else:
+				isAccident = False
+
+			sendMsg(isAccident)
 
 			time.sleep(DELAY/2)
 
@@ -186,7 +188,7 @@ class ButtonThread(threading.Thread):
 
 	
 ####################### Main ######################
-spi = init()
+spi, mq, sem = init()
 
 TriAxis = TriAxisThread(spi)
 TriAxis.start()
@@ -197,9 +199,4 @@ Button.start()
 Button.join()
 
 
-GPIO.cleanup()
-
-if sem is not None:
-	sem.close()
-if mq is not None:
-	mq.close()
+#GPIO.cleanup()
