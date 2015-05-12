@@ -22,20 +22,31 @@
 #define LEN_MAC		18
 
 #define NUM_THREAD	4			// for 4 modules: GPS, DetectAccident, Bluetooth, Network 
-#define THREAD_GPS	0
-#define THREAD_ACCI	1
-#define THREAD_BLUE	2
-#define THREAD_NET	3
+#define GPS		0
+#define DETECT_ACCIDENT	1
+#define BLUETOOTH	2
+#define NETWORK		3
 
 #define LEN_ID		6
 #define LEN_GPS		22
 #define LEN_SPEED	6
 
-#define MSGQ_NAME	"/CarTalk_msgq"
+#define MQ_NAME_GPS	"/CarTalk_mq_gps"
+#define MQ_NAME_DA	"/CarTalk_mq_da"
+#define MQ_NAME_NET_R	"/CarTalk_mq_net_r"
+#define MQ_NAME_NET_S	"/CarTalk_mq_net_s"
+#define MQ_NAME_BLUE	"/CarTalk_mq_blue"
+
 #define SEM_NAME_GPS	"/CarTalk_sem_gps"
-#define SEM_NAME_ACCI	"/CarTalk_sem_acci"
+#define SEM_NAME_DA	"/CarTalk_sem_da"
+#define SEM_NAME_NET_R	"/CarTalk_sem_net_r"
+#define SEM_NAME_NET_S	"/CarTalk_sem_net_s"
 #define SEM_NAME_BLUE	"/CarTalk_sem_blue"
-#define SEM_NAME_NET	"/CarTalk_sem_net"
+
+#define MSG_SIZE_GPS	29 			// "ddmm.mmmmmNdddmm.mmmmEsss.ss"
+#define MSG_SIZE_DA	2			// "T" / "F"
+#define MSG_SIZE_NET	64
+#define MSG_SIZE_BLUE	4096
 
 #define INTERVAL	1			// seconds
 
@@ -46,15 +57,11 @@ typedef struct carInfo {
 	char speed[LEN_SPEED + 1];
 	char dirVector[LEN_GPS + 1];
 } CarInfo;
-
-static pthread_t thrid[NUM_THREAD];
+static pthread_t thrid[NUM_THREAD]; 
 static char* thrName[] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
 static CarInfo myInfo;
 
-static sem_t* semid_gps = (sem_t*) 0;
-static sem_t* semid_acci = (sem_t*) 0;
-static sem_t* semid_blue = (sem_t*) 0;
-static sem_t* semid_net = (sem_t*) 0;
-static mqd_t mqid = (mqd_t) 0;
+static sem_t* semid[NUM_THREAD+1];
+static mqd_t mqid[NUM_THREAD+1];
 
 #endif

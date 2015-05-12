@@ -43,11 +43,31 @@ int main(int argc, char** argv) {
 
 int init() {
 	int i;
-	semid_gps = getsem(SEM_NAME_GPS);
-	semid_acci = getsem(SEM_NAME_ACCI);
-	semid_blue = getsem(SEM_NAME_BLUE);
-	semid_net = getsem(SEM_NAME_NET);
-	mqid = getmsgq(MSGQ_NAME);
+
+	sem_unlink(SEM_NAME_GPS);
+	//sem_unlink(SEM_NAME_DA);
+	//sem_unlink(SEM_NAME_NET_R);
+	//sem_unlink(SEM_NAME_NET_S);
+	//sem_unlink(SEM_NAME_BLUE);
+
+	mq_unlink(MQ_NAME_GPS);
+	//mq_unlink(MQ_NAME_DA);
+	//mq_unlink(MQ_NAME_NET_R);
+	//mq_unlink(MQ_NAME_NET_S);
+	//mq_unlink(MQ_NAME_BLUE);
+
+	semid[GPS] = getsem(SEM_NAME_GPS);
+	//semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
+	//semid[NETWORKE] = getsem(SEM_NAME_NET_R);
+	//semid[NETWORK+1] = getsem(SEM_NAME_NET_S); 
+	//semid[BLUETOOTH] = getsem(SEM_NAME_BLUETOOTH); 
+
+	mqid[GPS] = getmsgq(MQ_NAME_GPS, MSG_SIZE_GPS); 
+//	mqid[DETECT_ACCIDENT] = getmsgq(MQ_NAME_DA, MSG_SIZE_DA); 
+//	mqid[NETWORK_RECEIVE] = getmsgq(MQ_NAME_NET_R, MSG_SIZE_NET);
+//	mqid[NETWORK_SEND] = getmsgq(MQ_NAME_NET_S, MSG_SIZE_NET);
+//	mqid[BLUETOOTH] = getmsgq(MQ_NAME_BLUE, MSG_SIZE_BLUE);
+
 	if(getMACAddress() < 0) {
 		perror("get MAC Address error");
 		return -1;
@@ -76,22 +96,28 @@ int join() {
 	return 0;
 }
 void finalize() {
-	rmmsgq(MSGQ_NAME);
+	rmmsgq(mqid, MQ_NAME_GPS);
+//	rmmsgq(mqid, MQ_NAME_DA);
+//	rmmsgq(mqid, MQ_NAME_NET_R);
+//	rmmsgq(mqid, MQ_NAME_NET_S);
+//	rmmsgq(mqid, MQ_NAME_BLUE);
+
 	rmsem(SEM_NAME_GPS);
-	rmsem(SEM_NAME_ACCI);
-	rmsem(SEM_NAME_BLUE);
-	rmsem(SEM_NAME_NET);
+//	rmsem(SEM_NAME_DA);
+//	rmsem(SEM_NAME_NET_R);
+//	rmsem(SEM_NAME_NET_S);
+//	rmsem(SEM_NAME_BLUE);
 }
 void* runThread(void* arg) {
 	pthread_t id = pthread_self();
 
-	if(pthread_equal(id, thrid[THREAD_GPS])) {
+	if(pthread_equal(id, thrid[GPS])) {
 		if(thr_GPS() < 0)	 	perror("GPS thread error");
-	} else if(pthread_equal(id, thrid[THREAD_ACCI])) {
+	} else if(pthread_equal(id, thrid[DETECT_ACCIDENT])) {
 		if(thr_DetectAccident() < 0) 	perror("Detect Accident thread error");
-	} else if(pthread_equal(id, thrid[THREAD_BLUE])) {
+	} else if(pthread_equal(id, thrid[BLUETOOTH])) {
 		if(thr_Bluetooth() < 0)		perror("Bluetooth thread error");
-	} else if(pthread_equal(id, thrid[THREAD_NET])) {
+	} else if(pthread_equal(id, thrid[NETWORK])) {
 		if(thr_Network() < 0)		perror("Network thread error");
 	} else {
 		perror("abnormal thread id");
@@ -100,26 +126,24 @@ void* runThread(void* arg) {
 }
 
 int thr_GPS() {
-	char old[LEN_GPS+LEN_SPEED+1];
-	char new[LEN_GPS+LEN_SPEED+1];
-	int priority = THREAD_GPS;
-//debug
-printf("************************* GPS Thread ***********************\n");
+	char old[MSG_SIZE_GPS];
+	char new[MSG_SIZE_GPS];
+
+	old[0] = new[0] = '\0';
 	while(1) {
 		sleep(INTERVAL);
-printf("CarTalk: after sleep! before get lock\n");
-		sem_wait(semid_gps);
-printf("CarTalk: get lock\n");
-		while(mq_receive(mqid, new, LEN_GPS + LEN_SPEED + 1, &priority) > 0){
-printf("CarTalk: gps from mq(%s)\n", new);
+		sem_wait(semid[GPS]);
+
+		// receive message; while for newest message(last message)
+		while(mq_receive(mqid[GPS], new, MSG_SIZE_GPS, NULL) > 0){
 			strcpy(old, new);
 		}
-		if(errno == EAGAIN) {
+		sem_post(semid[GPS]);
+
+		if(old[0] != '\0' && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
 
-printf("CarTalk: gps from mq(%s)\n", old);
 			strcpy(oldGPS, myInfo.gps);
-
 			strncpy(myInfo.gps, old, LEN_GPS);
 			myInfo.gps[LEN_GPS] = '\0';
 			strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
@@ -127,7 +151,6 @@ printf("CarTalk: gps from mq(%s)\n", old);
 
 			updateDirInfo(oldGPS);
 		}
-		sem_post(semid_gps);
 	}
 
 	return 0;
@@ -147,12 +170,13 @@ int updateDirInfo(const char* oldGPS) {
 	char longitude[11];
 
 	strncpy(latitude, myInfo.gps, 10);
-	latitude[11] = '\0';
+	latitude[10] = '\0';
 	strncpy(longitude, myInfo.gps + 11, 10);
-	longitude[11] = '\0';
+	longitude[10] = '\0';
 
-	if(!strlen(oldGPS))
-		sprintf(myInfo.dirVector, "%c%s%c%s", atof(latitude) >= 0 ? '+' : '-', latitude, atof(longitude) >= 0 ? '+' : '-', longitude);
+	if(!strlen(oldGPS)) // initial vector is initial gps value
+		sprintf(myInfo.dirVector, "%c%s%c%s", 
+			atof(latitude) >= 0 ? '+' : '-', latitude, atof(longitude) >= 0 ? '+' : '-', longitude);
 	else {
 		float lat, lon;
 		char oldLat[11], oldLon[11];
@@ -165,7 +189,8 @@ int updateDirInfo(const char* oldGPS) {
 		lat = atof(latitude) - atof(oldLat);
 		lon = atof(longitude) - atof(oldLon);
 
-		sprintf(myInfo.dirVector, "%c%10.5f%c%10.4f", lat >= 0 ? '+' : '-', lat, lon >= 0 ? '+' : '-', lon);
+		sprintf(myInfo.dirVector, "%c%010.5f%c%010.4f", 
+			lat >= 0 ? '+' : '-', lat, lon >= 0 ? '+' : '-', lon);
 	}
 
 	return 0;
@@ -195,6 +220,5 @@ int getMACAddress() {
 		sscanf(hexa, "%x", &hex);
 		myInfo.id[i] = (char) hex;
 	}
-
 	fclose(macFile);
 }

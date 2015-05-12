@@ -9,9 +9,6 @@
 **************************************************/
 #include "defines.h"
 
-//debug
-#include <errno.h>
-
 int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2);
 void finalize(int gps);
 
@@ -66,7 +63,7 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 	pinMode(LED_RED, OUTPUT);
 	pinMode(LED_GREEN, OUTPUT);
 
-	mqid = getmsgq(MSGQ_NAME);
+	mqid = getmsgq(MSGQ_NAME, MSG_SIZE);
 	semid = getsem(SEM_NAME);
 
 	return 0;
@@ -137,42 +134,19 @@ int extractGPSvalue(const unsigned char* gprmc) {
 	return 0;
 }
 int sendGPSvalue(const GPSValue gv) {
-	char buf[LEN_GPS+LEN_SPEED+1];
-
-//debug
-int temp_semValue;
-int priority = MSG_TYPE;
-char msg[1024];
-int nread;
+	char buf[MSG_SIZE];
+	int result;
 
 	// send message to queue
 	sprintf(buf, "%010.5f%c%010.4f%c%06.2f", 
 		gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
 	sem_wait(semid);
-//debug
-printf("GPS::sendGPSvalue : in critical section ********************\n");
-printf("GPS::sendGPSvalue : buf(%s)\n", buf);
-
-	if(mq_send(mqid, buf, strlen(buf), MSG_TYPE) < 0) {
-		perror("mq_send error");
-		return -1;
-	}	
-printf("GPS::sendGPSvalue : send err(%s)\n", strerror(errno));
-
-nread = mq_receive(mqid, msg, 1024, &priority);
-printf("GPS::sendGPSvalue : receive err(%s)\n", strerror(errno));
-
-printf("GPS::sendGPSvalue : nread(%d)\n", nread);
-printf("GPS::sendGPSvalue : priority(%d)\n", priority);
-msg[nread] = '\0';
-printf("GPS::sendGPSvalue : msg(%s)\n", msg);
-
-
-printf("GPS::sendGPSvalue : end critical section ********************\n");
+	result = mq_send(mqid, buf, strlen(buf), 0);
 	sem_post(semid);
 
-	return 0;
+	if(result < 0 && errno != EAGAIN)	return -1;
+	else					return  0;
 }
 float knot2kmhr(float knot) {
 	return knot * 1.852;

@@ -20,6 +20,7 @@
 #include <semaphore.h>
 #include <mqueue.h>
 #include <wiringPi.h>
+#include <errno.h>
 
 ////////////////////////////////////////
 // constants for getting gps value
@@ -54,8 +55,8 @@
 // constants for ipc
 ////////////////////////////////////////
 #define SEM_NAME	"/CarTalk_sem_gps"
-#define MSGQ_NAME	"/CarTalk_msgq"
-#define MSG_TYPE	0
+#define MSGQ_NAME	"/CarTalk_mq_gps"
+#define MSG_SIZE	(LEN_GPS+LEN_SPEED+1)
 
 ////////////////////////////////////////
 // sturctures 

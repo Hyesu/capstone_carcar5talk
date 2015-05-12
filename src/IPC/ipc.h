@@ -18,17 +18,18 @@
 #include <sys/stat.h>
 #include <semaphore.h>
 #include <mqueue.h>
+#include <errno.h>
 
 #define MSGQ_PERM	0777
 #define MAX_MSG		10
-#define MSG_SIZE	1024
+#define MSGQ_FLAG	O_RDWR | O_CREAT | O_NONBLOCK
 
 #define SEM_PERM	0777
-#define SEM_FLAG	O_CREAT | O_RDWR
+#define SEM_FLAG	O_RDWR | O_CREAT
 
 sem_t* getsem(const char* semName);
-int getmsgq(const char* msgqName);
-int rmmsgq(const mqd_t mqid);
+int getmsgq(const char* msgqName, const int msgSize);
+int rmmsgq(const mqd_t mqid, const char* mqName);
 int rmsem(const char* semName);
 
 #endif
