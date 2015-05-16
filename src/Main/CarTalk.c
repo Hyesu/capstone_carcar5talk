@@ -23,6 +23,7 @@ int thr_Network();
 int updateDirInfo(const char* oldGPS);
 int getMACAddress();
 int getMsg(const int id, char* old, char* new, const int msgSize);
+int sendMsg(const int id, const char* buf);
 
 int main(int argc, char** argv) {
 	if(init() < 0) {
@@ -49,13 +50,13 @@ int init() {
 	sem_unlink(SEM_NAME_DA);
 	//sem_unlink(SEM_NAME_NET_R);
 	//sem_unlink(SEM_NAME_NET_S);
-	//sem_unlink(SEM_NAME_BLUE);
+	sem_unlink(SEM_NAME_BLUE);
 
 	mq_unlink(MQ_NAME_GPS);
 	mq_unlink(MQ_NAME_DA);
 	//mq_unlink(MQ_NAME_NET_R);
 	//mq_unlink(MQ_NAME_NET_S);
-	//mq_unlink(MQ_NAME_BLUE);
+	mq_unlink(MQ_NAME_BLUE);
 
 	semid[GPS] = getsem(SEM_NAME_GPS);
 	semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
@@ -67,7 +68,7 @@ int init() {
 	mqid[DETECT_ACCIDENT] = getmsgq(MQ_NAME_DA, MSG_SIZE_DA); 
 //	mqid[NETWORK_RECEIVE] = getmsgq(MQ_NAME_NET_R, MSG_SIZE_NET);
 //	mqid[NETWORK_SEND] = getmsgq(MQ_NAME_NET_S, MSG_SIZE_NET);
-//	mqid[BLUETOOTH] = getmsgq(MQ_NAME_BLUE, MSG_SIZE_BLUE);
+	mqid[BLUETOOTH] = getmsgq(MQ_NAME_BLUE, MSG_SIZE_BLUE);
 
 	if(getMACAddress() < 0) {
 		perror("get MAC Address error");
@@ -101,13 +102,13 @@ void finalize() {
 	rmmsgq(mqid, MQ_NAME_DA);
 //	rmmsgq(mqid, MQ_NAME_NET_R);
 //	rmmsgq(mqid, MQ_NAME_NET_S);
-//	rmmsgq(mqid, MQ_NAME_BLUE);
+	rmmsgq(mqid, MQ_NAME_BLUE);
 
 	rmsem(SEM_NAME_GPS);
 	rmsem(SEM_NAME_DA);
 //	rmsem(SEM_NAME_NET_R);
 //	rmsem(SEM_NAME_NET_S);
-//	rmsem(SEM_NAME_BLUE);
+	rmsem(SEM_NAME_BLUE);
 }
 void* runThread(void* arg) {
 	pthread_t id = pthread_self();
@@ -163,16 +164,23 @@ int thr_DetectAccident() {
 			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
 			else if(myInfo.flag % 2)	myInfo.flag--;
 		}
-
-//debug
-printf("Main::thr_DA\t after update isAccident(%c)\n", myInfo.flag%2 ? 'T' : 'F');
 	}
 	return 0;
 }
 int thr_Bluetooth()  {
+	char buf[MSG_SIZE_BLUE];
+	if(encodeForBluetooth(buf) < 0) {
+		perror("encodeForBluetooth");
+		return -1;
+	}
+	if(sendMsg(BLUETOOTH, buf) < 0) {
+		perror("sendMsg(bluetooth)");
+		return -1;
+	}
 	return 0;
 }
 int thr_Network() {
+	// not completed yet
 	return 0;
 }
 
@@ -243,4 +251,38 @@ int getMsg(const int id, char* old, char* new, const int msgSize) {
 	}
 	sem_post(semid[id]);
 	return res;
+}
+int sendMsg(const int id, const char* buf) {
+	int res;
+
+	sem_wait(semid[id]);
+	res = (int) mq_send(mqid[id], buf, strlen(buf), 0);
+	sem_post(semid[id]);
+	return res;
+}
+int encodeForBluetooth(char* buf) {
+	// currently except another cars' information.
+	// only send my car's information to Android
+	int idx = 0;
+	idx++;		// just increment idx for skip flag.(flag is not used, currently)
+
+	// my GPS	
+	if(memcpy(buf+idx, myInfo.gps, LEN_GPS) == NULL) {
+		perror("memcpy(buf, myInfo.gps)");
+		return -1;
+	}
+	idx += LEN_GPS;
+
+	// my Speed
+	if(memcpy(buf+idx, myInfo.speed, LEN_SPEED) == NULL) {
+		perror("memcpy(buf, myInfo.speed)");
+		return -1;
+	}
+	idx += LEN_SPEED;
+
+	// Another Cars' Info
+
+
+
+	return 0;
 }
