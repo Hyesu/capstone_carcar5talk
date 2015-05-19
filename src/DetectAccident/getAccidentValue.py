@@ -69,13 +69,13 @@ def init():
 
 	GPIO.output(LED_YELLOW, False)
 
-#	mq = posix_ipc.MessageQueue(name=MQ_NAME, 		\
-#				    flags=MQ_FLAG,		\
-#				    mode=MQ_PERM,		\
-#				    max_messages=MQ_MSG,	\
-#				    max_message_size=MSG_SIZE,	\
-#				    read=True, write=True)
-#	sem = posix_ipc.Semaphore(SEM_NAME)
+	mq = posix_ipc.MessageQueue(name=MQ_NAME, 		\
+				    flags=MQ_FLAG,		\
+				    mode=MQ_PERM,		\
+				    max_messages=MQ_MSG,	\
+				    max_message_size=MSG_SIZE,	\
+				    read=True, write=True)
+	sem = posix_ipc.Semaphore(SEM_NAME)
 
 	return spi, mq, sem
 
@@ -198,7 +198,7 @@ class TriAxisThread(threading.Thread):
 			if self.isBroadsideCollision(self.rVector, mVector):
 				isAccident = True
 
-			#sendMsg(isAccident)
+			sendMsg(isAccident)
 
 			if self.numRef == MAX_REF:
 				self.numRef = 0
