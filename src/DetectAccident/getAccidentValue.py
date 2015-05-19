@@ -22,7 +22,8 @@ Z_CHANNEL = 2
 LED_YELLOW = 18
 BUTTON = 7
 
-DELAY = 0.5
+DELAY = 2
+MAX_REF = 5
 
 COEFF = [0.001861, 0.004444, 0.007667]
 CONST = [1.65, 1.65, 2.31]
@@ -36,8 +37,10 @@ COLLISION_THR = 10
 ROLLOVER_THR = 90
 ROLLOVER_MAX = 180
 
-COLLISION_COEF = 0.19
-ROLLOVER_COEF = 45.535
+COLLISION_COEF_HEAD_ON = 0.175
+COLLISION_COEF_BROADSIDE = 0.1857
+COLLISION_COEF_Z = 0.3
+ROLLOVER_COEF = 49
 
 MQ_NAME = '/CarTalk_mq_da'
 MQ_FLAG = posix_ipc.O_CREAT | posix_ipc.O_NONBLOCK
@@ -66,8 +69,13 @@ def init():
 
 	GPIO.output(LED_YELLOW, False)
 
-	mq = posix_ipc.MessageQueue(name=MQ_NAME, flags=MQ_FLAG, mode=MQ_PERM, max_messages=MQ_MSG, max_message_size=MSG_SIZE, read=True, write=True)
-	sem = posix_ipc.Semaphore(SEM_NAME)
+#	mq = posix_ipc.MessageQueue(name=MQ_NAME, 		\
+#				    flags=MQ_FLAG,		\
+#				    mode=MQ_PERM,		\
+#				    max_messages=MQ_MSG,	\
+#				    max_message_size=MSG_SIZE,	\
+#				    read=True, write=True)
+#	sem = posix_ipc.Semaphore(SEM_NAME)
 
 	return spi, mq, sem
 
@@ -99,6 +107,8 @@ class LEDThread(threading.Thread):
 class TriAxisThread(threading.Thread):
 	spi = None
 	rVector = None
+	numRef = 0
+
 	def __init__(self, spi):
 		threading.Thread.__init__(self)
 		self.spi = spi
@@ -117,17 +127,32 @@ class TriAxisThread(threading.Thread):
 			value = MAX[axis]
 		return value
 
-	def isCollision(self, rVector, mVector):
+	def isHeadOnCollision(self, rVector, mVector):
 		aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
 		aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
-		aCrash = math.sqrt(aCrash)
-		
+		aCrash = math.sqrt(aCrash) * COLLISION_COEF_HEAD_ON
+
 		if aCrash <= COLLISION_THR:
 			return False
 		else:
 			LED = LEDThread()
 			LED.start()
+			return True
 
+	def isBroadsideCollision(self, rVector, mVector):
+		# change x-axis and y-axis
+		rVector = [rVector[1], rVector[0], rVector[2]]
+		mVector = [mVector[1], mVector[0], mVector[2]]
+		
+		aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
+		aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
+		aCrash = math.sqrt(aCrash) * COLLISION_COEF_BROADSIDE
+
+		if aCrash <= COLLISION_THR:
+			return False
+		else:
+			LED = LEDThread()
+			LED.start()
 			return True
 
 	def isRollOver(self, rVector, mVector):
@@ -139,12 +164,11 @@ class TriAxisThread(threading.Thread):
 			exp4 = 1
 		if exp4 < -1:
 			exp4 = -1
-		theta = math.acos(exp4)
+		theta = math.acos(exp4) * ROLLOVER_COEF
 
 		if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
 			LED = LEDThread()
 			LED.start()
-
 			return True
 		else:
 			return False
@@ -163,14 +187,24 @@ class TriAxisThread(threading.Thread):
 				self.rVector = [xValue, yValue, zValue]
 				pass
 
+			isAccident = False
 			mVector = [xValue, yValue, zValue]
-			if self.isCollision(self.rVector, mVector) or self.isRollOver(self.rVector, mVector):
+			if self.isRollOver(self.rVector, mVector):
 				isAccident = True
+
+			mVector[2] = mVector[2] * COLLISION_COEF_Z
+			if self.isHeadOnCollision(self.rVector, mVector):
+				isAccident = True
+			if self.isBroadsideCollision(self.rVector, mVector):
+				isAccident = True
+
+			#sendMsg(isAccident)
+
+			if self.numRef == MAX_REF:
+				self.numRef = 0
+				self.rVector = []
 			else:
-				isAccident = False
-
-			sendMsg(isAccident)
-
+				self.numRef = self.numRef + 1
 			time.sleep(DELAY/2)
 
 class ButtonThread(threading.Thread):
@@ -181,10 +215,15 @@ class ButtonThread(threading.Thread):
 		if not GPIO.input(BUTTON):
 			LED = LEDThread()
 			LED.start()
+			return True
+		else:
+			return False
 
 	def run(self):
 		while True:
-			self.isPushed()
+			isAccident = self.isPushed()
+			sendMsg(isAccident)
+	
 
 	
 ####################### Main ######################
