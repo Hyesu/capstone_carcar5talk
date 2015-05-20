@@ -10,7 +10,7 @@ connection = False
 
 #################### Wifi Configure #################################
 #wifi password
-passKey = '20103346'
+passKey = 'raspberry'
 scheme = None
 
 
@@ -59,11 +59,33 @@ class MonitoringConnection(threading.Thread):
 Monitor = MonitoringConnection()
 Monitor.start()
 Monitor.join()
+
 """
 
 
 
 ######################## Ping Thread ##############################
+import subprocess
+class PingThread(threading.Thread):
+
+	cmdPing = "ping 192.168.10.1"
+
+	def __init__(self):
+		threading.Thread.__init__(self)
+	
+	def run(self):
+		p =  subprocess.Popen(self.cmdPing,shell=True, stderr=subprocess.PIPE)
+		
+		while 1:
+			out = p.stderr.read(1)
+			if out == '' and p.poll()!= None:
+				break
+			if out !='':
+				break	
+		
+		
+
+
 ###################################################################
 
 
@@ -82,7 +104,6 @@ print myIp
 #Receive data until disconnect ( need edit )
 while 1:
 	data, addr = recvSock.recvfrom(64)
-	connection= True		
 	src = addr[0]
 	src = src +" "
 	if myIp != src:
