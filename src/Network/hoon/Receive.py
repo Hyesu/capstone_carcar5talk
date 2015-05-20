@@ -13,11 +13,16 @@
 import threading
 import socket
 import commands
+import time
+
+time.sleep(10)
+
 
 #Create Socket for receive msg
 recvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 #Bind with same network
 recvSock.bind(("",8080))
+
 
 #Get My IP Address
 myIP = commands.getoutput("hostname -I")
@@ -30,5 +35,6 @@ while 1:
 
 	#Only get others information
 	if myIP != srcAddr:
+		print srcAddr+"A"
+ 		print myIP+"A"
 		print data
-
