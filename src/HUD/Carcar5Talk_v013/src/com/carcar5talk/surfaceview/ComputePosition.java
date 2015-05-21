@@ -18,10 +18,10 @@ public class ComputePosition {
     private StraightLineEquation sle1, sle2;
 
     /* */
-    public ComputePosition(MyCar myCar, ArrayList<OtherCars> mOtherCars)
+    public ComputePosition(Container container)//MyCar myCar, ArrayList<OtherCars> mOtherCars)
     {
-        this.mMyCar = myCar;
-        this.mOtherCars = mOtherCars;
+        this.mMyCar = container.getMyCar(); //myCar;
+        this.mOtherCars = container.getOtherCars(); //mOtherCars;
         this.sle1 = new StraightLineEquation(mMyCar.getPosition(), new Vector(-0.00928, 0.0068));
         this.sle2 = sle1.getPerpendicularStraightLineEquation(mMyCar.getPosition());
     }
@@ -95,22 +95,45 @@ public class ComputePosition {
         double p2pDistance, p2lDistance, offset;
 
         for(int i = 0; i < mOtherCars.size(); i++) {
-            OtherCars otherCars = mOtherCars.get(i);
+////            // Create other car object
+////            OtherCars mCar = new OtherCars();
+//
+//            OtherCars otherCars = mOtherCars.get(i);
+//
+//            p2pDistance = getStraightDistance(otherCars);
+//            p2lDistance = getPointToLineDistance(sle1, otherCars);
+//
+//            offset = Math.sqrt(p2pDistance * p2pDistance - p2lDistance * p2lDistance);
+//
+//            otherCars.setX(offset);
+//            otherCars.setY(p2lDistance);
+//
+//            gpsToMeter(otherCars);
+//            meterToPixel(otherCars);
+//            checkDimension(sle1, sle2, otherCars);
 
-            p2pDistance = getStraightDistance(otherCars);
-            p2lDistance = getPointToLineDistance(sle1, otherCars);
+            //            // Create other car object
+//            OtherCars mCar = new OtherCars();
+
+            p2pDistance = getStraightDistance(mOtherCars.get(i));
+            p2lDistance = getPointToLineDistance(sle1, mOtherCars.get(i));
 
             offset = Math.sqrt(p2pDistance * p2pDistance - p2lDistance * p2lDistance);
 
-            otherCars.setX(offset);
-            otherCars.setY(p2lDistance);
+            mOtherCars.get(i).setX(offset);
+            mOtherCars.get(i).setY(p2lDistance);
 
-            gpsToMeter(otherCars);
-            meterToPixel(otherCars);
-            checkDimension(sle1, sle2, otherCars);
+            gpsToMeter(mOtherCars.get(i));
+            meterToPixel(mOtherCars.get(i));
+            checkDimension(sle1, sle2, mOtherCars.get(i));
 
+
+            Log.d(TAG + i + "'s Y", mOtherCars.get(i).getX() + "");
+            Log.d(TAG + i + "'s X", mOtherCars.get(i).getY() + "");
 //            Log.d(TAG + i + "'s pixel Y", otherCars.getX() + "");
 //            Log.d(TAG + i + "'s pixel X", otherCars.getY() + "");
+
+            //mOtherCars.add(i, mCar);
         }
     }
 

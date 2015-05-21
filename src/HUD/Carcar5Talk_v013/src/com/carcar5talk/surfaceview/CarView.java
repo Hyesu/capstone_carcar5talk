@@ -69,18 +69,12 @@ public class CarView extends SurfaceView implements Callback {
 		this.deviceHeight = getHeight();
 		this.mThread = new CarThread();
 
-		/* Creat my car object */
-		this.mMyCar = Carcar5Talk.mContainer.getMyCar();
-
 		/* Creat background object */
 		this.background = new Background();
 
-		/* Creat other cars object */
-		this.mOtherCars = Carcar5Talk.mContainer.getOtherCars();
-
-		/* Set My Car size */
-		position[0] = 150;
-		position[1] = 150;
+		/* Creat my car object and Set my car size */
+		this.mMyCar = Carcar5Talk.mContainer.getMyCar();
+		position[0] = 150; position[1] = 150;
 		mMyCar.setPosition(position);
 		mMyCar.setMyCar();
 
@@ -128,81 +122,52 @@ public class CarView extends SurfaceView implements Callback {
 		canvas.drawBitmap(background.background, 0, 0, null);
 	}
 
-	public void MyCarDraw(Canvas canvas) {
-		
-		////////////////////////////////////////////////////////
-		// myCar 위치 설정
-		////////////////////////////////////////////////////////
 
+	public void MyCarDraw(Canvas canvas) {
 		/* Center of display */
 		canvas.drawBitmap(mMyCar.getMyCar(), deviceWidth / 2 - 80, deviceHeight / 3, null);
-		//canvas.drawBitmap(mMyCar.getMyCar(), deviceWidth / 3 + 41, deviceHeight / 3, null);
-
-		//////////////////////////////////////////////////////
-		// 수정
-		//////////////////////////////////////////////////////
 	}
 
 
-
 	public void OtherCarsDraw(Canvas canvas) {
-		mOtherCars.get(0).setPosition(position);
-		mOtherCars.get(0).setOtherCars();
-
-		mOtherCars.get(1).setPosition(position);
-		mOtherCars.get(1).setOtherCars();
-
-		position[0] = mMyCar.getX();
-		position[1] = mMyCar.getY();
-
-//		Log.d(TAG + "' Y", (int) (mOtherCars.get(0).getX()) + "");
-//		Log.d(TAG + "' X", (int) (mOtherCars.get(0).getY()) + "");
-
-//		canvas.drawBitmap(mOtherCars.get(0).getOtherCars(), (int) (position[0] + mOtherCars.get(0).getX()), (int) (position[1] + mOtherCars.get(0).getY()), null);
-//		canvas.drawBitmap(mOtherCars.get(1).getOtherCars(), (int) (position[0] + mOtherCars.get(1).getX()), (int) (position[1] + mOtherCars.get(1).getY()), null);
-
-		if(Carcar5Talk.mContainer.getFlag()) {
-			for (int i = 0; i < mOtherCars.size(); i++) {
-				canvas.drawBitmap(mOtherCars.get(i).getOtherCars(), (int) (position[0] + mOtherCars.get(i).getX()), (int) (position[1] + mOtherCars.get(i).getY()), null);
-
-				Log.d(TAG + i + "'s Y", i + "");
-			}
+		/* Creat other cars object and Set other cars size */
+		this.mOtherCars = Carcar5Talk.mContainer.getOtherCars();
+		position[0] = 150; position[1] = 150;
+		for(int i = 0; i < mOtherCars.size(); i++) {
+			mOtherCars.get(i).setPosition(position);
+			mOtherCars.get(i).setOtherCars();
 		}
+
+		position[0] = deviceWidth / 2 - 80;
+		position[1] = deviceHeight / 3;
+
+		for (int i = 0; i < mOtherCars.size(); i++) {
+			canvas.drawBitmap(mOtherCars.get(i).getOtherCars(), (int) (position[0] + (int) mOtherCars.get(i).getX()), (int) (position[1] + (int) mOtherCars.get(i).getY()), null);
+
+//				Log.d(TAG + i + "'s X", (int) (position[0] + mOtherCars.get(i).getX()) + "");
+//				Log.d(TAG + i + "'s Y", (int) (position[1] + mOtherCars.get(i).getY()) + "");
+
+			Log.d(TAG + i + "'s Y", (int) mOtherCars.get(i).getX() + "");
+			Log.d(TAG + i + "'s X", (int) mOtherCars.get(i).getY() + "");
+		}
+
+
+
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[ComputePosition] 0's Y﹕ -22.0
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[ComputePosition] 0's X﹕ 22.0
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[ComputePosition] 1's Y﹕ -187.0
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[ComputePosition] 1's X﹕ 187.0
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[CarView]0's X﹕ 258
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[CarView]0's Y﹕ 400
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[CarView]1's X﹕ 93
+//		05-21 21:28:03.047  15789-16265/com.example.carcar5talk D/[CarView]1's Y﹕ 565
+
+
+
 //		else {
 //			canvas.drawBitmap(mOtherCars.get(0).getOtherCars(), deviceWidth - 215, deviceHeight - 215, null);
 //			canvas.drawBitmap(mOtherCars.get(1).getOtherCars(), deviceWidth - 215, deviceHeight - 215, null);
 //		}
-
-
-		/*
-		//////////////////////////////////////////////////////
-		mOtherCars 위치 설정
-		////////////////////////////////////////////////////
-		수정
-		////////////////////////////////////////////////////
-		if (mOtherCars[0].getY() < deviceHeight) {
-		canvas.drawBitmap(mOtherCars[0].getOtherCars(), mOtherCars[0].getX(), mOtherCars[0].getY(), null);
-		mOtherCars[0].isDetected = true;
-		}
-
-		if (mOtherCars[0].getY() < 0) {
-		position[0] = 50; position[1] = deviceHeight;
-		mOtherCars[0].setPosition(position);
-		mOtherCars[0].isDetected = false;
-		}
-
-
-		if (mOtherCars[1].getY() < deviceHeight) {
-		canvas.drawBitmap(mOtherCars[1].getOtherCars(), mOtherCars[1].getX(), mOtherCars[1].getY(), null);
-		mOtherCars[1].isDetected = true;
-		}
-
-		if (mOtherCars[1].getY() < 0) {
-		position[0] = deviceWidth - 200; position[1] = deviceHeight;
-		mOtherCars[1].setPosition(position);
-		mOtherCars[1].isDetected = false;
-		}
-		*/
 	}
 
 
@@ -232,65 +197,39 @@ public class CarView extends SurfaceView implements Callback {
 			
 			while (canRun) {		
 				canvas = mHolder.lockCanvas(); // Lock the canvas and Asign the buffer
-	
 
 				if (canvas != null) {
 					try {
 						synchronized (viewLock) {
 							try {
-//								OtherCarsDraw(canvas);
-//								position[0] = 50; position[1] = mOtherCars[0].getY() - 1;
-//								mOtherCars[0].setPosition(position);
-//
-//
-//								position[0] = deviceWidth - 200; position[1] = mOtherCars[1].getY() - 3;
-//								mOtherCars[1].setPosition(position);
-	
+
 								
 								//////////////////////////////////////////////////////
 								// 수정
 								//////////////////////////////////////////////////////
 
+								BackgroundDraw(canvas);
+								MyCarDraw(canvas);
+
 								if (Carcar5Talk.mContainer.getFlag()) {
-									//Log.d(TAG + " Before mContainer Flag", Carcar5Talk.mContainer.getFlag() + "");
+									Log.d(TAG + " Before mContainer Flag", Carcar5Talk.mContainer.getFlag() + "");
 
-									BackgroundDraw(canvas);
-									MyCarDraw(canvas);
-
-									computePosition = new ComputePosition(mMyCar, mOtherCars);
+									computePosition = new ComputePosition(Carcar5Talk.mContainer);
 									computePosition.computePosition();
 
 									OtherCarsDraw(canvas);
 
 									Carcar5Talk.mContainer.setFlag(false);
-									canRun = false;
+								}
+								else {
+									OtherCarsDraw(canvas);
 								}
 
-//								if(Carcar5Talk.mContainer.getFlag()) {
-//									Carcar5Talk.mContainer.parseData();
-//
-//									mMyCar = Carcar5Talk.mContainer.getMyCar();
-//									mOtherCars = Carcar5Talk.mContainer.getOtherCars();
-//
-//
-//
-//									Log.d(TAG + "M flag", mMyCar.getFlag() + "");
-//									Log.d(TAG + "M GPS", mMyCar.getPosition() + "");
-//									Log.d(TAG + "M Speed", mMyCar.getSpeed() + "");
-//									Log.d(TAG + "M # Of Cars", mMyCar.getNumOfCars() + "");
-//
-//									//Log.d(TAG + "O ID", "");
-//									Carcar5Talk.mContainer.setFlag(false);
-//								}
-
-//								if(Carcar5Talk.mContainer != null)
-//									Log.d(TAG + " rawData", Carcar5Talk.mContainer.getRawData());						
-								
 
 								//////////////////////////////////////////////////////
 								// 수정
 								//////////////////////////////////////////////////////
-								
+
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

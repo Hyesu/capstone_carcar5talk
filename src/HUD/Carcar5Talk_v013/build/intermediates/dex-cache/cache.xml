@@ -2,11 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/home/sungjung/workspace/Carcar5Talk_v012/libs/android-support-v4.jar"
+        jar="/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/libs/android-support-v4.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="33b27a8d2a5b87e6eb6c60e87a5374ffbfeacc3a">
-        <dex dex="/home/sungjung/workspace/Carcar5Talk_v012/build/intermediates/pre-dexed/debug/android-support-v4-2c890db6b67378cb66e4bce92cee3ef08d30d463.jar" />
+        <dex dex="/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/build/intermediates/pre-dexed/debug/android-support-v4-1d457fa3d68a98f6f8188b8e19c82168fb594b1c.jar" />
     </item>
 
 </items>

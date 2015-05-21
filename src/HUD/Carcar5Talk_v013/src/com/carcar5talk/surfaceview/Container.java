@@ -69,22 +69,7 @@ public class Container {
 		this.flag = flag;
 	}
 
-	/* Convert gps to position */
-	private int[] gpsConverter(String gpsStr)
-	{
-		int[] position = new int[2];
-		
-		/////////////////////////////////////////////////
-		// 수정
-		/////////////////////////////////////////////////
 
-
-
-		
-		return position;
-	}
-	
-	
 	/* Parse the raw data */
 	public void parseData()
 	{
@@ -116,7 +101,10 @@ public class Container {
 		mMyCar.setNumOfCars(Integer.valueOf(rawData.charAt(i)));
 		idx++; // idx = 30
 
-		
+
+		Log.d(TAG + " NumOfCars", "@@@@@@@@@@@@@@@@@@" + mMyCar.getNumOfCars());
+
+		mOtherCars.clear();
 		/* Set Other Car */
 		for (i = 0; i < mMyCar.getNumOfCars(); i++) {
 			// Create other car object
@@ -153,7 +141,7 @@ public class Container {
 				tmpStr += rawData.charAt(j);
 			mCar.setSpeed(Double.parseDouble(tmpStr));
 			idx = j;
-			
+
 			mOtherCars.add(i, mCar);
 		}
 	}

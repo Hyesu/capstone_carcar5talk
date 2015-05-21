@@ -8,4 +8,4 @@
         android:showAsAction="ifRoom|withText"
         android:title="@string/secure_connect"/>
 
-</menu><!-- From: file:/home/sungjung/workspace/Carcar5Talk_v012/res/menu/main.xml -->
+</menu><!-- From: file:/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/res/menu/main.xml -->

@@ -286,8 +286,7 @@ public class BluetoothChatService {
 			// Create a new listening server socket
 			try {
 				if (secure)
-					tmp = mAdapter.listenUsingRfcommWithServiceRecord(
-							NAME_SECURE, MY_UUID_SECURE);
+					tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
 			} catch (IOException e) {
 				Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
 			}
@@ -308,6 +307,7 @@ public class BluetoothChatService {
 				try {
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
+					//if(!socket.isConnected())
 					socket = mmServerSocket.accept();
 				} catch (IOException e) {
 					Log.e(TAG, "Socket Type: " + mSocketType
@@ -322,14 +322,14 @@ public class BluetoothChatService {
 						case STATE_LISTEN:
 						case STATE_CONNECTING:
 							// Situation normal. Start the connected thread.
-							connected(socket, socket.getRemoteDevice(),
-									mSocketType);
+							connected(socket, socket.getRemoteDevice(), mSocketType);
 							break;
 						case STATE_NONE:
 						case STATE_CONNECTED:
-							// Either not ready or already connected. Terminate
-							// Snew socket.
+							// Either not ready or already connected. Terminate new socket.
 							try {
+								Log.d(TAG, "socket close@@@@@@@@@@@@@@@@@@");
+
 								socket.close();
 							} catch (IOException e) {
 								Log.e(TAG, "Could not close unwanted socket", e);
@@ -484,9 +484,6 @@ public class BluetoothChatService {
                     // parseData()를 여기서 실행
 
 					Carcar5Talk.mContainer.setFlag(true);
-
-
-
 
 
 					Log.d(TAG + " After mContainer Flag", Carcar5Talk.mContainer.getFlag() + "");

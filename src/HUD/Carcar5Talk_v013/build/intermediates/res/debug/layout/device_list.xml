@@ -40,4 +40,4 @@
         android:layout_height="wrap_content"
         android:text="@string/button_scan"
     />
-</LinearLayout><!-- From: file:/home/sungjung/workspace/Carcar5Talk_v012/res/layout/device_list.xml -->
+</LinearLayout><!-- From: file:/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/res/layout/device_list.xml -->

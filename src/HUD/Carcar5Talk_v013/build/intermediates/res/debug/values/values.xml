@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/home/sungjung/workspace/Carcar5Talk_v012/res/values/dimens.xml -->
+    <!-- From: file:/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/res/values/dimens.xml -->
     <eat-comment/>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <!-- From: file:/home/sungjung/workspace/Carcar5Talk_v012/res/values/strings.xml -->
+    <!-- From: file:/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/res/values/strings.xml -->
     <eat-comment/>
     <string name="app_name">Carcar5Talk</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
@@ -20,7 +20,7 @@
     <string name="title_not_connected">not connected</string>
     <string name="title_other_devices">Other Available Devices</string>
     <string name="title_paired_devices">Paired Devices</string>
-    <!-- From: file:/home/sungjung/workspace/Carcar5Talk_v012/res/values/styles.xml -->
+    <!-- From: file:/home/sungjung/AndroidStudioProjects/Carcar5Talk_v013/res/values/styles.xml -->
     <eat-comment/>
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--
