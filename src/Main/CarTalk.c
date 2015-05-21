@@ -355,6 +355,9 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 	// set my speed
 	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
 	idx += LEN_SPEED;
+
+	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
+	idx += LEN_GPS;
 	
 	// set number of other cars
 	buf[idx] = (char)numCars;
