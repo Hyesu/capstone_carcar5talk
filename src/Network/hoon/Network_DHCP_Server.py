@@ -27,6 +27,10 @@ MSG_SIZE = 64
 SEM_NAME = "/CarTalk_sem_net_r"
 
 
+mq = None
+sem = None
+
+
 def init():
 	time.sleep(10)
 
