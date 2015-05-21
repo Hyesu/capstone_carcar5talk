@@ -36,7 +36,7 @@ def init():
 
 	mq = posix_ipc.MessageQueue(name=MQ_NAME,		\
 				    flags=MQ_FLAG, 		\
-				    mode=MQ_MODE,		\
+				    mode=MQ_PERM,		\
 				    max_messages=MQ_MSG,	\
 				    max_message_size=MSG_SIZE,	\
 				    read=True, write=True)
