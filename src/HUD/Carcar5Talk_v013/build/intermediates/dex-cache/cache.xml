@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/sungjung/workspace/Carcar5Talk_v012/libs/android-support-v4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="33b27a8d2a5b87e6eb6c60e87a5374ffbfeacc3a">
+        <dex dex="/home/sungjung/workspace/Carcar5Talk_v012/build/intermediates/pre-dexed/debug/android-support-v4-2c890db6b67378cb66e4bce92cee3ef08d30d463.jar" />
+    </item>
+
+</items>
