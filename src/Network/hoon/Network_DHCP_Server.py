@@ -51,7 +51,7 @@ def init():
 	myIP = commands.getoutput("hostname -I")
 	print myIP
 
-	return recvSock, myIp
+	return recvSock, myIP
 
 def sendMsg(data):
 	sem.acquire()
@@ -60,7 +60,8 @@ def sendMsg(data):
 
 
 ################# Main #####################
-recvSock, myIp = init()
+recvSock, myIP = init()
+print "after init"
 while True:
 	data , addr = recvSock.recvfrom(MSG_SIZE)
 	srcAddr = addr[0]
