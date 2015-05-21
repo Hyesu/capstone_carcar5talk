@@ -24,8 +24,9 @@
 #define NUM_THREAD	4			// for 4 modules: GPS, DetectAccident, Bluetooth, Network 
 #define GPS		0
 #define DETECT_ACCIDENT	1
-#define BLUETOOTH	2
-#define NETWORK		3
+#define NETWORK_R	2
+#define NETWORK_S	3
+#define BLUETOOTH	4
 
 #define LEN_ID		6
 #define LEN_GPS		22
@@ -58,7 +59,7 @@ typedef struct carInfo {
 	char dirVector[LEN_GPS + 1];
 } CarInfo;
 static pthread_t thrid[NUM_THREAD]; 
-static char* thrName[] = {"GPS", "Detect Accident", "Bluetooth", "Network"};
+static char* thrName[] = {"GPS", "Detect Accident", "Network_receive", "Network_send"};
 static CarInfo myInfo;
 
 static sem_t* semid[NUM_THREAD+1];

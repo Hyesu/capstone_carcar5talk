@@ -1,0 +1,466 @@
+wlan1     Scan completed :
+          Cell 01 - Address: 64:E5:99:FB:8E:E9
+                    ESSID:"carcar5"
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:130 Mb/s
+                    Extra:wpa_ie=dd160050f20101000050f20201000050f20201000050f202
+                    IE: WPA Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (1) : TKIP
+                        Authentication Suites (1) : PSK
+                    Extra:rsn_ie=30140100000fac020100000fac040100000fac020c00
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    Quality=100/100  Signal level=86/100  
+          Cell 02 - Address: 00:25:9C:7B:D0:E0
+                    ESSID:"linksys-g"
+                    Protocol:IEEE 802.11bg
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:off
+                    Bit Rates:54 Mb/s
+                    Quality=81/100  Signal level=25/100  
+          Cell 03 - Address: 00:0F:7D:90:2A:F1
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=18/100  Signal level=46/100  
+          Cell 04 - Address: 00:0F:7D:90:2A:F4
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=18/100  Signal level=47/100  
+          Cell 05 - Address: 50:60:28:15:10:E1
+                    ESSID:"KMU"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=66/100  Signal level=46/100  
+          Cell 06 - Address: 50:60:28:15:10:E3
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=60/100  Signal level=46/100  
+          Cell 07 - Address: 50:60:28:15:10:E4
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=27/100  Signal level=46/100  
+          Cell 08 - Address: 50:60:28:15:10:E5
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.412 GHz (Channel 1)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=48/100  Signal level=46/100  
+          Cell 09 - Address: 00:26:66:1A:D5:CC
+                    ESSID:"netapp"
+                    Protocol:IEEE 802.11bg
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:54 Mb/s
+                    Extra:wpa_ie=dd1a0050f20101000050f20202000050f2020050f20401000050f202
+                    IE: WPA Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (2) : TKIP CCMP
+                        Authentication Suites (1) : PSK
+                    Extra:rsn_ie=30180100000fac020200000fac02000fac040100000fac020000
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (2) : TKIP CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD9D0050F204104A0001101044000102103B000103104700102880288028801880A8800026661AD5CC1021001852616C696E6B20546563686E6F6C6F67792C20436F72702E1023001C52616C696E6B20576972656C6573732041636365737320506F696E74102400065254323836301042000831323334353637381054000800060050F20400011011000952616C696E6B415053100800020084103C000101
+                    Quality=58/100  Signal level=78/100  
+          Cell 10 - Address: 00:0F:7D:90:2A:D1
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=63/100  Signal level=46/100  
+          Cell 11 - Address: 9A:3B:16:DE:18:4D
+                    ESSID:"DIRECT-AW-MiniMax"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:65 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac020c00
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD670050F204104A0001101044000102103B00010310470010427A281D8E2D521E960BE6B780C7EE1D102100012010230001201024000120104200012010540008000A0050F2040005101100074D696E694D6178100800024108103C0001011049000600372A000120
+                    Quality=53/100  Signal level=38/100  
+          Cell 12 - Address: 50:60:28:14:C2:01
+                    ESSID:"KMU"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=84/100  Signal level=62/100  
+          Cell 13 - Address: 50:60:28:14:C2:03
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=90/100  Signal level=62/100  
+          Cell 14 - Address: 50:60:28:14:C2:04
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=78/100  Signal level=62/100  
+          Cell 15 - Address: 50:60:28:14:C2:05
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=100/100  Signal level=62/100  
+          Cell 16 - Address: 00:0F:7D:90:2A:D4
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=60/100  Signal level=48/100  
+          Cell 17 - Address: 00:0F:7D:90:2A:D5
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=63/100  Signal level=48/100  
+          Cell 18 - Address: 64:E5:99:A3:1C:94
+                    ESSID:"dp"
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:300 Mb/s
+                    Extra:wpa_ie=dd1a0050f20101000050f20202000050f2020050f20401000050f202
+                    IE: WPA Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (2) : TKIP CCMP
+                        Authentication Suites (1) : PSK
+                    Extra:rsn_ie=30180100000fac020200000fac02000fac040100000fac020000
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : TKIP
+                        Pairwise Ciphers (2) : TKIP CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD0E0050F204104A0001101044000102
+                    Quality=93/100  Signal level=42/100  
+          Cell 19 - Address: 50:60:28:14:BF:A4
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.432 GHz (Channel 5)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=42/100  Signal level=64/100  
+          Cell 20 - Address: 44:33:4C:C7:E6:2B
+                    ESSID:"castpro E62B"
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.437 GHz (Channel 6)
+                    Encryption key:off
+                    Bit Rates:300 Mb/s
+                    Quality=100/100  Signal level=42/100  
+          Cell 21 - Address: 00:26:66:DC:B9:8C
+                    ESSID:"cclab"
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:300 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010000
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                    Quality=36/100  Signal level=47/100  
+          Cell 22 - Address: 50:60:28:1B:6A:25
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=84/100  Signal level=48/100  
+          Cell 23 - Address: 00:08:9F:76:B4:42
+                    ESSID:"HTS"
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:wpa_ie=dd180050f20101000050f20401000050f20401000050f2020c00
+                    IE: WPA Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac020c00
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD750050F204104A0001101044000102103B00010310470010D96C7EFC2F8938F1EFBD6E5148BFA81210210006697054494D4510230008697054494D4541501024000A31323334353637383930104200033336301054000800060050F204000110110008697054494D454150100800020084103C000101
+                    Quality=100/100  Signal level=23/100  
+          Cell 24 - Address: 00:0F:7D:94:B6:75
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=24/100  Signal level=43/100  
+          Cell 25 - Address: 00:0F:7D:7C:E2:11
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=27/100  Signal level=43/100  
+          Cell 26 - Address: 00:0F:7D:7C:E2:14
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=54/100  Signal level=43/100  
+          Cell 27 - Address: 00:0F:7D:7C:E2:10
+                    ESSID:"KMU"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=54/100  Signal level=46/100  
+          Cell 28 - Address: 50:60:28:1B:6A:21
+                    ESSID:"KMU"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=0/100  Signal level=48/100  
+          Cell 29 - Address: 50:60:28:1B:6A:23
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=0/100  Signal level=48/100  
+          Cell 30 - Address: 50:60:28:1B:6A:26
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.452 GHz (Channel 9)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=0/100  Signal level=56/100  
+          Cell 31 - Address: 02:E0:B5:3F:BF:95
+                    ESSID:"portthru"
+                    Protocol:IEEE 802.11bg
+                    Mode:Ad-Hoc
+                    Frequency:2.457 GHz (Channel 10)
+                    Encryption key:off
+                    Bit Rates:54 Mb/s
+                    Quality=80/100  Signal level=8/100  
+          Cell 32 - Address: 32:CD:A7:8E:5C:38
+                    ESSID:"DIRECT-E9M283x Series"
+                    Protocol:IEEE 802.11g
+                    Mode:Master
+                    Frequency:2.462 GHz (Channel 11)
+                    Encryption key:on
+                    Bit Rates:54 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac020c00
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD800050F204104A0001101044000102103B0001031047001016A65700007C1000BB4932CDA78E5C381021000842726F6164636F6D10230006536F66744150102400013010420001301054000800060050F20400011011000C4D3238337820536572696573100800020018103C0001011049000E00372A0001200106FFFFFFFFFFFF
+                    Quality=39/100  Signal level=47/100  
+          Cell 33 - Address: 64:E5:99:A3:58:4C
+                    ESSID:"kesl"
+                    Protocol:IEEE 802.11bg
+                    Mode:Master
+                    Frequency:2.462 GHz (Channel 11)
+                    Encryption key:on
+                    Bit Rates:54 Mb/s
+                    Quality=79/100  Signal level=23/100  
+          Cell 34 - Address: C4:72:95:D2:F9:32
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.462 GHz (Channel 11)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=33/100  Signal level=46/100  
+          Cell 35 - Address: 00:08:9F:DD:89:9C
+                    ESSID:""
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.467 GHz (Channel 12)
+                    Encryption key:on
+                    Bit Rates:300 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac020000
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : PSK
+                    IE: Unknown: DD0E0050F204104A0001101044000102
+                    Quality=100/100  Signal level=46/100  
+          Cell 36 - Address: FA:8F:CA:5C:E0:09
+                    ESSID:""
+                    Protocol:IEEE 802.11bgn
+                    Mode:Master
+                    Frequency:2.467 GHz (Channel 12)
+                    Encryption key:off
+                    Bit Rates:72 Mb/s
+                    Quality=100/100  Signal level=42/100  
+          Cell 37 - Address: 50:60:28:15:12:A1
+                    ESSID:"KMU"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.472 GHz (Channel 13)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=42/100  Signal level=43/100  
+          Cell 38 - Address: 50:60:28:15:12:A3
+                    ESSID:"KMU(info)"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.472 GHz (Channel 13)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=54/100  Signal level=43/100  
+          Cell 39 - Address: 50:60:28:15:12:A4
+                    ESSID:"KMU_MULTIMEDIA"
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.472 GHz (Channel 13)
+                    Encryption key:on
+                    Bit Rates:144 Mb/s
+                    Extra:rsn_ie=30140100000fac040100000fac040100000fac010100
+                    IE: IEEE 802.11i/WPA2 Version 1
+                        Group Cipher : CCMP
+                        Pairwise Ciphers (1) : CCMP
+                        Authentication Suites (1) : 802.1x
+                       Preauthentication Supported
+                    Quality=48/100  Signal level=43/100  
+          Cell 40 - Address: 50:60:28:15:12:A5
+                    ESSID:""
+                    Protocol:IEEE 802.11gn
+                    Mode:Master
+                    Frequency:2.472 GHz (Channel 13)
+                    Encryption key:off
+                    Bit Rates:144 Mb/s
+                    Quality=48/100  Signal level=43/100  
+

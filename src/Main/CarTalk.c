@@ -17,13 +17,16 @@ void* runThread(void* arg);
 
 int thr_GPS();
 int thr_DetectAccident();
-int thr_Bluetooth();
-int thr_Network();
+int thr_Network_Send();
+int thr_Network_Receive();
 
 int updateDirInfo(const char* oldGPS);
 int getMACAddress();
-int getMsg(const int id, char* old, char* new, const int msgSize);
+int getMsg1(const int id, char* old, char* new, const int msgSize);
+int getMsg2(const int id, char* buf, const int msgSize);
 int sendMsg(const int id, const char* buf);
+int makeMsgForPi(char* buf);
+int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo);
 
 int main(int argc, char** argv) {
 	if(init() < 0) {
@@ -48,26 +51,26 @@ int init() {
 
 	sem_unlink(SEM_NAME_GPS);
 	sem_unlink(SEM_NAME_DA);
-	//sem_unlink(SEM_NAME_NET_R);
-	//sem_unlink(SEM_NAME_NET_S);
+	sem_unlink(SEM_NAME_NET_R);
+	sem_unlink(SEM_NAME_NET_S);
 	sem_unlink(SEM_NAME_BLUE);
 
 	mq_unlink(MQ_NAME_GPS);
 	mq_unlink(MQ_NAME_DA);
-	//mq_unlink(MQ_NAME_NET_R);
-	//mq_unlink(MQ_NAME_NET_S);
+	mq_unlink(MQ_NAME_NET_R);
+	mq_unlink(MQ_NAME_NET_S);
 	mq_unlink(MQ_NAME_BLUE);
 
 	semid[GPS] = getsem(SEM_NAME_GPS);
 	semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
-	//semid[NETWORKE] = getsem(SEM_NAME_NET_R);
-	//semid[NETWORK+1] = getsem(SEM_NAME_NET_S); 
-	//semid[BLUETOOTH] = getsem(SEM_NAME_BLUETOOTH); 
+	semid[NETWORK_S] = getsem(SEM_NAME_NET_S);
+	semid[NETWORK_R] = getsem(SEM_NAME_NET_R); 
+	semid[BLUETOOTH] = getsem(SEM_NAME_BLUE); 
 
 	mqid[GPS] = getmsgq(MQ_NAME_GPS, MSG_SIZE_GPS); 
 	mqid[DETECT_ACCIDENT] = getmsgq(MQ_NAME_DA, MSG_SIZE_DA); 
-//	mqid[NETWORK_RECEIVE] = getmsgq(MQ_NAME_NET_R, MSG_SIZE_NET);
-//	mqid[NETWORK_SEND] = getmsgq(MQ_NAME_NET_S, MSG_SIZE_NET);
+	mqid[NETWORK_R] = getmsgq(MQ_NAME_NET_R, MSG_SIZE_NET);
+	mqid[NETWORK_S] = getmsgq(MQ_NAME_NET_S, MSG_SIZE_NET);
 	mqid[BLUETOOTH] = getmsgq(MQ_NAME_BLUE, MSG_SIZE_BLUE);
 
 	if(getMACAddress() < 0) {
@@ -100,14 +103,14 @@ int join() {
 void finalize() {
 	rmmsgq(mqid, MQ_NAME_GPS);
 	rmmsgq(mqid, MQ_NAME_DA);
-//	rmmsgq(mqid, MQ_NAME_NET_R);
-//	rmmsgq(mqid, MQ_NAME_NET_S);
+	rmmsgq(mqid, MQ_NAME_NET_R);
+	rmmsgq(mqid, MQ_NAME_NET_S);
 	rmmsgq(mqid, MQ_NAME_BLUE);
 
 	rmsem(SEM_NAME_GPS);
 	rmsem(SEM_NAME_DA);
-//	rmsem(SEM_NAME_NET_R);
-//	rmsem(SEM_NAME_NET_S);
+	rmsem(SEM_NAME_NET_R);
+	rmsem(SEM_NAME_NET_S);
 	rmsem(SEM_NAME_BLUE);
 }
 void* runThread(void* arg) {
@@ -117,10 +120,10 @@ void* runThread(void* arg) {
 		if(thr_GPS() < 0)	 	perror("GPS thread error");
 	} else if(pthread_equal(id, thrid[DETECT_ACCIDENT])) {
 		if(thr_DetectAccident() < 0) 	perror("Detect Accident thread error");
-	} else if(pthread_equal(id, thrid[BLUETOOTH])) {
-		if(thr_Bluetooth() < 0)		perror("Bluetooth thread error");
-	} else if(pthread_equal(id, thrid[NETWORK])) {
-		if(thr_Network() < 0)		perror("Network thread error");
+	} else if(pthread_equal(id, thrid[NETWORK_S])) { 
+		if(thr_Network_Send() < 0)	perror("Network thread error");
+	} else if(pthread_equal(id, thrid[NETWORK_R])) {
+		if(thr_Network_Receive() < 0)	perror("Network thread error");
 	} else {
 		perror("abnormal thread id");
 		return NULL;
@@ -135,7 +138,7 @@ int thr_GPS() {
 	old[0] = new[0] = '\0';
 	while(1) {
 		sleep(INTERVAL);
-		res = getMsg(GPS, old, new, MSG_SIZE_GPS);
+		res = getMsg1(GPS, old, new, MSG_SIZE_GPS);
 		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
 
@@ -152,14 +155,15 @@ int thr_GPS() {
 	return 0;
 }
 int thr_DetectAccident() {
-	char old[MSG_SIZE_DA];
-	char new[MSG_SIZE_DA];
-	int res;
-
-	old[0] = new[0] = '\0';
 	while(1) {
+		char old[MSG_SIZE_DA];
+		char new[MSG_SIZE_DA];
+		int res;
+
+		old[0] = new[0] = '\0';
+
 		sleep(INTERVAL);
-		res = getMsg(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
+		res = getMsg1(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
 		if(old[0] != '0' && res < 0 && errno == EAGAIN) {
 			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
 			else if(myInfo.flag % 2)	myInfo.flag--;
@@ -167,20 +171,64 @@ int thr_DetectAccident() {
 	}
 	return 0;
 }
-int thr_Bluetooth()  {
-	char buf[MSG_SIZE_BLUE];
-	if(encodeForBluetooth(buf) < 0) {
-		perror("encodeForBluetooth");
-		return -1;
-	}
-	if(sendMsg(BLUETOOTH, buf) < 0) {
-		perror("sendMsg(bluetooth)");
-		return -1;
+int thr_Network_Send() {
+	while(1) {
+		char buf[MSG_SIZE_NET];
+		if(makeMsgForPi(buf) < 0) {
+			perror("makeMsgForPi");
+			return -1;
+		}
+		if(sendMsg(NETWORK_S, buf) < 0) {
+			perror("sendMsg(network_s)");
+			return -1;
+		}
+		sleep(INTERVAL);
 	}
 	return 0;
 }
-int thr_Network() {
-	// not completed yet
+int thr_Network_Receive() {
+	while(1) {
+		int numCars = 0;
+		// otherCars should be implement later!
+		CarInfo otherCars[30];
+		char buf[MSG_SIZE_NET];
+		char msg[MSG_SIZE_BLUE];
+
+		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
+			//this part should be refactoried later to some function
+			int idx = 0;
+			otherCars[numCars].flag = buf[idx];
+			idx++;
+
+			memcpy(otherCars[numCars].id, buf+idx, LEN_ID);
+			idx += LEN_ID;
+
+			memcpy(otherCars[numCars].gps, buf+idx, LEN_GPS);
+			idx += LEN_GPS;
+			otherCars[numCars].gps[LEN_GPS] = '\0';
+
+			memcpy(otherCars[numCars].speed, buf+idx, LEN_SPEED);
+			idx += LEN_SPEED;
+			otherCars[numCars].speed[LEN_SPEED] = '\0';
+
+			// check direction whether other car's direction is equal to me or not
+			// not implemented yet. currently default yes!
+			otherCars[numCars].flag |= 2;
+
+			numCars++;
+		}
+
+		// make msg for android to display to HUD
+		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
+			perror("makeMsgForHUD");
+			return -1;
+		}
+		if(sendMsg(BLUETOOTH, msg) < 0) {
+			perror("sendMsg(bluetooth)");
+			return -1;
+		}
+		sleep(INTERVAL);
+	}
 	return 0;
 }
 
@@ -241,7 +289,7 @@ int getMACAddress() {
 	}
 	fclose(macFile);
 }
-int getMsg(const int id, char* old, char* new, const int msgSize) {
+int getMsg1(const int id, char* old, char* new, const int msgSize) {
 	int res;
 
 	sem_wait(semid[id]);
@@ -249,6 +297,14 @@ int getMsg(const int id, char* old, char* new, const int msgSize) {
 	while((res = mq_receive(mqid[id], new, msgSize, NULL)) > 0){
 		strcpy(old, new);
 	}
+	sem_post(semid[id]);
+	return res;
+}
+int getMsg2(const int id, char* buf, const int msgSize) {
+	int res;
+	
+	sem_wait(semid[id]);
+	res = mq_receive(mqid[id], buf, msgSize, NULL);
 	sem_post(semid[id]);
 	return res;
 }
@@ -260,29 +316,70 @@ int sendMsg(const int id, const char* buf) {
 	sem_post(semid[id]);
 	return res;
 }
-int encodeForBluetooth(char* buf) {
-	// currently except another cars' information.
-	// only send my car's information to Android
-	int idx = 0;
-	idx++;		// just increment idx for skip flag.(flag is not used, currently)
+int makeMsgForPi(char* buf) {
+	int idx=0;
 
-	// my GPS	
-	if(memcpy(buf+idx, myInfo.gps, LEN_GPS) == NULL) {
-		perror("memcpy(buf, myInfo.gps)");
-		return -1;
-	}
+	// set flag	
+	buf[idx] = myInfo.flag;
+	idx++;
+
+	// set MAC Address
+	memcpy(buf+idx, myInfo.id, LEN_ID);
+	idx += LEN_ID;
+
+	// set GPS
+	memcpy(buf+idx, myInfo.gps, LEN_GPS);
 	idx += LEN_GPS;
 
-	// my Speed
-	if(memcpy(buf+idx, myInfo.speed, LEN_SPEED) == NULL) {
-		perror("memcpy(buf, myInfo.speed)");
-		return -1;
-	}
+	// set speed
+	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
 	idx += LEN_SPEED;
 
-	// Another Cars' Info
+	// set vector
+	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
+	idx += LEN_GPS;
 
+	return 0;
+}
+int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
+	int idx = 0;
+	int i;
+	
+	//set flag. now not used
+	idx++;
 
+	// set my gps
+	memcpy(buf+idx, myInfo.gps, LEN_GPS);
+	idx += LEN_GPS;
 
+	// set my speed
+	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
+	idx += LEN_SPEED;
+
+	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
+	idx += LEN_GPS;
+	
+	// set number of other cars
+	buf[idx] = (char)numCars;
+	idx++;
+
+	// set other cars info 
+	for(i=0; i<numCars; i++) {
+		// set id of other car
+		memcpy(buf+idx, otherInfo[i].id, LEN_ID);
+		idx += LEN_ID;
+
+		// set flag of other car
+		buf[idx] = otherInfo[i].flag;
+		idx++;
+
+		// set gps of other car
+		memcpy(buf+idx, otherInfo[i].gps, LEN_GPS);
+		idx += LEN_GPS;
+
+		// set speed of other car
+		memcpy(buf+idx, otherInfo[i].speed, LEN_SPEED);
+		idx += LEN_SPEED;
+	}
 	return 0;
 }
