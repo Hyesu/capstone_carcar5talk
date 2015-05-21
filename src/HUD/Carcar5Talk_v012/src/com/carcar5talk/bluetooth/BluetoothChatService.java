@@ -479,11 +479,7 @@ public class BluetoothChatService {
 					
 					/* Init container class && Set raw data */
 					Carcar5Talk.mContainer.setRawData(rawData);;
-					//mContainer.setRawData(rawData);
-					
-					//////////////////////////////////////////////////////
-					// ¼öÁ¤
-					//////////////////////////////////////////////////////
+
 					
 					
 					mHandler.obtainMessage(Carcar5Talk.MESSAGE_READ, bytes, -1, rawData).sendToTarget();

@@ -1,17 +1,11 @@
 package com.carcar5talk.surfaceview;
 
-import java.util.ArrayList;
-
-import com.carcar5talk.bluetooth.BluetoothChatService;
-import com.carcar5talk.bluetooth.Carcar5Talk;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -35,16 +29,6 @@ public class CarView extends SurfaceView implements Callback {
 	private static OtherCars[] mOtherCars;
 	private static Background background;
 	private int numOfCars;
-	
-	//////////////////////////////////////////////////////
-	// 수정
-	//////////////////////////////////////////////////////
-	
-	//private ArrayList<OtherCars> mOtherCars;
-	
-	//////////////////////////////////////////////////////
-	// 수정
-	//////////////////////////////////////////////////////
 
 	
 
@@ -78,42 +62,15 @@ public class CarView extends SurfaceView implements Callback {
 		mMyCar.setMyCar();
 		
 		mOtherCars[0] = new OtherCars();
-		position[0] = 150; position[1] = 150;
 		mOtherCars[0].setPosition(position);
 		mOtherCars[0].setOtherCars();
 		
 		mOtherCars[1] = new OtherCars();
-		position[0] = 150; position[1] = 150;
 		mOtherCars[1].setPosition(position);
 		mOtherCars[1].setOtherCars();
 		
 		background = new Background(); 								
 
-		//////////////////////////////////////////////////////
-		// 수정
-		//////////////////////////////////////////////////////
-		
-		
-		
-//		/* Creat my car object */
-//		this.mMyCar = mContainer.getMyCar();
-//		this.numOfCars = mMyCar.getNumOfCars();
-//		
-//		/* Creat other cars object */
-//		this.mOtherCars = mContainer.getOtherCars();
-//		
-//		/* Creat background object */
-//		this.background = new Background();
-//		
-//		/* Update information of cars */
-//		mContainer.parseData();
-		
-		
-		
-		//////////////////////////////////////////////////////
-		// 수정
-		//////////////////////////////////////////////////////
-		
 		
 		
 		try {
@@ -121,13 +78,6 @@ public class CarView extends SurfaceView implements Callback {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		
-		position[0] = 50; position[1] = deviceHeight / 2; 
-		mOtherCars[0].setPosition(position);
-		
-		position[0] = deviceWidth - 200; position[1] = deviceHeight / 4;
-		mOtherCars[1].setPosition(position);
 	}
 
 	@Override
@@ -162,25 +112,10 @@ public class CarView extends SurfaceView implements Callback {
 
 	public void MyCarDraw(Canvas canvas) {
 		
-		////////////////////////////////////////////////////////
-		// myCar 위치 설정
-		
-		//////////////////////////////////////////////////////
-		// 수정
-		//////////////////////////////////////////////////////
-		
-		
 		canvas.drawBitmap(mMyCar.getMyCar(), deviceWidth / 3 + 42, deviceHeight / 2, null);
 	}
 
 	public void OtherCarsDraw(Canvas canvas) {
-		// //////////////////////////////////////////////////////
-		// mOtherCars 위치 설정
-		
-		//////////////////////////////////////////////////////
-		// 수정
-		//////////////////////////////////////////////////////
-		
 		
 		// 다른 차량 출력조건 만족시 출력
 		if (mOtherCars[0].getY() < deviceHeight) {
@@ -254,21 +189,7 @@ public class CarView extends SurfaceView implements Callback {
 								
 								position[0] = deviceWidth - 200; position[1] = mOtherCars[1].getY() - 3;
 								mOtherCars[1].setPosition(position);
-	
-								
-								//////////////////////////////////////////////////////
-								// 수정
-								//////////////////////////////////////////////////////
-								
-								
-//								if(Carcar5Talk.mContainer != null)
-//									Log.d(TAG + " rawData", Carcar5Talk.mContainer.getRawData());						
-								
 
-								//////////////////////////////////////////////////////
-								// 수정
-								//////////////////////////////////////////////////////
-								
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
