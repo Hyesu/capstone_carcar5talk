@@ -17,7 +17,6 @@ int extractGPSvalue(const unsigned char* gprmc);
 int sendGPSvalue(const GPSValue gv);
 
 float knot2kmhr(float knot);
-void printValid(char isValid);
 
 int main(int argc, char** argv) {
 	int gps;
@@ -58,10 +57,6 @@ int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2
 	options->c_lflag = 0;
 	tcflush(*gps, TCIFLUSH);
 	tcsetattr(*gps, TCSANOW, options);
-
-	wiringPiSetup();
-	pinMode(LED_RED, OUTPUT);
-	pinMode(LED_GREEN, OUTPUT);
 
 	mqid = getmsgq(MSGQ_NAME, MSG_SIZE);
 	semid = getsem(SEM_NAME);
@@ -118,7 +113,6 @@ int extractGPSvalue(const unsigned char* gprmc) {
 			temp[i] = '\0';
 			gv.speed = knot2kmhr(atof(temp));
 
-			printValid(prot[GPS_VALID]);
 
 			// print value for log
 			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
@@ -150,13 +144,4 @@ int sendGPSvalue(const GPSValue gv) {
 }
 float knot2kmhr(float knot) {
 	return knot * 1.852;
-}
-void printValid(char isValid) {
-	if(isValid == 'V') {
-		digitalWrite(LED_RED, HIGH);
-		digitalWrite(LED_GREEN, LOW);
-	} else {
-		digitalWrite(LED_GREEN, HIGH);
-		digitalWrite(LED_RED, LOW);
-	}
 }
