@@ -15,9 +15,9 @@ import subprocess
 
 ################### Variable ##############
 nickname = 'home'    
-iface = 'wlan0'			#interface
-ssid = 'carcar5'		#essid
-passKey = 'raspberry'		#password
+iface = 'wlan1'			#interface
+ssid = 'hoonwifi'		#essid
+passKey = 'qaws0204'		#password
 scheme = None			
 port = 8080			
 broadcastAddr = '192.168.10.0'	
@@ -64,7 +64,7 @@ def scanWifi():
 
 			pid = os.fork()
 			# Parent process : Send Data	
-			if pid > 0 :
+			if pid:
 				print "Parent PID : " + str(os.getpid())
 				return True
 			# Child process : Receive Data
@@ -72,9 +72,9 @@ def scanWifi():
 				print "Child PID : " + str(os.getpid()) + " Parent PID : " + str(os.getppid())	
 				#subprocess.call(['python','Receive.py'])
 				#os.execl('/usr/bin/python2.7/python','/usr/bin/python2.7/python','/home/pi/capstone_carcaar5talk/src/Network/hoon/Recieve.py')
-				isChild = True
-				print "This isChild : " + str(isChild) 
-				return True
+				#isChild = True
+				#return True
+				receiveData()
 
 def sendData():
 	print "Send Data Start"
@@ -108,14 +108,17 @@ def receiveData():
 	myIP = commands.getoutput("hostname -I")
 	
 	while 1:
-		data, addr = recvSock.recvfrom(64)
-		srcAddr = addr[0]
-		srcAddr = srcAddr + " "
-		
-		#Only get others information
-		if myIP != srcAddr:
-			print data		
+		try :
+			data, addr = recvSock.recvfrom(64)
+			srcAddr = addr[0]
+			srcAddr = srcAddr + " "
 			
+			#Only get others information
+			if myIP != srcAddr:
+				print data		
+			
+		except :
+			sys.exit(0)	
 
 
 def signalHandler(signal, frame):
