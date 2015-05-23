@@ -14,9 +14,22 @@ import threading
 import socket
 import commands
 import time
+import signal
+import subprocess
+import sys
+import os
+
+
+
+def signalHandler(SIGNO,frame):
+	print "kill"
+	sys.exit(0)	
+	
+	
+signal.signal(signal.SIGTERM, signalHandler)
+
 
 time.sleep(10)
-
 
 #Create Socket for receive msg
 recvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -36,5 +49,6 @@ while 1:
 	#Only get others information
 	if myIP != srcAddr:
 		print srcAddr+"A"
- 		print myIP+"A"
+		print myIP+"A"
 		print data
+

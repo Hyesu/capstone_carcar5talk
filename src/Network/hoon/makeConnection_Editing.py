@@ -6,6 +6,7 @@ from wifi import Cell, Scheme
 import socket
 import time
 import commands
+import sys
 
 ################### Variable ##############
 nickname = 'home'    
@@ -22,7 +23,7 @@ def scanWifi():
 	while 1:	
 		cellName=None
 		#Wifi scannig use interface 'wlan0'
-		cellList = Cell.all('wlan0')
+		cellList = Cell.all(iface)
 
 
 		print "Scan Around Cell"
@@ -37,12 +38,15 @@ def scanWifi():
 			print "Can not found <carcar5> try again"
 			time.sleep(1)
 			continue
+
+		# if there is 'carcar5' ap 
+		# Make connection 
 		else :
 			temp = Scheme.find(iface,nickname)
 			if temp is not None:
 				temp.delete()
 
-			scheme = Scheme.for_cell(ifcae,nickname,cellName, passKey)
+			scheme = Scheme.for_cell(iface,nickname,cellName, passKey)
 			scheme.save()
 			scheme.activate()
 				
@@ -64,8 +68,8 @@ def sendData():
 		#KeyboadInerrupt .. it needs to debug and programming 	
 		except KeyboardInterrupt:
 			print "KeyboadInterrupt!!!! Exit the program Bye~~"
-			sendSock.close()
-			return 0 
+			sys.exit(0)
+			
 
 		#If disconnect ...
 		except :
