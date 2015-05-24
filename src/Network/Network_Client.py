@@ -72,11 +72,20 @@ def init():
 	return mq_s, sem_s, mq_r, sem_r
 
 def receiveMsg():
-	sem_s.acquire()
-	msg = mq_s.receive()
-	sem_s.release()
+	try :
+		sem_s.acquire()
+		msg = mq_s.receive()
+		sem_s.release()
+		
+		if msg:
+			return msg[0]
+		else:
+			return None
 
-	return msg 
+	except posix_ipc.BusyError:
+		sem_s.release()	
+		print "Non Queue ,, Not yet "
+
 
 def sendMsg(data):
 	sem_r.acquire()
@@ -140,9 +149,8 @@ def sendData(pid):
 	while 1:
 		try:
 			message = receiveMsg()
-			print "Network: sendData()  " 
-			print  message
-			#sendSock.sendto(message, (broadcastAddr,port))
+			if message :
+				sendSock.sendto(message, (broadcastAddr,port))
 			time.sleep(sendInterval)  #0.7sec
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	

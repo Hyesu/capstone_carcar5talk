@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
 int init() {
 	int i;
 
+	// unlink ipc facility
 	sem_unlink(SEM_NAME_GPS);
 	sem_unlink(SEM_NAME_DA);
 	sem_unlink(SEM_NAME_NET_R);
@@ -61,10 +62,11 @@ int init() {
 	mq_unlink(MQ_NAME_NET_S);
 	mq_unlink(MQ_NAME_BLUE);
 
+	// make ipc facility
 	semid[GPS] = getsem(SEM_NAME_GPS);
 	semid[DETECT_ACCIDENT] = getsem(SEM_NAME_DA);
-	semid[NETWORK_S] = getsem(SEM_NAME_NET_S);
-	semid[NETWORK_R] = getsem(SEM_NAME_NET_R); 
+	semid[NETWORK_S] = getsem(SEM_NAME_NET_S);	// semaphore for my info to send
+	semid[NETWORK_R] = getsem(SEM_NAME_NET_R); 	// semaphore for receiving other info
 	semid[BLUETOOTH] = getsem(SEM_NAME_BLUE); 
 
 	mqid[GPS] = getmsgq(MQ_NAME_GPS, MSG_SIZE_GPS); 
@@ -178,6 +180,9 @@ int thr_Network_Send() {
 			perror("makeMsgForPi");
 			return -1;
 		}
+//debug
+printf("CarTalk::Net_send: buf(%s)\n", buf);
+
 		if(sendMsg(NETWORK_S, buf) < 0) {
 			perror("sendMsg(network_s)");
 			return -1;
@@ -191,10 +196,13 @@ int thr_Network_Receive() {
 		int numCars = 0;
 		// otherCars should be implement later!
 		CarInfo otherCars[30];
-		char buf[MSG_SIZE_NET];
-		char msg[MSG_SIZE_BLUE];
+		char buf[MSG_SIZE_NET];  // buf for receiving other info
+		char msg[MSG_SIZE_BLUE]; // buf for bluetooth
 
 		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
+//debug
+printf("CarTalk::Net_rec: buf(%s)\n", buf);
+
 			//this part should be refactoried later to some function
 			int idx = 0;
 			otherCars[numCars].flag = buf[idx];
