@@ -56,7 +56,7 @@ def init():
 	mq_s = posix_ipc.MessageQueue(name=MQ_NAME_S,		\
 				    flags=MQ_FLAG,		\
 				    mode=MQ_PERM,		\
-				    max_message=MQ_MSG,		\
+				    max_messages=MQ_MSG,		\
 				    max_message_size=MSG_SIZE,	\
 				    read=True, write=True)
 	sem_s = posix_ipc.Semaphore(SEM_NAME_S)
@@ -64,22 +64,24 @@ def init():
 	mq_r = posix_ipc.MessageQueue(name=MQ_NAME_R,		\
 				    flags=MQ_FLAG,		\
 				    mode=MQ_PERM,		\
-				    max_message=MQ_MSG,		\
+				    max_messages=MQ_MSG,		\
 				    max_message_size=MSG_SIZE,	\
 				    read=True, write=True)
 	sem_r = posix_ipc.Semaphore(SEM_NAME_R)
+	
+	return mq_s, sem_s, mq_r, sem_r
 
-def receiveMsg(sem, mq):
-	sem.acquire()
-	msg = mq.receive()
-	sem.release()
+def receiveMsg():
+	sem_s.acquire()
+	msg = mq_s.receive()
+	sem_s.release()
 
-	return data
+	return msg 
 
-def sendMsg(sem, mq, data):
-	sem.acquire()
-	mq.send(data)
-	sem.release()
+def sendMsg(data):
+	sem_r.acquire()
+	mq_r.send(data)
+	sem_r.release()
 
 
 def scanWifi():
@@ -133,12 +135,14 @@ def scanWifi():
 
 def sendData(pid):
 	print "Send Data Start"
+	isParent = True
 		
 	while 1:
 		try:
-			message = receiveMsg(sem_s, mq_s)
-			print "Network: sendData(%s)" %message
-			sendSock.sendto(message, (broadcastAddr,port))
+			message = receiveMsg()
+			print "Network: sendData()  " 
+			print  message
+			#sendSock.sendto(message, (broadcastAddr,port))
 			time.sleep(sendInterval)  #0.7sec
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	
@@ -148,7 +152,7 @@ def sendData(pid):
 			
 
 		#If disconnect ...
-		except :
+		except socket.error:
 			#print str(os.getpid()) + "---> " + str(pid)
 			
 			os.kill(pid,signal.SIGTERM)
@@ -166,18 +170,15 @@ def receiveData():
 	myIP = commands.getoutput("hostname -I")
 	
 	while 1:
-		try :
-			data, addr = recvSock.recvfrom(64)
-			srcAddr = addr[0]
-			srcAddr = srcAddr + " "
+		data, addr = recvSock.recvfrom(64)
+		srcAddr = addr[0]
+		srcAddr = srcAddr + " "
+		
+		#Only get others information
+		if myIP != srcAddr:
+			print "Network: receiveData()" + data
+			sendMsg(data)
 			
-			#Only get others information
-			if myIP != srcAddr:
-				print "Network: receiveData(%s)" %data
-				sendMsg(sem_r, mq_r, data)
-			
-		except :
-			sys.exit(0)	
 
 def signalChild(signal, frame):
 	print "Child signal"
@@ -185,10 +186,10 @@ def signalChild(signal, frame):
 signal.signal(signal.SIGCHLD,signalChild)
 
 def signalHandler(signal, frame):
-	print "kill signal"
 	if isParent:
 		print " I will not die because I'm a parent " + str(os.getpid())
 	else :
+		print " I will die becaue I'm a child " + str(os.getpid())
 		sys.exit()
 signal.signal(signal.SIGTERM,signalHandler)
 
@@ -197,6 +198,7 @@ signal.signal(signal.SIGTERM,signalHandler)
 sendSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sendSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 
+mq_s, sem_s, mq_r, sem_r =init()
 scanWifi()
 	
 ################################
