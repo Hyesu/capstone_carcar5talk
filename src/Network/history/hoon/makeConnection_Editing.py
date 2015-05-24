@@ -15,16 +15,18 @@ import subprocess
 
 ################### Variable ##############
 nickname = 'home'    
-iface = 'wlan1'			#interface
-ssid = 'hoonwifi'		#essid
-passKey = 'qaws0204'		#password
+iface = 'wlan0'			#interface
+ssid = 'carcar5'		#essid
+passKey = 'raspberry'		#password
 scheme = None			
 port = 8080			
 broadcastAddr = '192.168.10.0'	
 sendInterval = 0.7   #sec
 isChild = False
-pid = 0  
+pid = os.getpid() 
+childPid =0
 recvSock =None 
+isParent = None
 ###########################################
 
 def scanWifi():
@@ -62,21 +64,21 @@ def scanWifi():
 			myIp = commands.getoutput("hostname -I")
 			print "Connection Success my Ip is : " + myIp
 
-			pid = os.fork()
+			childPid = os.fork()
+			#print "after os.fork() " + str(pid)
+			print str(os.getpid()) + "--> child Pid : " + str(childPid)
 			# Parent process : Send Data	
-			if pid:
-				print "Parent PID : " + str(os.getpid())
-				return True
+			if childPid:
+				print "Parent PID : " + str(os.getpid()) + " , Child PID : "+ str(childPid)
+				sendData(childPid)
+
+
 			# Child process : Receive Data
 			else :
 				print "Child PID : " + str(os.getpid()) + " Parent PID : " + str(os.getppid())	
-				#subprocess.call(['python','Receive.py'])
-				#os.execl('/usr/bin/python2.7/python','/usr/bin/python2.7/python','/home/pi/capstone_carcaar5talk/src/Network/hoon/Recieve.py')
-				#isChild = True
-				#return True
 				receiveData()
 
-def sendData():
+def sendData(pid):
 	print "Send Data Start"
 		
 	while 1:
@@ -92,7 +94,9 @@ def sendData():
 			
 
 		#If disconnect ...
-		except :	
+		except :
+			print str(os.getpid()) + "---> " + str(pid)
+			
 			os.kill(pid,signal.SIGTERM)
 			break 	
 
@@ -120,29 +124,24 @@ def receiveData():
 		except :
 			sys.exit(0)	
 
+def signalChild(signal, frame):
+	print "Child signal"
+
+signal.signal(signal.SIGCHLD,signalChild)
 
 def signalHandler(signal, frame):
 	print "kill signal"
-	sys.exit(0)
-
+	if isParent:
+		print " I will not die because I'm a parent " + str(os.getpid())
+	else :
+		sys.exit()
 signal.signal(signal.SIGTERM,signalHandler)
 
 
-######    Main    ########
+##########   Main    ###########
 sendSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sendSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 
-myIp = None
-
-while 1:
-	if scanWifi() is True:
-		if isChild:
-			print "Child PID : " + str(os.getpid())
-			receiveData()	
-			break	
-		print "sending......."
-		sendData()
-
- 
+scanWifi()
 	
 ################################
