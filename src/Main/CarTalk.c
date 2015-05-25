@@ -180,9 +180,6 @@ int thr_Network_Send() {
 			perror("makeMsgForPi");
 			return -1;
 		}
-//debug
-printf("CarTalk::Net_send: buf(%s)\n", buf);
-
 		if(sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
@@ -203,7 +200,7 @@ int thr_Network_Receive() {
 
 		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
 //debug
-printf("CarTalk::Net_rec: buf(%s)\n", buf);
+printf("CarTalk::Net_recv: get msg from queue buf(%s)\n", buf);
 
 			//this part should be refactoried later to some function
 			int idx = 0;

@@ -84,7 +84,7 @@ def receiveMsg():
 
 	except posix_ipc.BusyError:
 		sem_s.release()	
-		print "Non Queue ,, Not yet "
+		print "Network::receiveMsg: network send queue is empty!"
 
 
 def sendMsg(data):
@@ -100,7 +100,7 @@ def scanWifi():
 		cellList = Cell.all(iface)
 
 
-		print "Scan Around Cell"
+		print "Network::scanWifi: Scan Around Cell"
 		
 		#find in cellList 
 		for cell in cellList:
@@ -109,7 +109,7 @@ def scanWifi():
 
 
 		if cellName is None:
-			print "Can not found <carcar5> try again"
+			print "Network::scanWifi: Can not found <carcar5> try again"
 			time.sleep(1)
 			continue
 
@@ -124,9 +124,9 @@ def scanWifi():
 			scheme.save()
 			scheme.activate()
 				
-			print "Try connect to <carcar5>"
+			print "Network::scanWifi: Try connect to <carcar5>"
 			myIp = commands.getoutput("hostname -I")
-			print "Connection Success my Ip is : " + myIp
+			print "Network::scanWifi: Connection Success my Ip(" + myIp + ")"
 
 			childPid = os.fork()
 			#print "after os.fork() " + str(pid)
@@ -143,12 +143,13 @@ def scanWifi():
 				receiveData()
 
 def sendData(pid):
-	print "Send Data Start"
+	print "Network::sendData: Send Data Start"
 	isParent = True
 		
 	while 1:
 		try:
 			message = receiveMsg()
+			print "Network::sendData: success receive msg(%s) from net_s queue" %message
 			if message :
 				sendSock.sendto(message, (broadcastAddr,port))
 			time.sleep(sendInterval)  #0.7sec
@@ -184,7 +185,7 @@ def receiveData():
 		
 		#Only get others information
 		if myIP != srcAddr:
-			print "Network: receiveData()" + data
+			print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
 			
 
