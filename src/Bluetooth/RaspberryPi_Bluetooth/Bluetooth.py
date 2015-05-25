@@ -57,9 +57,6 @@ class Bluetooth:
 			data = self.mq.receive()		
 			self.sem.release()
 
-			#debug
-			print "Bluetooth::receiveMsg: third character of data(%d)" %data[0][3]
-
 			if data:
 				return data[0]
 			else:
