@@ -199,6 +199,10 @@ int thr_Network_Receive() {
 		char buf[MSG_SIZE_NET];  // buf for receiving other info
 		char msg[MSG_SIZE_BLUE]; // buf for bluetooth
 
+		sleep(INTERVAL);
+
+printf("CarTalk::thr_Network_Receive\n");
+
 		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
 //debug
 printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
@@ -221,7 +225,6 @@ printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
 				return -1;
 			}
 		}
-		sleep(INTERVAL);
 	}
 	return 0;
 }
