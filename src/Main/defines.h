@@ -31,6 +31,7 @@
 #define LEN_ID		17
 #define LEN_GPS		22
 #define LEN_SPEED	6
+#define LEN_BYTE	3
 
 #define MQ_NAME_GPS	"/CarTalk_mq_gps"
 #define MQ_NAME_DA	"/CarTalk_mq_da"

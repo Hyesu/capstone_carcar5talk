@@ -357,49 +357,43 @@ int makeMsgForPi(char* buf) {
 	return 0;
 }
 int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
-	int idx = 0;
-	char temp[10];
+	char temp[LEN_BYTE+1];
 	int i;
+
+	strcpy(buf, "\0");
 	
 	//set flag. now not used
-	memcpy(buf+idx, "000", 3);
-	idx += 3;
+	strcat(buf, "000");
 
 	// set my gps
-	memcpy(buf+idx, myInfo.gps, LEN_GPS);
-	idx += LEN_GPS;
+	strcat(buf, myInfo.gps);
 
 	// set my speed
-	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
-	idx += LEN_SPEED;
+	strcat(buf, myInfo.speed);
 
 	// set my Vector
-	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
-	idx += LEN_GPS;
+	strcat(buf, myInfo.dirVector);
 	
 	// set number of other cars
 	sprintf(temp, "%03d", numCars);
-	memcpy(buf+idx, temp, 3);
-	idx += 3;
+	temp[LEN_BYTE] = '\0';
+	strcat(buf, temp);
 
 	// set other cars info 
 	for(i=0; i<numCars; i++) {
 		// set id of other car
-		memcpy(buf+idx, otherInfo[i].id, LEN_ID);
-		idx += LEN_ID;
+		strcat(buf, otherInfo[i].id);
 
 		// set flag of other car
 		sprintf(temp, "%03d", otherInfo[i].flag);
-		memcpy(buf+idx, temp, 3);
-		idx += 3;
+		temp[LEN_BYTE] = '\0';
+		strcat(buf, temp);
 
 		// set gps of other car
-		memcpy(buf+idx, otherInfo[i].gps, LEN_GPS);
-		idx += LEN_GPS;
+		strcat(buf, otherInfo[i].gps);
 
 		// set speed of other car
-		memcpy(buf+idx, otherInfo[i].speed, LEN_SPEED);
-		idx += LEN_SPEED;
+		strcat(buf, otherInfo[i].speed);
 	}
 	return 0;
 }
