@@ -2,6 +2,7 @@
 
 #20103346 park hoon
 #20103323 kim tae wook
+#20123381 shin hyesu
 # 15.05.21 ver 0.5
 
 from wifi import Cell, Scheme
@@ -172,14 +173,10 @@ def sendData(pid):
 		#If disconnect ...
 		except socket.error:
 			#print str(os.getpid()) + "---> " + str(pid)
-			
 			os.kill(pid,signal.SIGTERM)
 			break 	
 
 def receiveData():
-	#debug
-	time.sleep(10000)
-
 	print "Network::receiveData: Receive Data Start"
 
 	#Create Socket for receive msg	

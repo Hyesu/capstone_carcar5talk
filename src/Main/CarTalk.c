@@ -188,12 +188,8 @@ int thr_Network_Send() {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
 				return -1;
 			}
-			//debug
 			printf("CarTalk::Net_S: net_s queue is full\n", buf);
-			sleep(2*INTERVAL);
-		} else {
-			//debug
-			printf("CarTalk::Net_S: success send msg(%s)\n", buf);
+			sleep(INTERVAL);
 		}
 		sleep(INTERVAL);
 	}
