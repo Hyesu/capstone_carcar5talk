@@ -49,7 +49,7 @@ class Bluetooth:
                 self.server_sock.close()
                 print "Bluetooth::__del__: Server is closed."
 
-	def receiveMsg():
+	def receiveMsg(self):
 		try:
 			self.sem.acquire()
 			data = self.mq.receive()		
