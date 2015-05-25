@@ -184,8 +184,10 @@ int thr_Network_Send() {
 printf("CarTalk::Net_send: buf(%s)\n", buf);
 
 		if(sendMsg(NETWORK_S, buf) < 0) {
-			perror("sendMsg(network_s)");
-			return -1;
+			if(errno != EAGAIN) {
+				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
+				return -1;
+			}
 		}
 		sleep(INTERVAL);
 	}
