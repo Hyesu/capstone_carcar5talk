@@ -152,6 +152,7 @@ int thr_GPS() {
 			myInfo.speed[LEN_SPEED] = '\0';
 			updateDirInfo(oldGPS);
 
+			//debug
 			printf("CarTalk::GPS: success update gps info\n");
 		}
 	}
@@ -183,6 +184,10 @@ int thr_Network_Send() {
 			perror("CarTalk::thr_Network_Send: makeMsgForPi");
 			return -1;
 		}
+
+//debug
+printf("CarTalk::Net_S: send(%s)\n", buf);
+
 		if(sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
@@ -218,12 +223,17 @@ int thr_Network_Receive() {
 			perror("CarTalk::thr_Network_Receive: getMsg2 error not by empty queue");
 			return -1;
 		}
+//debug
+printf("CarTalk::Net_R: recv(%s)\n", buf);
 
 		// make msg for android to display to HUD
 		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
 			perror("CarTalk::thr_Network_Receive: makeMsgForHUD");
 			return -1;
 		}
+
+//debug
+printf("CarTalk::Net_R: blue(%s)\n", msg);
 
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
