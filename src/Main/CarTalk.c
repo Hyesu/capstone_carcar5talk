@@ -141,7 +141,8 @@ int thr_GPS() {
 	old[0] = new[0] = '\0';
 	while(1) {
 		sleep(INTERVAL);
-		res = getMsg1(GPS, old, new, MSG_SIZE_GPS);
+		//res = getMsg1(GPS, old, new, MSG_SIZE_GPS);
+		res = getMsg2(GPS, old, MSG_SIZE_GPS);
 		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
 
@@ -166,7 +167,8 @@ int thr_DetectAccident() {
 		old[0] = new[0] = '\0';
 
 		sleep(INTERVAL);
-		res = getMsg1(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
+		//res = getMsg1(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
+		res = getMsg2(DETECT_ACCIDENT, old, MSG_SIZE_DA);
 		if(old[0] != '0' && res < 0 && errno == EAGAIN) {
 			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
 			else if(myInfo.flag % 2)	myInfo.flag--;
@@ -186,6 +188,11 @@ int thr_Network_Send() {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
 				return -1;
 			}
+			//debug
+			printf("CarTalk::Net_S: net_s queue is full\n", buf);
+		} else {
+			//debug
+			printf("CarTalk::Net_S: success send msg(%s)\n", buf);
 		}
 		sleep(INTERVAL);
 	}
@@ -202,8 +209,9 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
-//debug
-printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
+			//debug
+			printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
+
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
 				return -1;
