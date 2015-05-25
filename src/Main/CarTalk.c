@@ -234,8 +234,10 @@ printf("CarTalk::Net_rec: buf(%s)\n", buf);
 			return -1;
 		}
 		if(sendMsg(BLUETOOTH, msg) < 0) {
-			perror("sendMsg(bluetooth)");
-			return -1;
+			if(errno != EAGAIN) {
+				perror("CarTalk::thr_Network_Receicve: sendMsg(bluetooth) error not by full queue");
+				return -1;
+			}
 		}
 		sleep(INTERVAL);
 	}
