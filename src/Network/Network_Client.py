@@ -188,7 +188,7 @@ def receiveData():
 	myIP = commands.getoutput("hostname -I")
 	
 	while 1:
-		data, addr = recvSock.recvfrom(64)
+		data, addr = recvSock.recvfrom(MSG_SIZE)
 		srcAddr = addr[0]
 		srcAddr = srcAddr + " "
 		
