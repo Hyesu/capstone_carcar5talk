@@ -2,6 +2,7 @@
 
 #20103346 park hoon
 #20103323 kim tae wook
+#20123381 shin hyesu
 # 15.05.21 ver 0.5
 
 from wifi import Cell, Scheme
@@ -22,7 +23,7 @@ MQ_NAME_R = "/CarTalk_mq_net_r"
 MQ_FLAG = posix_ipc.O_CREAT | posix_ipc.O_NONBLOCK
 MQ_PERM = 0777
 MQ_MSG = 10
-MSG_SIZE = 64
+MSG_SIZE = 128
 SEM_NAME_S = "/CarTalk_sem_net_s"
 SEM_NAME_R = "/CarTalk_sem_net_r"
 
@@ -56,7 +57,7 @@ def init():
 	mq_s = posix_ipc.MessageQueue(name=MQ_NAME_S,		\
 				    flags=MQ_FLAG,		\
 				    mode=MQ_PERM,		\
-				    max_message=MQ_MSG,		\
+				    max_messages=MQ_MSG,		\
 				    max_message_size=MSG_SIZE,	\
 				    read=True, write=True)
 	sem_s = posix_ipc.Semaphore(SEM_NAME_S)
@@ -64,22 +65,41 @@ def init():
 	mq_r = posix_ipc.MessageQueue(name=MQ_NAME_R,		\
 				    flags=MQ_FLAG,		\
 				    mode=MQ_PERM,		\
-				    max_message=MQ_MSG,		\
+				    max_messages=MQ_MSG,		\
 				    max_message_size=MSG_SIZE,	\
 				    read=True, write=True)
 	sem_r = posix_ipc.Semaphore(SEM_NAME_R)
+	
+	return mq_s, sem_s, mq_r, sem_r
 
-def receiveMsg(sem, mq):
-	sem.acquire()
-	msg = mq.receive()
-	sem.release()
+def receiveMsg():
+	try :
+		sem_s.acquire()
+		msg = mq_s.receive()
+		sem_s.release()
+		
+		if msg:
+			return msg[0]
+		else:
+			return None
 
-	return data
+	except posix_ipc.BusyError:
+		sem_s.release()	
+		print "Network::receiveMsg: net_s queue is empty!"
+		time.sleep(sendInterval * 2)
+		return None
 
-def sendMsg(sem, mq, data):
-	sem.acquire()
-	mq.send(data)
-	sem.release()
+
+def sendMsg(data):
+	try:
+		sem_r.acquire()
+		mq_r.send(data)
+		sem_r.release()
+
+	except posix_ipc.BusyError:
+		sem_r.release()	
+		print "Network::sendMsg: net_r queue is full!"
+		time.sleep(sendInterval * 2)
 
 
 def scanWifi():
@@ -89,7 +109,7 @@ def scanWifi():
 		cellList = Cell.all(iface)
 
 
-		print "Scan Around Cell"
+		print "Network::scanWifi: Scan Around Cell"
 		
 		#find in cellList 
 		for cell in cellList:
@@ -98,7 +118,7 @@ def scanWifi():
 
 
 		if cellName is None:
-			print "Can not found <carcar5> try again"
+			print "Network::scanWifi: Can not found <carcar5> try again"
 			time.sleep(1)
 			continue
 
@@ -113,9 +133,9 @@ def scanWifi():
 			scheme.save()
 			scheme.activate()
 				
-			print "Try connect to <carcar5>"
+			print "Network::scanWifi: Try connect to <carcar5>"
 			myIp = commands.getoutput("hostname -I")
-			print "Connection Success my Ip is : " + myIp
+			print "Network::scanWifi: Connection Success my Ip(" + myIp + ")"
 
 			childPid = os.fork()
 			#print "after os.fork() " + str(pid)
@@ -132,13 +152,16 @@ def scanWifi():
 				receiveData()
 
 def sendData(pid):
-	print "Send Data Start"
+	print "Network::sendData: Send Data Start"
+	isParent = True
 		
 	while 1:
 		try:
-			message = receiveMsg(sem_s, mq_s)
-			print "Network: sendData(%s)" %message
-			sendSock.sendto(message, (broadcastAddr,port))
+			message = receiveMsg()
+			if message is not None :
+				sendSock.sendto(message, (broadcastAddr,port))
+				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
+
 			time.sleep(sendInterval)  #0.7sec
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	
@@ -148,14 +171,13 @@ def sendData(pid):
 			
 
 		#If disconnect ...
-		except :
+		except socket.error:
 			#print str(os.getpid()) + "---> " + str(pid)
-			
 			os.kill(pid,signal.SIGTERM)
 			break 	
 
 def receiveData():
-	print "Receive Data Start"
+	print "Network::receiveData: Receive Data Start"
 
 	#Create Socket for receive msg	
 	recvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -166,29 +188,26 @@ def receiveData():
 	myIP = commands.getoutput("hostname -I")
 	
 	while 1:
-		try :
-			data, addr = recvSock.recvfrom(64)
-			srcAddr = addr[0]
-			srcAddr = srcAddr + " "
+		data, addr = recvSock.recvfrom(64)
+		srcAddr = addr[0]
+		srcAddr = srcAddr + " "
+		
+		#Only get others information
+		if myIP != srcAddr:
+			print "Network::receiveData: success receive data(%s) from other pi" %data
+			sendMsg(data)
 			
-			#Only get others information
-			if myIP != srcAddr:
-				print "Network: receiveData(%s)" %data
-				sendMsg(sem_r, mq_r, data)
-			
-		except :
-			sys.exit(0)	
 
 def signalChild(signal, frame):
-	print "Child signal"
+	return
 
 signal.signal(signal.SIGCHLD,signalChild)
 
 def signalHandler(signal, frame):
-	print "kill signal"
 	if isParent:
 		print " I will not die because I'm a parent " + str(os.getpid())
 	else :
+		print " I will die becaue I'm a child " + str(os.getpid())
 		sys.exit()
 signal.signal(signal.SIGTERM,signalHandler)
 
@@ -197,6 +216,7 @@ signal.signal(signal.SIGTERM,signalHandler)
 sendSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sendSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST,1)
 
+mq_s, sem_s, mq_r, sem_r =init()
 scanWifi()
 	
 ################################

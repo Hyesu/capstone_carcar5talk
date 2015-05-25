@@ -28,9 +28,10 @@
 #define NETWORK_S	3
 #define BLUETOOTH	4
 
-#define LEN_ID		6
+#define LEN_ID		17
 #define LEN_GPS		22
 #define LEN_SPEED	6
+#define LEN_BYTE	3
 
 #define MQ_NAME_GPS	"/CarTalk_mq_gps"
 #define MQ_NAME_DA	"/CarTalk_mq_da"
@@ -46,13 +47,14 @@
 
 #define MSG_SIZE_GPS	29 			// "ddmm.mmmmmNdddmm.mmmmEsss.ss"
 #define MSG_SIZE_DA	2			// "T" / "F"
-#define MSG_SIZE_NET	64
+#define MSG_SIZE_NET	128
 #define MSG_SIZE_BLUE	4096
 
 #define INTERVAL	1			// seconds
+#define MAX_NUM_CARS	10
 
 typedef struct carInfo {
-	char id[LEN_ID];
+	char id[LEN_ID+1];			// xx:xx:xx:xx:xx:xx
 	char flag; 				// for one byte. LSB is used for "isAccident"
 	char gps[LEN_GPS + 1];
 	char speed[LEN_SPEED + 1];
