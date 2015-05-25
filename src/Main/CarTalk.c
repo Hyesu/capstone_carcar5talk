@@ -152,8 +152,7 @@ int thr_GPS() {
 			myInfo.speed[LEN_SPEED] = '\0';
 			updateDirInfo(oldGPS);
 
-//debug
-printf("CarTalk::GPS: success update gps info\n");
+			printf("CarTalk::GPS: success update gps info\n");
 		}
 	}
 
@@ -207,6 +206,8 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
+			if(strlen(buf) < LEN_DEFAULT)  continue;
+
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
 				return -1;
@@ -223,6 +224,7 @@ int thr_Network_Receive() {
 			perror("CarTalk::thr_Network_Receive: makeMsgForHUD");
 			return -1;
 		}
+
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Receive: sendMsg(bluetooth) error not by full queue");
@@ -272,7 +274,6 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	temp[LEN_BYTE] = '\0';
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
-
 
 	// set id
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
