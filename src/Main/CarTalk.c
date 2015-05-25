@@ -206,6 +206,8 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
+			if(strlen(buf) < LEN_DEFAULT)  continue;
+
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
 				return -1;
@@ -272,7 +274,6 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	temp[LEN_BYTE] = '\0';
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
-
 
 	// set id
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
