@@ -84,13 +84,18 @@ def receiveMsg():
 
 	except posix_ipc.BusyError:
 		sem_s.release()	
-		print "Network::receiveMsg: network send queue is empty!"
+		#print "Network::receiveMsg: net_s queue is empty!"
 
 
 def sendMsg(data):
-	sem_r.acquire()
-	mq_r.send(data)
-	sem_r.release()
+	try:
+		sem_r.acquire()
+		mq_r.send(data)
+		sem_r.release()
+
+	except posix_ipc.BusyError:
+		sem_r.release()	
+		#print "Network::sendMsg: net_r queue is full!"
 
 
 def scanWifi():
@@ -149,9 +154,10 @@ def sendData(pid):
 	while 1:
 		try:
 			message = receiveMsg()
-			print "Network::sendData: success receive msg(%s) from net_s queue" %message
+			#print "Network::sendData: success receive msg(%s) from net_s queue" %message
 			if message :
 				sendSock.sendto(message, (broadcastAddr,port))
+
 			time.sleep(sendInterval)  #0.7sec
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	
