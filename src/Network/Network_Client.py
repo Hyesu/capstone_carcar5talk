@@ -86,7 +86,7 @@ def receiveMsg():
 	except posix_ipc.BusyError:
 		sem_s.release()	
 		print "Network::receiveMsg: net_s queue is empty!"
-		time.sleep(INTERVAL * 2)
+		time.sleep(INTERVAL)
 		return None
 
 
@@ -162,7 +162,7 @@ def sendData(pid):
 				sendSock.sendto(message, (broadcastAddr,port))
 				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
-			time.sleep(INTERVAL)  #0.7sec
+			time.sleep(INTERVAL)
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	
 		except KeyboardInterrupt:
@@ -197,7 +197,7 @@ def receiveData():
 			print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
 
-		time.sleep(INTERVAL * 2)
+		time.sleep(INTERVAL)
 			
 
 def signalChild(signal, frame):
