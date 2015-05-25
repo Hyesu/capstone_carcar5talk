@@ -198,9 +198,10 @@ int thr_Network_Receive() {
 		CarInfo otherCars[MAX_NUM_CARS];
 		char buf[MSG_SIZE_NET];  // buf for receiving other info
 		char msg[MSG_SIZE_BLUE]; // buf for bluetooth
+		int res;
 
 		sleep(INTERVAL);
-		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
+		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
 //debug
 printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
@@ -209,7 +210,10 @@ printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
 			}
 			numCars++;
 		}
-		//if(buf[0] == '\0') continue;
+		if(res < 0 && errno != EAGAIN) {
+			perror("CarTalk::thr_Network_Receive: getMsg2 error not by empty queue");
+			return -1;
+		}
 
 		// make msg for android to display to HUD
 		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
