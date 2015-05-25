@@ -45,7 +45,7 @@ passKey = 'raspberry'		#password
 scheme = None			
 port = 8080			
 broadcastAddr = '192.168.10.0'	
-sendInterval = 1   #sec
+INTERVAL = 1   #sec
 isChild = False
 pid = os.getpid() 
 childPid =0
@@ -86,7 +86,7 @@ def receiveMsg():
 	except posix_ipc.BusyError:
 		sem_s.release()	
 		print "Network::receiveMsg: net_s queue is empty!"
-		time.sleep(sendInterval * 2)
+		time.sleep(INTERVAL * 2)
 		return None
 
 
@@ -99,7 +99,7 @@ def sendMsg(data):
 	except posix_ipc.BusyError:
 		sem_r.release()	
 		print "Network::sendMsg: net_r queue is full!"
-		time.sleep(sendInterval * 2)
+		time.sleep(INTERVAL * 2)
 
 
 def scanWifi():
@@ -162,7 +162,7 @@ def sendData(pid):
 				sendSock.sendto(message, (broadcastAddr,port))
 				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
-			time.sleep(sendInterval)  #0.7sec
+			time.sleep(INTERVAL)  #0.7sec
 	
 		#KeyboadInerrupt .. it needs to debug and programming 	
 		except KeyboardInterrupt:
@@ -196,6 +196,8 @@ def receiveData():
 		if myIP != srcAddr:
 			print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
+
+		time.sleep(INTERVAL)  #0.7sec
 			
 
 def signalChild(signal, frame):
