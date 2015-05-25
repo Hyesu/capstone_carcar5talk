@@ -229,6 +229,9 @@ int thr_Network_Receive() {
 			return -1;
 		}
 
+//debug
+printf("CarTalk::Net_R: msg for HUD(%s)\n", msg);
+
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Receive: sendMsg(bluetooth) error not by full queue");
