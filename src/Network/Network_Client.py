@@ -158,7 +158,7 @@ def sendData(pid):
 	while 1:
 		try:
 			message = receiveMsg()
-			if message :
+			if message is not None :
 				sendSock.sendto(message, (broadcastAddr,port))
 				print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
