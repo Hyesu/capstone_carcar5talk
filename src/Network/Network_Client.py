@@ -23,7 +23,7 @@ MQ_NAME_R = "/CarTalk_mq_net_r"
 MQ_FLAG = posix_ipc.O_CREAT | posix_ipc.O_NONBLOCK
 MQ_PERM = 0777
 MQ_MSG = 10
-MSG_SIZE = 64
+MSG_SIZE = 128
 SEM_NAME_S = "/CarTalk_sem_net_s"
 SEM_NAME_R = "/CarTalk_sem_net_r"
 

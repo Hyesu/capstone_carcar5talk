@@ -47,7 +47,7 @@
 
 #define MSG_SIZE_GPS	29 			// "ddmm.mmmmmNdddmm.mmmmEsss.ss"
 #define MSG_SIZE_DA	2			// "T" / "F"
-#define MSG_SIZE_NET	64
+#define MSG_SIZE_NET	128
 #define MSG_SIZE_BLUE	4096
 
 #define INTERVAL	1			// seconds
