@@ -332,27 +332,24 @@ int sendMsg(const int id, const char* buf) {
 	return res;
 }
 int makeMsgForPi(char* buf) {
-	int idx=0;
+	char temp[LEN_BYTE+1];
+	strcpy(buf, "\0");
 
 	// set flag	
-	buf[idx] = myInfo.flag;
-	idx++;
-
+	sprintf(temp, "%03d", myInfo.flag);
+	strcat(buf, temp);
+	
 	// set MAC Address
-	memcpy(buf+idx, myInfo.id, LEN_ID);
-	idx += LEN_ID;
+	strcat(buf, myInfo.id);
 
 	// set GPS
-	memcpy(buf+idx, myInfo.gps, LEN_GPS);
-	idx += LEN_GPS;
+	strcat(buf, myInfo.gps);
 
 	// set speed
-	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
-	idx += LEN_SPEED;
+	strcat(buf, myInfo.speed);
 
 	// set vector
-	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
-	idx += LEN_GPS;
+	strcat(buf, myInfo.dirVector);
 
 	return 0;
 }
