@@ -371,6 +371,7 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 	int i;
 	
 	//set flag. now not used
+	buf[idx] = (char)1;
 	idx++;
 
 	// set my gps

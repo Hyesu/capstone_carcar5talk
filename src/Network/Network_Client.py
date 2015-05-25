@@ -160,7 +160,7 @@ def sendData(pid):
 			message = receiveMsg()
 			if message is not None :
 				sendSock.sendto(message, (broadcastAddr,port))
-				print "Network::sendData: msg(%s) from net_s queue - success send" %message
+				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
 			time.sleep(sendInterval)  #0.7sec
 	
@@ -194,12 +194,12 @@ def receiveData():
 		
 		#Only get others information
 		if myIP != srcAddr:
-			print "Network::receiveData: success receive data(%s) from other pi" %data
+			#print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
 			
 
 def signalChild(signal, frame):
-	print "Child signal"
+	return
 
 signal.signal(signal.SIGCHLD,signalChild)
 
