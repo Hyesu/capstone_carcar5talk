@@ -24,6 +24,8 @@ MQ_PERM = 0777
 MQ_MSG = 10
 MSG_SIZE = 4096
 
+INTERVAL = 1
+
 class Bluetooth:
 	sem = None
 	mq = None
@@ -100,6 +102,8 @@ class Bluetooth:
 
 			# Set non-blocking - loop and poll for data
 			self.client_sock.settimeout(0)
+
+			time.sleep(INTERVAL)
 
                 print "Bluetooth::process: Disconnected."
 
