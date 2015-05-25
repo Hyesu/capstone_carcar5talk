@@ -282,23 +282,17 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
 
-//debug
-
 	// set id
 	strcpy(otherCars[carIdx].id, "\0");
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
 	otherCars[carIdx].id[LEN_ID] = '\0';
 	idx += LEN_ID;
 
-printf("********************* id(%s)\n", otherCars[carIdx].id);
-
 	// set gps
 	strcpy(otherCars[carIdx].gps, "\0");
-	strncpy(otherCars[carIdx].id, buf+idx, LEN_GPS);
+	strncpy(otherCars[carIdx].gps, buf+idx, LEN_GPS);
 	otherCars[carIdx].gps[LEN_GPS] = '\0';
 	idx += LEN_GPS;
-
-printf("********************* gps(%s)\n", otherCars[carIdx].gps);
 
 	// set speed
 	strcpy(otherCars[carIdx].speed, "\0");
@@ -306,21 +300,15 @@ printf("********************* gps(%s)\n", otherCars[carIdx].gps);
 	otherCars[carIdx].speed[LEN_SPEED] = '\0';
 	idx += LEN_SPEED;
 
-printf("********************* speed(%s)\n", otherCars[carIdx].speed);
-
 	// set dirVector
 	strcpy(otherCars[carIdx].dirVector, "\0");
 	strncpy(otherCars[carIdx].dirVector, buf+idx, LEN_GPS);
 	otherCars[carIdx].dirVector[LEN_GPS] = '\0';
 	idx += LEN_GPS;
 
-printf("********************* dirVEctor(%s)\n", otherCars[carIdx].dirVector);
-
 	// check direction whether other car's direction is equal to me or not
 	// not implemented yet. currently default yes!
 	otherCars[carIdx].flag |= 2;
-
-printf("********************* flag(%d)\n", otherCars[carIdx].flag);
 
 	return 0;
 }
