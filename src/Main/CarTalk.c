@@ -282,11 +282,15 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
 
+//debug
+
 	// set id
 	strcpy(otherCars[carIdx].id, "\0");
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
 	otherCars[carIdx].id[LEN_ID] = '\0';
 	idx += LEN_ID;
+
+printf("********************* id(%s)\n", otherCars[carIdx].id);
 
 	// set gps
 	strcpy(otherCars[carIdx].gps, "\0");
@@ -294,11 +298,15 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].gps[LEN_GPS] = '\0';
 	idx += LEN_GPS;
 
+printf("********************* gps(%s)\n", otherCars[carIdx].gps);
+
 	// set speed
 	strcpy(otherCars[carIdx].speed, "\0");
 	strncpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
 	otherCars[carIdx].speed[LEN_SPEED] = '\0';
 	idx += LEN_SPEED;
+
+printf("********************* speed(%s)\n", otherCars[carIdx].speed);
 
 	// set dirVector
 	strcpy(otherCars[carIdx].dirVector, "\0");
@@ -306,9 +314,13 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].dirVector[LEN_GPS] = '\0';
 	idx += LEN_GPS;
 
+printf("********************* dirVEctor(%s)\n", otherCars[carIdx].dirVector);
+
 	// check direction whether other car's direction is equal to me or not
 	// not implemented yet. currently default yes!
 	otherCars[carIdx].flag |= 2;
+
+printf("********************* flag(%d)\n", otherCars[carIdx].flag);
 
 	return 0;
 }
@@ -410,25 +422,16 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 		// set id of other car
 		strcat(buf, otherInfo[i].id);
 
-//debug
-printf("===================== otherInfo.id(%s)", otherInfo[i].id);
-
 		// set flag of other car
 		sprintf(temp, "%03d", otherInfo[i].flag);
 		temp[LEN_BYTE] = '\0';
 		strcat(buf, temp);
 
-printf("===================== otherInfo.flag(%s)", temp);
-
-
 		// set gps of other car
 		strcat(buf, otherInfo[i].gps);
 
-printf("===================== otherInfo.gps(%s)", otherInfo[i].gps);
-
 		// set speed of other car
 		strcat(buf, otherInfo[i].speed);
-printf("===================== otherInfo.speed(%s)", otherInfo[i].speed);
 
 	}
 	return 0;
