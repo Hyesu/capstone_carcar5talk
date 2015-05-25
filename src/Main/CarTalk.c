@@ -123,9 +123,9 @@ void* runThread(void* arg) {
 	} else if(pthread_equal(id, thrid[DETECT_ACCIDENT])) {
 		if(thr_DetectAccident() < 0) 	perror("Detect Accident thread error");
 	} else if(pthread_equal(id, thrid[NETWORK_S])) { 
-		if(thr_Network_Send() < 0)	perror("Network thread error");
+		if(thr_Network_Send() < 0)	perror("Network Send thread error");
 	} else if(pthread_equal(id, thrid[NETWORK_R])) {
-		if(thr_Network_Receive() < 0)	perror("Network thread error");
+		if(thr_Network_Receive() < 0)	perror("Network Receive thread error");
 	} else {
 		perror("abnormal thread id");
 		return NULL;
@@ -177,7 +177,7 @@ int thr_Network_Send() {
 	while(1) {
 		char buf[MSG_SIZE_NET];
 		if(makeMsgForPi(buf) < 0) {
-			perror("makeMsgForPi");
+			perror("CarTalk::thr_Network_Send: makeMsgForPi");
 			return -1;
 		}
 		if(sendMsg(NETWORK_S, buf) < 0) {
@@ -224,15 +224,16 @@ printf("CarTalk::Net_recv: get msg from queue buf(%s)\n", buf);
 
 			numCars++;
 		}
+		if(buf[0] == '\0') continue;
 
 		// make msg for android to display to HUD
 		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
-			perror("makeMsgForHUD");
+			perror("CarTalk::thr_Network_Receive: makeMsgForHUD");
 			return -1;
 		}
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
-				perror("CarTalk::thr_Network_Receicve: sendMsg(bluetooth) error not by full queue");
+				perror("CarTalk::thr_Network_Receive: sendMsg(bluetooth) error not by full queue");
 				return -1;
 			}
 		}
