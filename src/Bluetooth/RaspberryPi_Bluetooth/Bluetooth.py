@@ -24,6 +24,11 @@ MQ_PERM = 0777
 MQ_MSG = 10
 MSG_SIZE = 4096
 
+LEN_DEFALUT = LEN_BYTE + LEN_GPS + LEN_SPEED + LEN_GPS + LEN_BYTE
+LEN_BYTE = 3
+LEN_GPS = 22
+LEN_SPEED = 6
+
 INTERVAL = 1
 
 class Bluetooth:
@@ -57,7 +62,7 @@ class Bluetooth:
 			data = self.mq.receive()		
 			self.sem.release()
 
-			if data:
+			if data is not None:
 				return data[0]
 			else:
 				return None
@@ -94,7 +99,7 @@ class Bluetooth:
         def process(self):
 		while True:
 			data = self.receiveMsg()
-			if data is not None:
+			if data is not None and len(data) >= LEN_DEFAULT:
 				ret = self.send(data)
 				print "Bluetooth::process: sucess send data(%s) from queue_ret[%d]" %(data, ret)
 

@@ -395,5 +395,7 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 		// set speed of other car
 		strcat(buf, otherInfo[i].speed);
 	}
+//debug
+printf("CarTalk::makeMsgForHUD: buf(%s)\n", buf);
 	return 0;
 }
