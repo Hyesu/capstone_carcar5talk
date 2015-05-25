@@ -57,6 +57,9 @@ class Bluetooth:
 			data = self.mq.receive()		
 			self.sem.release()
 
+			#debug
+			print "Bluetooth::receiveMsg: third character of data(%d)" %data[0][3]
+
 			if data:
 				return data[0]
 			else:
@@ -94,11 +97,9 @@ class Bluetooth:
         def process(self):
 		while True:
 			data = self.receiveMsg()
-
 			if data is not None:
-				print "Bluetooth::process: sucess receive data(%s) from queue" %data
 				ret = self.send(data)
-				#print "Bluetooth::process: Send [%d] OK" % ret
+				print "Bluetooth::process: sucess send data(%s) from queue_ret[%d]" %(data, ret)
 
 			# Set non-blocking - loop and poll for data
 			self.client_sock.settimeout(0)
