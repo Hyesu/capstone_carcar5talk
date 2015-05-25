@@ -99,7 +99,7 @@ def sendMsg(data):
 	except posix_ipc.BusyError:
 		sem_r.release()	
 		print "Network::sendMsg: net_r queue is full!"
-		time.sleep(INTERVAL * 2)
+		time.sleep(INTERVAL)
 
 
 def scanWifi():
@@ -197,7 +197,7 @@ def receiveData():
 			print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
 
-		time.sleep(INTERVAL)  #0.7sec
+		time.sleep(INTERVAL * 2)
 			
 
 def signalChild(signal, frame):
