@@ -152,8 +152,7 @@ int thr_GPS() {
 			myInfo.speed[LEN_SPEED] = '\0';
 			updateDirInfo(oldGPS);
 
-//debug
-printf("CarTalk::GPS: success update gps info\n");
+			printf("CarTalk::GPS: success update gps info\n");
 		}
 	}
 
@@ -223,6 +222,7 @@ int thr_Network_Receive() {
 			perror("CarTalk::thr_Network_Receive: makeMsgForHUD");
 			return -1;
 		}
+
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Receive: sendMsg(bluetooth) error not by full queue");
