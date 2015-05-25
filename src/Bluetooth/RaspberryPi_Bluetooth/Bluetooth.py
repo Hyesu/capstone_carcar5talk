@@ -57,7 +57,7 @@ class Bluetooth:
 			data = self.mq.receive()		
 			self.sem.release()
 
-			if msg:
+			if data:
 				return data[0]
 			else:
 				return None
