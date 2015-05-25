@@ -2,12 +2,11 @@ package com.carcar5talk.compute;
 
 public class Vector {
 
-	public double x;	// longitude
-	public double y;	// latitude
+	public double x;	// 경도
+	public double y;	// 위도
 	
-	public Vector(double x, double y) {
-		this.y = x;
-		this.x = y;
+	public Vector() {
 	}
-	
+
+
 }

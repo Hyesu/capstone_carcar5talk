@@ -110,12 +110,17 @@ public class OtherCars
 		this.speed = speed;
 	}
 	
-	public void setOtherCars(int sizeX, int sizeY, boolean isDanger)
+	public void setOtherCars(int sizeX, int sizeY, boolean isDanger, int flag)
 	{
-		if(isDanger)
-			this.otherCars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car1);
-		else
-			this.otherCars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car2);
+//		if(flag == 0) {
+			if (isDanger)
+				this.otherCars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car_danger);
+			else
+				this.otherCars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car_other);
+//		}
+//		else if(flag == 1) {
+//			this.otherCars = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.msg_emergency);
+//		}
 		this.otherCars = Bitmap.createScaledBitmap(otherCars, sizeX, sizeY, false);
 	}
 	

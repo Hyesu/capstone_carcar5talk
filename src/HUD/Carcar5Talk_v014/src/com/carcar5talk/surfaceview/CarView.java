@@ -76,9 +76,9 @@ public class CarView extends SurfaceView implements Callback {
 		/* Creat my car object and Set my car size */
 		this.mMyCar = Carcar5Talk.mContainer.getMyCar();
 		this.size[0] = deviceWidth / 7;
-		this.size[1] = deviceWidth / 7;
-		Log.d(TAG + "size[0]", size[0] + "");
-		Log.d(TAG + "size[1]", size[1] + "");
+		this.size[1] = deviceHeight / 10;
+		Log.d(TAG + "size[0]", size[0] + "");		// 154.285714286
+		Log.d(TAG + "size[1]", size[1] + "");		// 170.1
 		mMyCar.setPosition(size);
 		mMyCar.setMyCar();
 
@@ -88,6 +88,7 @@ public class CarView extends SurfaceView implements Callback {
 		* */
 		Log.d(TAG + "Device Width", deviceWidth + "");
 		Log.d(TAG + "Device Height", deviceHeight + "");
+
 
 		/* Set map variable */
 		road = 2 * deviceWidth / 7;
@@ -128,12 +129,6 @@ public class CarView extends SurfaceView implements Callback {
 		Paint paint = new Paint();
 		paint.setColor(Color.GRAY);
 		paint.setTextSize(30);
-
-//		if (mOtherCars[0].isDetected)
-//			canvas.drawText("Other cars detected.", 10, 20, paint);
-//		else
-//			canvas.drawText("Nothing is detected.", 10, 20, paint);
-
 	}
 
 
@@ -143,10 +138,18 @@ public class CarView extends SurfaceView implements Callback {
 
 
 	public void MyCarDraw(Canvas canvas) {
+
 		canvas.drawBitmap(mMyCar.getMyCar(), (int)pos_mycar[0], (int)pos_mycar[1], null);
 	}
 
 
+	/**
+	 * 주변 차량을 Draw해주는 메소드
+	 *
+	 * @author Sungjung Kim
+	 * @since 2015.05.13
+	 *
+	 */
 	public void OtherCarsDraw(Canvas canvas) {
 		int[] temp = new int[2];
 		boolean isDanger = false;
@@ -154,25 +157,39 @@ public class CarView extends SurfaceView implements Callback {
 		/* Creat other cars object and Set other cars size */
 		mOtherCars = Carcar5Talk.mContainer.getOtherCars();
 		for(int i = 0; i < mOtherCars.size(); i++) {
+//			if(mOtherCars.get(i).getFlag() == 0) {
+				if (mOtherCars.get(i).getY() > 100)
+					isDanger = true;
+				else
+					isDanger = false;
 
-
-			mOtherCars.get(i).setOtherCars((int)size[0], (int)size[1], isDanger);
-
-
+				mOtherCars.get(i).setOtherCars((int) size[0], (int) size[1], isDanger, mOtherCars.get(i).getFlag());
+//			}
+//			else if(mOtherCars.get(i).getFlag() == 1) {
+//				mOtherCars.get(i).setOtherCars((int) size[0], (int) size[1], isDanger, mOtherCars.get(i).getFlag());
+//			}
 		}
 
 		for (int i = 0; i < mOtherCars.size(); i++) {
 			temp[0] = (int) (pos_mycar[0] + (int) mOtherCars.get(i).getX());
 			temp[1] = (int) (pos_mycar[1] + (int) mOtherCars.get(i).getY());
 
-			if(pos_mycar[0] > temp[0]) {
+			if(mOtherCars.get(i).getX() < -15 && mOtherCars.get(i).getX() > -45) {
 				// Left side
 				canvas.drawBitmap(mOtherCars.get(i).getOtherCars(), (int) (side + road / 4), temp[1], null);
 			}
-			else {
+			else if(mOtherCars.get(i).getX() > 15 && mOtherCars.get(i).getX() < 45){
 				// Right side
 				canvas.drawBitmap(mOtherCars.get(i).getOtherCars(), (int) (deviceWidth - side - 3 * size[0] / 2), temp[1], null);
 			}
+			else if(mOtherCars.get(i).getX() > -15 && mOtherCars.get(i).getX() < 15){
+				// My side
+				canvas.drawBitmap(mOtherCars.get(i).getOtherCars(), (int) pos_mycar[0], temp[1], null);
+			}
+			else {
+				continue;
+			}
+
 		}
 	}
 
@@ -200,18 +217,12 @@ public class CarView extends SurfaceView implements Callback {
 			Canvas canvas = null;
 			
 			while (canRun) {		
-				canvas = mHolder.lockCanvas(); // Lock the canvas and Asign the buffer
+				canvas = mHolder.lockCanvas();
 
 				if (canvas != null) {
 					try {
 						synchronized (viewLock) {
 							try {
-
-								
-								//////////////////////////////////////////////////////
-								// 수정
-								//////////////////////////////////////////////////////
-
 								BackgroundDraw(canvas);
 								MyCarDraw(canvas);
 
@@ -227,11 +238,6 @@ public class CarView extends SurfaceView implements Callback {
 								else {
 									OtherCarsDraw(canvas);
 								}
-
-
-								//////////////////////////////////////////////////////
-								// 수정
-								//////////////////////////////////////////////////////
 
 							} catch (Exception e) {
 								e.printStackTrace();

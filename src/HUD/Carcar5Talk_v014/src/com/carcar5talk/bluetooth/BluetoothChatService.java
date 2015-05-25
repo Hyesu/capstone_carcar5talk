@@ -1,5 +1,8 @@
 package com.carcar5talk.bluetooth;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,7 +48,6 @@ public class BluetoothChatService {
 	public static final int STATE_LISTEN = 1; // now listening for incoming connections
 	public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
 	public static final int STATE_CONNECTED = 3; // now connected to a remote device
-
 
 	
 	/**
@@ -328,7 +330,7 @@ public class BluetoothChatService {
 						case STATE_CONNECTED:
 							// Either not ready or already connected. Terminate new socket.
 							try {
-								Log.d(TAG, "socket close@@@@@@@@@@@@@@@@@@");
+								Log.d(TAG, "socket close");
 
 								socket.close();
 							} catch (IOException e) {
@@ -436,7 +438,6 @@ public class BluetoothChatService {
 		private final InputStream mmInStream;
 		private final OutputStream mmOutStream;
 
-
 		public ConnectedThread(BluetoothSocket socket, String socketType) {
 			Log.d(TAG, "create ConnectedThread: " + socketType);
 			mmSocket = socket;
@@ -450,54 +451,41 @@ public class BluetoothChatService {
 			} catch (IOException e) {
 				Log.e(TAG, "temp sockets not created", e);
 			}
-
 			mmInStream = tmpIn;
 			mmOutStream = tmpOut;
 		}
 
 
 		public void run() {
+			byte[] bytes;
+			int ret;
 			Log.i(TAG, "BEGIN mConnectedThread");
-			byte[] size;
-			int bytes;
-			String rawData;	
-			
+
 			// Keep listening to the InputStream while connected
 			while (true) {
 				try {
+					Log.d(TAG, "************************ ConnectThread is Running ************************");
+					bytes = new byte[1000];
+					ret = mmInStream.read(bytes);
+					Log.d(TAG + " ret", ret + "");
 
-
-					size = new byte[1000];
-					bytes = mmInStream.read(size);
-					
-					rawData = minimizer(new String(size, 0, 1000));
+					//String rawData = minimizer(new String(bytes, 0, 1000));
+					String rawData = minimizerStr(new String(bytes, 0, 1000));
 					Log.d(TAG + " rawData", rawData);
-					
-					
-					//////////////////////////////////////////////////////
-					// 수정
-					//////////////////////////////////////////////////////
-
 
 					Log.d(TAG + " Before mContainer Flag", Carcar5Talk.mContainer.getFlag() + "");
 
 					/* Init container class && Set raw data */
 					Carcar5Talk.mContainer.setRawData(rawData);
-                    Carcar5Talk.mContainer.parseData();
-
-                    // parseData()를 여기서 실행
-
+					//Carcar5Talk.mContainer.parseData();
+					Carcar5Talk.mContainer.parseDataStr();
 					Carcar5Talk.mContainer.setFlag(true);
-
 
 					Log.d(TAG + " After mContainer Flag", Carcar5Talk.mContainer.getFlag() + "");
 
-					//////////////////////////////////////////////////////
-					// 수정
-					//////////////////////////////////////////////////////
-					
-					
-					mHandler.obtainMessage(Carcar5Talk.MESSAGE_READ, bytes, -1, rawData).sendToTarget();
+					mHandler.obtainMessage(Carcar5Talk.MESSAGE_READ, ret, -1, rawData).sendToTarget();
+					bytes = null;
+					Log.d(TAG, "************************************************************************");
 				} catch (IOException e) {
 					Log.e(TAG, "disconnected", e);
 					connectionLost();
@@ -533,9 +521,68 @@ public class BluetoothChatService {
 		}
 		
 	} // end ConnectedThread
-	
-	
-	
+
+
+	/**
+	 * binary data를 축소화 시켜주는 메소드.
+	 *
+	 * @author Sungjung Kim
+	 * @since 2015.05.15
+	 *
+	 */
+	private String minimizerStr(String inStr)
+	{
+		int idx = 0;
+		String outStr = "";
+
+		/* Set My car */
+		// Flag(3)
+		outStr += inStr.substring(0, 3);
+
+		// GPS(22)
+		outStr += inStr.substring(3, 25);
+
+		// Speed(6)
+		outStr += inStr.substring(25, 31);
+
+		// Vector(22)
+		outStr += inStr.substring(31, 53);
+
+		// # of cars(3)
+		outStr += inStr.substring(53, 56);
+		idx = 56;
+		Log.d(TAG + "# of cars", Integer.parseInt(outStr.substring(53, 56)) + "");
+
+		for(int i = 0; i < Integer.parseInt(outStr.substring(53, 56)); i++) {
+			// ID
+			outStr += inStr.substring(idx, idx + 17);
+			idx += 17;
+
+			// Flag
+			outStr += inStr.substring(idx, idx + 3);
+			idx += 3;
+
+			// GPS
+			outStr += inStr.substring(idx, idx + 22);
+			idx += 22;
+
+			// Speed
+			outStr += inStr.substring(idx, idx + 6);
+			idx += 6;
+		}
+
+		return outStr;
+	}
+
+
+
+	/**
+	 * binary data를 축소화 시켜주는 메소드.
+	 *
+	 * @author Sungjung Kim
+	 * @since 2015.05.13
+	 *
+	 */
 	private String minimizer(String inStr) {
 		int i = 0, j = 0, idx = 0, rt = 0;
 		String outStr = "";
@@ -553,6 +600,12 @@ public class BluetoothChatService {
 		for(i = idx; i < 6 + idx; i++)
 			outStr += inStr.charAt(i);
 		idx = i; 	// idx = 29
+
+		// Vector
+		for(i = idx; i < 22 + idx; i++)
+			outStr += inStr.charAt(i);
+		idx = i;	// idx = 51
+
 
 		// # of cars
 		outStr += inStr.charAt(i);

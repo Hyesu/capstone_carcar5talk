@@ -1,5 +1,6 @@
 package com.carcar5talk.surfaceview;
 
+import com.carcar5talk.compute.Vector;
 import com.example.carcar5talk.R;
 
 import android.graphics.Bitmap;
@@ -13,10 +14,11 @@ public class MyCar {
 	private double speed;
 	private int numOfCars;
 	private Bitmap myCar;
-	
+	private Vector mVector;
 	public MyCar() 
 	{ 
 		position = new double[2];
+		mVector = new Vector();
 	}
 	
 	
@@ -55,8 +57,24 @@ public class MyCar {
 	{
 		return myCar;
 	}
-	
-	
+
+
+
+	public double getVectorX()
+	{
+		return mVector.x;
+	}
+
+	public double getVectorY()
+	{
+		return mVector.y;
+	}
+
+	public Vector getVector() {
+		return this.mVector;
+	}
+
+
 	
 	/* Setter */
 	public void setFlag(int flag)
@@ -82,8 +100,25 @@ public class MyCar {
 	
 	public void setMyCar() 
 	{
-		this.myCar = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car1);
+		this.myCar = BitmapFactory.decodeResource(CarView.mContext.getResources(), R.drawable.car_my);
 		this.myCar = Bitmap.createScaledBitmap(myCar, (int)position[0], (int)position[1], false);
 	}
+
+	public void setVectorX(double x)
+	{
+		this.mVector.x = x;
+	}
+
+	public void setVectorY(double y)
+	{
+		this.mVector.y = y;
+	}
+
+	public void setVector(double[] vector)
+	{
+		this.mVector.x = vector[0];
+		this.mVector.y = vector[1];
+	}
+
 	
 }// end class
