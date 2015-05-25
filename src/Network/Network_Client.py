@@ -45,7 +45,7 @@ passKey = 'raspberry'		#password
 scheme = None			
 port = 8080			
 broadcastAddr = '192.168.10.0'	
-sendInterval = 0.7   #sec
+sendInterval = 1   #sec
 isChild = False
 pid = os.getpid() 
 childPid =0
@@ -158,7 +158,7 @@ def sendData(pid):
 	while 1:
 		try:
 			message = receiveMsg()
-			if message is not None :
+			if message is not None:
 				sendSock.sendto(message, (broadcastAddr,port))
 				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
