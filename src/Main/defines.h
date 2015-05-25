@@ -28,7 +28,7 @@
 #define NETWORK_S	3
 #define BLUETOOTH	4
 
-#define LEN_ID		6
+#define LEN_ID		17
 #define LEN_GPS		22
 #define LEN_SPEED	6
 
@@ -53,7 +53,7 @@
 #define MAX_NUM_CARS	10
 
 typedef struct carInfo {
-	char id[LEN_ID];
+	char id[LEN_ID+1];			// xx:xx:xx:xx:xx:xx
 	char flag; 				// for one byte. LSB is used for "isAccident"
 	char gps[LEN_GPS + 1];
 	char speed[LEN_SPEED + 1];

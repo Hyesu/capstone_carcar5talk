@@ -99,7 +99,7 @@ def sendMsg(data):
 	except posix_ipc.BusyError:
 		sem_r.release()	
 		print "Network::sendMsg: net_r queue is full!"
-		time.sleep(sendInterVal * 2)
+		time.sleep(sendInterval * 2)
 
 
 def scanWifi():

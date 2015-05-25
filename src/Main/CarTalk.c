@@ -301,17 +301,7 @@ int getMACAddress() {
 		perror("MAC_FILE read error");
 		return -1;
 	}
-
-	for(i=0, j=0; i<LEN_ID; i++) {
-		char hexa[3];
-		int hex;
-		hexa[0] = macAddr[j++];
-		hexa[1] = macAddr[j++];
-		hexa[2] = '\0', j++;
-
-		sscanf(hexa, "%x", &hex);
-		myInfo.id[i] = (char) hex;
-	}
+	strcpy(myInfo.id, macAddr);
 	fclose(macFile);
 }
 int getMsg1(const int id, char* old, char* new, const int msgSize) {
@@ -368,11 +358,12 @@ int makeMsgForPi(char* buf) {
 }
 int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 	int idx = 0;
+	char temp[10];
 	int i;
 	
 	//set flag. now not used
-	buf[idx] = (char)1;
-	idx++;
+	memcpy(buf+idx, "000", 3);
+	idx += 3;
 
 	// set my gps
 	memcpy(buf+idx, myInfo.gps, LEN_GPS);
@@ -382,12 +373,14 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 	memcpy(buf+idx, myInfo.speed, LEN_SPEED);
 	idx += LEN_SPEED;
 
+	// set my Vector
 	memcpy(buf+idx, myInfo.dirVector, LEN_GPS);
 	idx += LEN_GPS;
 	
 	// set number of other cars
-	buf[idx] = (char)numCars;
-	idx++;
+	sprintf(temp, "%03d", numCars);
+	memcpy(buf+idx, temp, 3);
+	idx += 3;
 
 	// set other cars info 
 	for(i=0; i<numCars; i++) {
@@ -396,8 +389,9 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 		idx += LEN_ID;
 
 		// set flag of other car
-		buf[idx] = otherInfo[i].flag;
-		idx++;
+		sprintf(temp, "%03d", otherInfo[i].flag);
+		memcpy(buf+idx, temp, 3);
+		idx += 3;
 
 		// set gps of other car
 		memcpy(buf+idx, otherInfo[i].gps, LEN_GPS);
