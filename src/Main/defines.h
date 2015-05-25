@@ -50,6 +50,7 @@
 #define MSG_SIZE_BLUE	4096
 
 #define INTERVAL	1			// seconds
+#define MAX_NUM_CARS	10
 
 typedef struct carInfo {
 	char id[LEN_ID];

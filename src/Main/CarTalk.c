@@ -21,6 +21,7 @@ int thr_Network_Send();
 int thr_Network_Receive();
 
 int updateDirInfo(const char* oldGPS);
+int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherInfo);
 int getMACAddress();
 int getMsg1(const int id, char* old, char* new, const int msgSize);
 int getMsg2(const int id, char* buf, const int msgSize);
@@ -194,34 +195,17 @@ int thr_Network_Receive() {
 	while(1) {
 		int numCars = 0;
 		// otherCars should be implement later!
-		CarInfo otherCars[30];
+		CarInfo otherCars[MAX_NUM_CARS];
 		char buf[MSG_SIZE_NET];  // buf for receiving other info
 		char msg[MSG_SIZE_BLUE]; // buf for bluetooth
 
 		while(getMsg2(NETWORK_R, buf, MSG_SIZE_NET) > 0) {
 //debug
-printf("CarTalk::Net_recv: get msg from queue buf(%s)\n", buf);
-
-			//this part should be refactoried later to some function
-			int idx = 0;
-			otherCars[numCars].flag = buf[idx];
-			idx++;
-
-			memcpy(otherCars[numCars].id, buf+idx, LEN_ID);
-			idx += LEN_ID;
-
-			memcpy(otherCars[numCars].gps, buf+idx, LEN_GPS);
-			idx += LEN_GPS;
-			otherCars[numCars].gps[LEN_GPS] = '\0';
-
-			memcpy(otherCars[numCars].speed, buf+idx, LEN_SPEED);
-			idx += LEN_SPEED;
-			otherCars[numCars].speed[LEN_SPEED] = '\0';
-
-			// check direction whether other car's direction is equal to me or not
-			// not implemented yet. currently default yes!
-			otherCars[numCars].flag |= 2;
-
+printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
+			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
+				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
+				return -1;
+			}
 			numCars++;
 		}
 		if(buf[0] == '\0') continue;
@@ -269,6 +253,28 @@ int updateDirInfo(const char* oldGPS) {
 		sprintf(myInfo.dirVector, "%c%010.5f%c%010.4f", 
 			lat >= 0 ? '+' : '-', lat, lon >= 0 ? '+' : '-', lon);
 	}
+
+	return 0;
+}
+int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
+	int idx = 0;
+	otherCars[carIdx].flag = buf[idx];
+	idx++;
+
+	memcpy(otherCars[carIdx].id, buf+idx, LEN_ID);
+	idx += LEN_ID;
+
+	memcpy(otherCars[carIdx].gps, buf+idx, LEN_GPS);
+	idx += LEN_GPS;
+	otherCars[carIdx].gps[LEN_GPS] = '\0';
+
+	memcpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
+	idx += LEN_SPEED;
+	otherCars[carIdx].speed[LEN_SPEED] = '\0';
+
+	// check direction whether other car's direction is equal to me or not
+	// not implemented yet. currently default yes!
+	otherCars[carIdx].flag |= 2;
 
 	return 0;
 }
