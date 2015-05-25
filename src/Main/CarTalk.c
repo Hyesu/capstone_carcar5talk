@@ -220,17 +220,12 @@ int thr_Network_Receive() {
 			perror("CarTalk::thr_Network_Receive: getMsg2 error not by empty queue");
 			return -1;
 		}
-//debug
-printf("CarTalk::Net_R: recv(%s)\n", buf);
 
 		// make msg for android to display to HUD
 		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
 			perror("CarTalk::thr_Network_Receive: makeMsgForHUD");
 			return -1;
 		}
-
-//debug
-printf("CarTalk::Net_R: blue(%s)\n", msg);
 
 		if(sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
@@ -275,6 +270,7 @@ int updateDirInfo(const char* oldGPS) {
 int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	char temp[LEN_BYTE+1];
 	int idx = 0;
+	strcpy(temp, "\0");
 
 	// set flag
 	strncpy(temp, buf, LEN_BYTE);
@@ -282,25 +278,36 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
 
+//debug
+printf("+++++++++++++++++ flag(%d)\n", otherCars[carIdx].flag);
+
 	// set id
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
 	otherCars[carIdx].id[LEN_ID] = '\0';
 	idx += LEN_ID;
+
+printf("+++++++++++++++++ id(%s)\n", otherCars[carIdx].id);
 
 	// set gps
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_GPS);
 	otherCars[carIdx].gps[LEN_GPS] = '\0';
 	idx += LEN_GPS;
 
+printf("+++++++++++++++++ gps(%s)\n", otherCars[carIdx].gps);
+
 	// set speed
 	strncpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
 	otherCars[carIdx].speed[LEN_SPEED] = '\0';
 	idx += LEN_SPEED;
 
+printf("+++++++++++++++++ speed(%s)\n", otherCars[carIdx].speed);
+
 	// set dirVector
 	strncpy(otherCars[carIdx].dirVector, buf+idx, LEN_GPS);
 	otherCars[carIdx].dirVector[LEN_GPS] = '\0';
 	idx += LEN_GPS;
+
+printf("+++++++++++++++++ dirVector(%s)\n", otherCars[carIdx].dirVector);
 
 	// check direction whether other car's direction is equal to me or not
 	// not implemented yet. currently default yes!
