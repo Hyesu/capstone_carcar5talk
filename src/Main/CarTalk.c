@@ -185,9 +185,6 @@ int thr_Network_Send() {
 			return -1;
 		}
 
-//debug
-printf("CarTalk::Net_S: send(%s)\n", buf);
-
 		if(sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
@@ -404,19 +401,31 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 
 	// set other cars info 
 	for(i=0; i<numCars; i++) {
+		strcpy(temp, "\0");
+
 		// set id of other car
 		strcat(buf, otherInfo[i].id);
+
+//debug
+printf("===================== otherInfo.id(%s)", otherInfo[i].id);
 
 		// set flag of other car
 		sprintf(temp, "%03d", otherInfo[i].flag);
 		temp[LEN_BYTE] = '\0';
 		strcat(buf, temp);
 
+printf("===================== otherInfo.flag(%s)", temp);
+
+
 		// set gps of other car
 		strcat(buf, otherInfo[i].gps);
 
+printf("===================== otherInfo.gps(%s)", otherInfo[i].gps);
+
 		// set speed of other car
 		strcat(buf, otherInfo[i].speed);
+printf("===================== otherInfo.speed(%s)", otherInfo[i].speed);
+
 	}
 	return 0;
 }
