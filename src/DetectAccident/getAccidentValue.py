@@ -80,12 +80,16 @@ def init():
 	return spi, mq, sem
 
 def sendMsg(isAccident):
-	sem.acquire()
-	if isAccident:
-		mq.send("T", 0)
-	else:
-		mq.send("F", 0)
-	sem.release()
+	try:
+		sem.acquire()
+		if isAccident:
+			mq.send("T", 0)
+		else:
+			mq.send("F", 0)
+		sem.release()
+	except posix_ipc.BusyError:
+		print "DetectAccident::sendMsg: da queue is full"
+		time.sleep(DELAY * 2)
 
 
 class LEDThread(threading.Thread):

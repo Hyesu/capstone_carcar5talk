@@ -84,7 +84,9 @@ def receiveMsg():
 
 	except posix_ipc.BusyError:
 		sem_s.release()	
-		#print "Network::receiveMsg: net_s queue is empty!"
+		print "Network::receiveMsg: net_s queue is empty!"
+		time.sleep(sendInterval * 2)
+		return None
 
 
 def sendMsg(data):
@@ -95,7 +97,8 @@ def sendMsg(data):
 
 	except posix_ipc.BusyError:
 		sem_r.release()	
-		#print "Network::sendMsg: net_r queue is full!"
+		print "Network::sendMsg: net_r queue is full!"
+		time.sleep(sendInterVal * 2)
 
 
 def scanWifi():
@@ -154,9 +157,9 @@ def sendData(pid):
 	while 1:
 		try:
 			message = receiveMsg()
-			#print "Network::sendData: success receive msg(%s) from net_s queue" %message
 			if message :
 				sendSock.sendto(message, (broadcastAddr,port))
+				print "Network::sendData: msg(%s) from net_s queue - success send" %message
 
 			time.sleep(sendInterval)  #0.7sec
 	
@@ -174,7 +177,10 @@ def sendData(pid):
 			break 	
 
 def receiveData():
-	print "Receive Data Start"
+	#debug
+	time.sleep(10000)
+
+	print "Network::receiveData: Receive Data Start"
 
 	#Create Socket for receive msg	
 	recvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
