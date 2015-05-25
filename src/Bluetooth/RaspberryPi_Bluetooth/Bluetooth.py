@@ -63,6 +63,7 @@ class Bluetooth:
 		except posix_ipc.BusyError:
 			self.sem.release()
 			print "Bluetooth::receiveMsg: bluetooth queue is empty!"
+			return None
 
 
         def run(self):
@@ -89,15 +90,17 @@ class Bluetooth:
 		return self.client_sock.send(data);
 
         def process(self):
-		data = self.receiveMsg()
+		while True:
+			data = self.receiveMsg()
 
-		if data is not None:
-			print "Bluetooth::process: sucess receive data(%s) from queue" %data
-			ret = self.send(data)
-			print "Bluetooth::process: Send [%d] OK" % ret
+			if data is not None:
+				print "Bluetooth::process: sucess receive data(%s) from queue" %data
+				ret = self.send(data)
+				print "Bluetooth::process: Send [%d] OK" % ret
 
-		# Set non-blocking - loop and poll for data
-		self.client_sock.settimeout(0)
+			# Set non-blocking - loop and poll for data
+			self.client_sock.settimeout(0)
+
                 print "Bluetooth::process: Disconnected."
 
 
