@@ -105,7 +105,10 @@ class Bluetooth:
 
 		#debug
 		data = self.receiveMsg()
-		ret = self.send(data)
+
+		if data is not None:
+			print "Bluetooth::process: sucess receive data(%s) from queue" %data
+			ret = self.send(data)
 
 		print "Send [%d] OK" % ret
 
