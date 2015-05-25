@@ -33,8 +33,13 @@ class Bluetooth:
                 self.uuid = "00001101-0000-1000-8000-00805f9b34fb"	# SerialPortServiceClass_UUID
                 self.server_sock = BluetoothSocket(RFCOMM)
 
-		mq = posix_ipc.MessageQueue(name=MQ_NAME, flags=MQ_FLAG, mode=MQ_PERM, max_messages=MQ_MSG, max_message_size=MSG_SIZE, read=True, write=True)
-		sem = posix_ipc.Semaphore(SEM_NAME)
+		self.mq = posix_ipc.MessageQueue(name=MQ_NAME, 			\
+						 flags=MQ_FLAG,			\
+						 mode=MQ_PERM, 			\
+						 max_messages=MQ_MSG, 		\
+						 max_message_size=MSG_SIZE, 	\
+						 read=True, write=True)
+		self.sem = posix_ipc.Semaphore(SEM_NAME)
 
         def __del__(self):
 		self.f.close()
@@ -44,20 +49,19 @@ class Bluetooth:
 
 	def receiveMsg():
 		try:
-			sem.acquire()
-			data = mq.receive()		
-			sem.release()
+			self.sem.acquire()
+			data = self.mq.receive()		
+			self.sem.release()
 
 			if msg:
 				return data[0]
 			else:
-			return None
+				return None
 
 		except posix_ipc.BusyError:
-			sem_s.release()
+			self.sem.release()
 			print "Bluetooth::receiveMsg: bluetooth queue is empty!"
 
-		return data[0]
 
         def run(self):
 		self.server_sock.bind(("", PORT_ANY))	
