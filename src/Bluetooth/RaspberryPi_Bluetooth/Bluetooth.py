@@ -101,7 +101,7 @@ class Bluetooth:
 			data = self.receiveMsg()
 			if data is not None and len(data) >= LEN_DEFAULT:
 				ret = self.send(data)
-				#print "Bluetooth::process: sucess send data(%s) from queue_ret[%d]" %(data, ret)
+				print "Bluetooth::process: sucess send data(%s) from queue_ret[%d]" %(data, ret)
 
 			# Set non-blocking - loop and poll for data
 			self.client_sock.settimeout(0)

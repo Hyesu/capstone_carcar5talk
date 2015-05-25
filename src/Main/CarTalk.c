@@ -141,7 +141,6 @@ int thr_GPS() {
 	old[0] = new[0] = '\0';
 	while(1) {
 		sleep(INTERVAL);
-		//res = getMsg1(GPS, old, new, MSG_SIZE_GPS);
 		res = getMsg2(GPS, old, MSG_SIZE_GPS);
 		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
@@ -151,8 +150,10 @@ int thr_GPS() {
 			myInfo.gps[LEN_GPS] = '\0';
 			strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
 			myInfo.speed[LEN_SPEED] = '\0';
-
 			updateDirInfo(oldGPS);
+
+//debug
+printf("CarTalk::GPS: success update gps info\n");
 		}
 	}
 
@@ -206,9 +207,6 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
-			//debug
-			printf("CarTalk::thr_Network_Receive: getMsg2 from net_r queue buf(%s)\n", buf);
-
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
 				return -1;
@@ -266,20 +264,35 @@ int updateDirInfo(const char* oldGPS) {
 	return 0;
 }
 int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
+	char temp[LEN_BYTE+1];
 	int idx = 0;
-	otherCars[carIdx].flag = buf[idx];
-	idx++;
 
-	memcpy(otherCars[carIdx].id, buf+idx, LEN_ID);
+	// set flag
+	strncpy(temp, buf, LEN_BYTE);
+	temp[LEN_BYTE] = '\0';
+	otherCars[carIdx].flag = atoi(temp);
+	idx += LEN_BYTE;
+
+
+	// set id
+	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
+	otherCars[carIdx].id[LEN_ID] = '\0';
 	idx += LEN_ID;
 
-	memcpy(otherCars[carIdx].gps, buf+idx, LEN_GPS);
-	idx += LEN_GPS;
+	// set gps
+	strncpy(otherCars[carIdx].id, buf+idx, LEN_GPS);
 	otherCars[carIdx].gps[LEN_GPS] = '\0';
+	idx += LEN_GPS;
 
-	memcpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
-	idx += LEN_SPEED;
+	// set speed
+	strncpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
 	otherCars[carIdx].speed[LEN_SPEED] = '\0';
+	idx += LEN_SPEED;
+
+	// set dirVector
+	strncpy(otherCars[carIdx].dirVector, buf+idx, LEN_GPS);
+	otherCars[carIdx].dirVector[LEN_GPS] = '\0';
+	idx += LEN_GPS;
 
 	// check direction whether other car's direction is equal to me or not
 	// not implemented yet. currently default yes!
@@ -289,7 +302,7 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 }
 int getMACAddress() {
 	FILE* macFile;
-	char macAddr[LEN_MAC];
+	char macAddr[LEN_MAC+1];
 	int i, j;
 
 	if((macFile = fopen(MAC_FILE, "r")) == NULL) {
@@ -301,7 +314,9 @@ int getMACAddress() {
 		perror("MAC_FILE read error");
 		return -1;
 	}
-	strcpy(myInfo.id, macAddr);
+
+	strcpy(myInfo.id, "\0");
+	strcat(myInfo.id, macAddr);
 	fclose(macFile);
 }
 int getMsg1(const int id, char* old, char* new, const int msgSize) {
