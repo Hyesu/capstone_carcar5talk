@@ -43,13 +43,14 @@ class Bluetooth:
                 print "Server is closed."
 
 	def receiveMsg():
-		sem.acquire()
-		data = mq.receive()		
-		sem.release()
+		try:
+			sem.acquire()
+			data = mq.receive()		
+			sem.release()
 
-		if msg:
-			return data[0]
-		else:
+			if msg:
+				return data[0]
+			else:
 			return None
 
 		except posix_ipc.BusyError:
