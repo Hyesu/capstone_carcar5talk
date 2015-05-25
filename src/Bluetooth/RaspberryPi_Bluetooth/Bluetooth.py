@@ -27,6 +27,9 @@ MSG_SIZE = 4096
 class Bluetooth:
 	sem = None
 	mq = None
+	uuid = ""
+	server_sock = None
+	client_sock = None
 
         def __init__(self):
                 os.system("sudo /etc/init.d/bluetooth restart")
@@ -42,10 +45,9 @@ class Bluetooth:
 		self.sem = posix_ipc.Semaphore(SEM_NAME)
 
         def __del__(self):
-		self.f.close()
                 self.client_sock.close()
                 self.server_sock.close()
-                print "Server is closed."
+                print "Bluetooth::__del__: Server is closed."
 
 	def receiveMsg():
 		try:
@@ -68,7 +70,7 @@ class Bluetooth:
 		self.server_sock.listen(1)
 		localMacAddr = self.server_sock.getsockname()[0]
                 port = self.server_sock.getsockname()[1]
-                print "Waiting for a connection on RFCOMM channel %d" % port
+                print "Bluetooth::run: Waiting for a connection on RFCOMM channel %d" % port
 
                 advertise_service(
                         self.server_sock, "Raspberry Pi",
@@ -77,7 +79,7 @@ class Bluetooth:
                         profiles = [ SERIAL_PORT_PROFILE ],
                 )
                 self.client_sock, client_info = self.server_sock.accept()
-                print "Accepted connection from ", client_info[0]
+                print "Bluetooth::run: Accepted connection from ", client_info[0]
 
 
 	def receive(self):
@@ -87,39 +89,16 @@ class Bluetooth:
 		return self.client_sock.send(data);
 
         def process(self):
-		#data = self.receive()
-		#data = data.decode(encoding='UTF-8')		# byte data
-		#if data == "SYN":
-
-		#print "Sent [%s] packet." % data
-		#n = os.path.getsize("case01.normal.bin")	# get file size
-
-		#print "File size is %d." % n
-
-		#ret = self.send(bytes(n))
-		#print "Send [%d] OK" % ret
-		#print "Size [%d]" % sys.getsizeof(bytes(n))
-
-		#data = self.receive()
-		#data = data.decode(encoding='UTF-8')
-		#print "Sent [%s] packet." % data
-
-		#if data == "ACK":
-
-		# variable 'data' is used to send data to Android
-
-		#debug
 		data = self.receiveMsg()
 
 		if data is not None:
 			print "Bluetooth::process: sucess receive data(%s) from queue" %data
 			ret = self.send(data)
-
-		print "Send [%d] OK" % ret
+			print "Bluetooth::process: Send [%d] OK" % ret
 
 		# Set non-blocking - loop and poll for data
 		self.client_sock.settimeout(0)
-                print "Disconnected."
+                print "Bluetooth::process: Disconnected."
 
 
 if __name__ == "__main__":
