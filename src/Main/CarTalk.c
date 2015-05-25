@@ -144,10 +144,12 @@ int thr_GPS() {
 		res = getMsg2(GPS, old, MSG_SIZE_GPS);
 		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			char oldGPS[LEN_GPS + 1];
-
 			strcpy(oldGPS, myInfo.gps);
+
+			strcpy(myInfo.gps, "\0");
 			strncpy(myInfo.gps, old, LEN_GPS);
 			myInfo.gps[LEN_GPS] = '\0';
+			strcpy(myInfo.speed, "\0");
 			strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
 			myInfo.speed[LEN_SPEED] = '\0';
 			updateDirInfo(oldGPS);
@@ -241,6 +243,8 @@ int updateDirInfo(const char* oldGPS) {
 	char latitude[11];
 	char longitude[11];
 
+	strcpy(myInfo.dirVector, "\0");
+
 	strncpy(latitude, myInfo.gps, 10);
 	latitude[10] = '\0';
 	strncpy(longitude, myInfo.gps + 11, 10);
@@ -278,36 +282,29 @@ int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherCars) {
 	otherCars[carIdx].flag = atoi(temp);
 	idx += LEN_BYTE;
 
-//debug
-printf("+++++++++++++++++ flag(%d)\n", otherCars[carIdx].flag);
-
 	// set id
+	strcpy(otherCars[carIdx].id, "\0");
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_ID);
 	otherCars[carIdx].id[LEN_ID] = '\0';
 	idx += LEN_ID;
 
-printf("+++++++++++++++++ id(%s)\n", otherCars[carIdx].id);
-
 	// set gps
+	strcpy(otherCars[carIdx].gps, "\0");
 	strncpy(otherCars[carIdx].id, buf+idx, LEN_GPS);
 	otherCars[carIdx].gps[LEN_GPS] = '\0';
 	idx += LEN_GPS;
 
-printf("+++++++++++++++++ gps(%s)\n", otherCars[carIdx].gps);
-
 	// set speed
+	strcpy(otherCars[carIdx].speed, "\0");
 	strncpy(otherCars[carIdx].speed, buf+idx, LEN_SPEED);
 	otherCars[carIdx].speed[LEN_SPEED] = '\0';
 	idx += LEN_SPEED;
 
-printf("+++++++++++++++++ speed(%s)\n", otherCars[carIdx].speed);
-
 	// set dirVector
+	strcpy(otherCars[carIdx].dirVector, "\0");
 	strncpy(otherCars[carIdx].dirVector, buf+idx, LEN_GPS);
 	otherCars[carIdx].dirVector[LEN_GPS] = '\0';
 	idx += LEN_GPS;
-
-printf("+++++++++++++++++ dirVector(%s)\n", otherCars[carIdx].dirVector);
 
 	// check direction whether other car's direction is equal to me or not
 	// not implemented yet. currently default yes!
