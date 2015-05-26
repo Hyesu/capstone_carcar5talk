@@ -140,10 +140,9 @@ int thr_GPS() {
 
 	old[0] = new[0] = '\0';
 	while(1) {
-		sleep(INTERVAL);
+		char oldGPS[LEN_GPS + 1];
 		res = getMsg2(GPS, old, MSG_SIZE_GPS);
-		if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
-			char oldGPS[LEN_GPS + 1];
+		//if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
 			strcpy(oldGPS, myInfo.gps);
 
 			strcpy(myInfo.gps, "\0");
@@ -155,7 +154,7 @@ int thr_GPS() {
 			updateDirInfo(oldGPS);
 
 			printf("CarTalk::GPS: success update gps info\n");
-		}
+		//}
 	}
 
 	return 0;
@@ -186,7 +185,7 @@ int thr_Network_Send() {
 			return -1;
 		}
 
-		if(strlen(buf) >= LEN_DEFAULT_S && sendMsg(NETWORK_S, buf) < 0) {
+		if(sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
 				return -1;
@@ -376,6 +375,9 @@ int makeMsgForPi(char* buf) {
 
 	// set vector
 	strcat(buf, myInfo.dirVector);
+
+//debug
+printf("CarTalk::makeMsgForPi: msgForPi(%s)\n", buf);
 
 	return 0;
 }
