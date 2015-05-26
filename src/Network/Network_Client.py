@@ -194,7 +194,7 @@ def receiveData():
 		
 		#Only get others information
 		if myIP != srcAddr:
-			#print "Network::receiveData: success receive data(%s) from other pi" %data
+			print "Network::receiveData: success receive data(%s) from other pi" %data
 			sendMsg(data)
 
 		time.sleep(INTERVAL)

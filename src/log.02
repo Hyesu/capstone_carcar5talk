@@ -1,0 +1,89 @@
+Stopping bluetooth: rfcomm /usr/sbin/bluetoothd.
+Starting bluetooth: bluetoothd rfcomm.
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+8960.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+8960.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_S: net_s queue is full
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_S: net_s queue is full
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_S: net_s queue is full
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_S: net_s queue is full
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_S: net_s queue is full
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv()
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv(000b8:27:eb:22:03:38)
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv(000b8:27:eb:22:03:38)
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success update gps info
+CarTalk::Net_R: recv(000b8:27:eb:22:03:38)
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::Net_R: recv(000b8:27:eb:22:03:38)
+CarTalk::Net_R: blue(0008960.00000N00000.0000E000.00+0000.00000+00000.0000000)
+CarTalk::GPS: success up

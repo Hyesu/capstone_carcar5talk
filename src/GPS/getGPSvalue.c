@@ -115,8 +115,8 @@ int extractGPSvalue(const unsigned char* gprmc) {
 
 
 			// print value for log
-//			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
-//				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
+				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
 			if(sendGPSvalue(gv) < 0) {
 				perror("sendGPSvalue");

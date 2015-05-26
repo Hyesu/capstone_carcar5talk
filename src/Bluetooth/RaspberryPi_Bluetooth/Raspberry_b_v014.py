@@ -67,6 +67,8 @@ class Bluetooth:
 
 		#if data == "ACK":
 		data = self.f.read(1000)
+		#debug
+		print "data type(%s)" %type(data)
 		ret = self.send(data)
 
 		print "Send [%d] OK" % ret
