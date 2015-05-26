@@ -197,7 +197,7 @@ int thr_Network_Send() {
 			printf("CarTalk::Net_S: net_s queue is full\n", buf);
 			sleep(INTERVAL);
 		}
-		//sleep(INTERVAL);
+		sleep(INTERVAL);
 	}
 	return 0;
 }
