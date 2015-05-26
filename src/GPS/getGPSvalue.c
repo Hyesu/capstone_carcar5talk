@@ -10,10 +10,13 @@
 #include "defines.h"
 
 int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2);
-void finalize(int gps, FILE* gps2);
+int init2(FILE* gps);
+int init3(int* gps);
+void finalize(int gps);
 
 int getGPSvalue(const int gps, unsigned char* gprmc);
-int getGPSvalue2(FILE* gps2, unsigned char* gprmc);
+int getGPSvalue2(FILE* gps2, char* gprmc);
+int getGPSvalue3(int gps, char* gprmc);
 int extractGPSvalue(const unsigned char* gprmc);
 int sendGPSvalue(const GPSValue gv);
 
@@ -21,19 +24,19 @@ float knot2kmhr(float knot);
 
 int main(int argc, char** argv) {
 	int gps;
-	FILE* gps2;
 	struct termios options;
-	unsigned char gprmc[GPRMC];
+//	unsigned char gprmc[GPRMC];
+	char gprmc[GPRMC];
 	GPSValue *gpsAry1, *gpsAry2;
+
 
 	if(init(&gps, &options, gpsAry1, gpsAry2) < 0) {
 		perror("GPS:: init error");
 		exit(1);
 	}
-	if(init2(gps2) < 0) {
-		perror("GPS:: init error");
-		exit(1);
-	}
+
+	init3(&gps);
+
 
 	while(1) {
 		strcpy(gprmc, "\0");
@@ -41,8 +44,8 @@ int main(int argc, char** argv) {
 //			perror("get GPS value error");
 //			exit(1);
 //		}
-		if(getGPSvalue2(gps2, gprmc) < 0) {
-			perror("GPS:: getGPSvalue2");
+		if(getGPSvalue3(gps, gprmc) < 0) {
+			perror("GPS:: getGPSvalue3");
 			exit(1);
 		}
 		if(extractGPSvalue(gprmc) < 0) {
@@ -50,7 +53,8 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 	}
-	finalize(gps, gps2);
+
+	finalize(gps);
 	return 0;
 }
 
@@ -82,9 +86,15 @@ int init2(FILE* gps2) {
 	return 0;
 
 }
-void finalize(int gps, FILE* gps2) {
-//	close(gps);
-	fclose(gps2);
+int init3(int* gps) {
+	if((*gps = open(GPS_FILE, O_RDONLY)) < 0) {
+		perror("GPS::init3: gps file open error");
+		return -1;
+	}
+	return 0;
+}
+void finalize(int gps) {
+	close(gps);
 	rmmsgq(MSGQ_NAME);
 	rmsem(SEM_NAME);
 }
@@ -104,11 +114,14 @@ int getGPSvalue(const int gps, unsigned char* gprmc) {
 
 	return 0;
 }
-int getGPSvalue2(FILE* gps, unsigned char* gprmc) {
+int getGPSvalue2(FILE* gps, char* gprmc) {
+printf("before fgets\n");
+
 	if((fgets(gprmc, GPRMC, gps)) == NULL) {
 		perror("GPS::getGPSvalue2: fgets fail");
 		return -1;
 	}
+
 	if(feof(gps)) {
 		fclose(gps);
 		if((gps = fopen(GPS_FILE, "r")) == NULL) {
@@ -118,10 +131,25 @@ int getGPSvalue2(FILE* gps, unsigned char* gprmc) {
 	}
 	return 0;
 }
+int getGPSvalue3(int gps, char* gprmc) {
+	int nread;
+	if((nread = read(gps, gprmc, GPS_DUMMY_LEN)) < 0) {
+		perror("GPS::getGPSvalue3: read");
+		return -1;
+	}
+	gprmc[nread] = '\0';
+//debug
+printf("gprmc: [%d]%s", nread, gprmc);
+
+	if(!nread)
+		lseek(gps, 0, SEEK_SET); 
+
+	return 0;
+}
 int extractGPSvalue(const unsigned char* gprmc) {
 	char* prot;
 	GPSValue gv;
-	char temp[10];
+	char temp[15];
 	int i;
 
 	if(((prot = strstr(gprmc, "$GPRMC")) != NULL) && strlen(prot) >= PROTLEN) {
@@ -130,12 +158,14 @@ int extractGPSvalue(const unsigned char* gprmc) {
 
 			strncpy(gv.time, prot + GPS_TIME, TIMELEN);
 			gv.time[TIMELEN] = '\0';
-			
+
 			strncpy(temp, prot + GPS_LATITUDE, LATILEN);
+			temp[LATILEN] = '\0';
 			gv.latitude = atof(temp);
 			gv.latAxis = prot[GPS_LATCHAR];
-			
+
 			strncpy(temp, prot + GPS_LONGITUDE, LONGILEN);
+			temp[LONGILEN] = '\0';
 			gv.longitude = atof(temp);
 			gv.lonAxis = prot[GPS_LONCHAR];
 
