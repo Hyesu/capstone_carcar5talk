@@ -160,7 +160,7 @@ def sendData(pid):
 			message = receiveMsg()
 			if message is not None:
 				sendSock.sendto(message, (broadcastAddr,port))
-				#print "Network::sendData: msg(%s) from net_s queue - success send" %message
+				print "Network::sendData: data(%s) - send" %message
 
 			time.sleep(INTERVAL)
 	
@@ -194,7 +194,7 @@ def receiveData():
 		
 		#Only get others information
 		if myIP != srcAddr:
-			print "Network::receiveData: success receive data(%s) from other pi" %data
+			print "Network::receiveData: data(%s) - receive" %data
 			sendMsg(data)
 
 		time.sleep(INTERVAL)
