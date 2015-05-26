@@ -181,8 +181,8 @@ int extractGPSvalue(const unsigned char* gprmc) {
 
 
 			// print value for log
-			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
-				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+//			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
+//				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
 			if(sendGPSvalue(gv) < 0) {
 				perror("sendGPSvalue");
@@ -204,6 +204,9 @@ int sendGPSvalue(const GPSValue gv) {
 	sem_wait(semid);
 	result = mq_send(mqid, buf, strlen(buf), 0);
 	sem_post(semid);
+
+//debug
+printf("GPS::sendGPSvalue: buf(%s) - gps send\n", buf);
 
 	if(result < 0 && errno != EAGAIN)	return -1;
 	else					return  0;

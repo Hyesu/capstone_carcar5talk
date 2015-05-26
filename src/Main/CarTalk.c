@@ -142,19 +142,24 @@ int thr_GPS() {
 	while(1) {
 		char oldGPS[LEN_GPS + 1];
 		res = getMsg2(GPS, old, MSG_SIZE_GPS);
-		//if(old[0] != '\0' && res < 0 && errno == EAGAIN) { // when no existing message in queue
-			strcpy(oldGPS, myInfo.gps);
+		if(res < 0 && errno != EAGAIN) {
+			perror("CarTalk::GPS: quit not by queue empty");
+			return -1;
+		}
 
-			strcpy(myInfo.gps, "\0");
-			strncpy(myInfo.gps, old, LEN_GPS);
-			myInfo.gps[LEN_GPS] = '\0';
-			strcpy(myInfo.speed, "\0");
-			strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
-			myInfo.speed[LEN_SPEED] = '\0';
-			updateDirInfo(oldGPS);
+		strcpy(oldGPS, myInfo.gps);
 
-			printf("CarTalk::GPS: success update gps info\n");
-		//}
+		strcpy(myInfo.gps, "\0");
+		strncpy(myInfo.gps, old, LEN_GPS);
+		myInfo.gps[LEN_GPS] = '\0';
+
+		strcpy(myInfo.speed, "\0");
+		strncpy(myInfo.speed, old + LEN_GPS, LEN_SPEED);
+		myInfo.speed[LEN_SPEED] = '\0';
+
+		updateDirInfo(oldGPS);
+
+		printf("CarTalk::GPS: success update gps info\n");
 	}
 
 	return 0;
@@ -185,7 +190,7 @@ int thr_Network_Send() {
 			return -1;
 		}
 
-		if(sendMsg(NETWORK_S, buf) < 0) {
+		if(strlen(buf) >= LEN_DEFAULT_S && sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
 				return -1;
