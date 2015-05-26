@@ -109,6 +109,13 @@ int getGPSvalue2(FILE* gps, unsigned char* gprmc) {
 		perror("GPS::getGPSvalue2: fgets fail");
 		return -1;
 	}
+	if(feof(gps)) {
+		fclose(gps);
+		if((gps = fopen(GPS_FILE, "r")) == NULL) {
+			perror("GPS::getGPSvalue2: fopen");
+			return -1;
+		}
+	}
 	return 0;
 }
 int extractGPSvalue(const unsigned char* gprmc) {
