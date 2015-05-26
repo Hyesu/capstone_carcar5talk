@@ -25,6 +25,7 @@
 ////////////////////////////////////////
 // constants for getting gps value
 ////////////////////////////////////////
+#define GPS_FILE	"log/dummy"
 #define DEVICE 		"/dev/ttyAMA0"
 #define BUFSIZE		8		// buffer size for getting gps value
 #define GPRMC		128
