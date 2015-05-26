@@ -157,8 +157,6 @@ int thr_GPS() {
 		myInfo.speed[LEN_SPEED] = '\0';
 
 		updateDirInfo(oldGPS);
-
-		printf("CarTalk::GPS: success update gps info\n");
 	}
 
 	return 0;
@@ -212,7 +210,7 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
-			if(strlen(buf) < LEN_DEFAULT_R)  continue;
+			if(strlen(buf) < LEN_DEFAULT_S)  continue;
 
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");
@@ -231,7 +229,7 @@ int thr_Network_Receive() {
 			return -1;
 		}
 
-		if(sendMsg(BLUETOOTH, msg) < 0) {
+		if(strlen(msg) >= LEN_DEFAULT_R && sendMsg(BLUETOOTH, msg) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Receive: sendMsg(bluetooth) error not by full queue");
 				return -1;
@@ -380,9 +378,6 @@ int makeMsgForPi(char* buf) {
 	// set vector
 	strcat(buf, myInfo.dirVector);
 
-//debug
-printf("CarTalk::makeMsgForPi: msgForPi(%s)\n", buf);
-
 	return 0;
 }
 int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
@@ -427,5 +422,8 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 		strcat(buf, otherInfo[i].speed);
 
 	}
+
+//debug
+printf("CarTalk::Net_R: makeMsgForHUD(%d)\n", buf);
 	return 0;
 }
