@@ -133,13 +133,13 @@ printf("before fgets\n");
 }
 int getGPSvalue3(int gps, char* gprmc) {
 	int nread;
+	sleep(INTERVAL);
+
 	if((nread = read(gps, gprmc, GPS_DUMMY_LEN)) < 0) {
 		perror("GPS::getGPSvalue3: read");
 		return -1;
 	}
 	gprmc[nread] = '\0';
-//debug
-printf("gprmc: [%d]%s", nread, gprmc);
 
 	if(!nread)
 		lseek(gps, 0, SEEK_SET); 

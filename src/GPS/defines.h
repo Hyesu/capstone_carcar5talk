@@ -27,6 +27,7 @@
 ////////////////////////////////////////
 #define GPS_FILE	"/home/pi/capstone_carcar5talk/src/GPS/log/dummy"
 #define GPS_DUMMY_LEN	59
+#define INTERVAL	1
 
 #define DEVICE 		"/dev/ttyAMA0"
 #define BUFSIZE		8		// buffer size for getting gps value
