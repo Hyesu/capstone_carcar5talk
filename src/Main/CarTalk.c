@@ -142,9 +142,8 @@ int thr_GPS() {
 	while(1) {
 		char oldGPS[LEN_GPS + 1];
 		res = getMsg2(GPS, old, MSG_SIZE_GPS);
-		if(res < 0 && errno != EAGAIN) {
-			perror("CarTalk::GPS: quit not by queue empty");
-			return -1;
+		if(res < 0 && errno == EAGAIN) {
+			sleep(INTERVAL);
 		}
 
 		strcpy(oldGPS, myInfo.gps);
