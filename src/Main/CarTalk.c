@@ -186,7 +186,7 @@ int thr_Network_Send() {
 			return -1;
 		}
 
-		if(sendMsg(NETWORK_S, buf) < 0) {
+		if(strlen(buf) >= LEN_DEFALUT_S && sendMsg(NETWORK_S, buf) < 0) {
 			if(errno != EAGAIN) {
 				perror("CarTalk::thr_Network_Send: sendMsg error not by full queue");
 				return -1;
@@ -209,7 +209,7 @@ int thr_Network_Receive() {
 
 		sleep(INTERVAL);
 		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
-			if(strlen(buf) < LEN_DEFAULT)  continue;
+			if(strlen(buf) < LEN_DEFAULT_R)  continue;
 
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
 				perror("CarTalk::thr_Network_Receive: updateOtherInfo");

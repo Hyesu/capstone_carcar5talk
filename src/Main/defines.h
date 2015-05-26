@@ -32,7 +32,8 @@
 #define LEN_GPS		22
 #define LEN_SPEED	6
 #define LEN_BYTE	3
-#define LEN_DEFAULT	LEN_BYTE + LEN_ID + LEN_GPS + LEN_SPEED + LEN_GPS
+#define LEN_DEFAULT_R	LEN_BYTE + LEN_ID + LEN_GPS + LEN_SPEED + LEN_GPS
+#define LEN_DEFAULT_S	LEN_BYTE + LEN_GPS + LEN_SPEED + LEN_GPS + LEN_BYTE + LEN_ID + LEN_BYTE + LEN_GPS + LEN_SPEED
 
 #define MQ_NAME_GPS	"/CarTalk_mq_gps"
 #define MQ_NAME_DA	"/CarTalk_mq_da"
