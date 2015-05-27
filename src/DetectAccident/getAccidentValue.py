@@ -89,17 +89,10 @@ def sendMsg(isAccident):
 			mq.send("F", 0)
 		sem.release()
 	except posix_ipc.BusyError:
-		if fullFlag:
-			if isAccident:
-				mq.send("T", 0)
-			else:
-				mq.send("F", 0)
-			sem.release()
-		else:
-			print "DetectAccident::sendMsg: da queue is full"
-			fullFlag = True
-			while True:
-				mq.receive()
+		sem.release()
+		print "DetectAccident::sendMsg: da queue is full"
+		time.sleep(DELAY)
+		
 
 
 class LEDThread(threading.Thread):
