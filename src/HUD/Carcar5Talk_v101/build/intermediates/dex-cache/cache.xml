@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/sungjung/workspace/Carcar5Talk_v014/libs/android-support-v4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="33b27a8d2a5b87e6eb6c60e87a5374ffbfeacc3a">
+        <dex dex="/home/sungjung/workspace/Carcar5Talk_v014/build/intermediates/pre-dexed/debug/android-support-v4-c555d9eba953b32d4f92924e909cb29553777509.jar" />
+    </item>
+    <item
+        jar="/home/sungjung/workspace/Carcar5Talk_v013/libs/android-support-v4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="33b27a8d2a5b87e6eb6c60e87a5374ffbfeacc3a">
+        <dex dex="/home/sungjung/workspace/Carcar5Talk_v013/build/intermediates/pre-dexed/debug/android-support-v4-6c403c725821a7178372c6f8ff9e8802607227d4.jar" />
+    </item>
+
+</items>
