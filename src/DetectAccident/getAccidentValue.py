@@ -22,7 +22,7 @@ Z_CHANNEL = 2
 LED_YELLOW = 18
 BUTTON = 7
 
-DELAY = 2
+DELAY = 1
 MAX_REF = 5
 
 COEFF = [0.001861, 0.004444, 0.007667]
@@ -89,8 +89,15 @@ def sendMsg(isAccident):
 		sem.release()
 	except posix_ipc.BusyError:
 		print "DetectAccident::sendMsg: da queue is full"
-		time.sleep(DELAY * 2)
-
+		try:
+			while True:
+				mq.receive()
+		except posix_ipc.BusyError:
+			if isAccident:
+				mq.send("T", 0)
+			else:
+				mq.send("F", 0)
+			sem.release()
 
 class LEDThread(threading.Thread):
 	numBlink = None
@@ -136,6 +143,10 @@ class TriAxisThread(threading.Thread):
 		aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
 		aCrash = math.sqrt(aCrash) * COLLISION_COEF_HEAD_ON
 
+		# print value
+		print "DA::isHeadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		print "DA::isHeadCollision: aCrash(%f)" %aCrash
+
 		if aCrash <= COLLISION_THR:
 			return False
 		else:
@@ -151,6 +162,10 @@ class TriAxisThread(threading.Thread):
 		aVector = [mVector[0]-rVector[0], mVector[1]-rVector[1], mVector[2]-rVector[2]]
 		aCrash = pow(aVector[0], 2) + pow(aVector[1], 2) + pow(aVector[2], 2)
 		aCrash = math.sqrt(aCrash) * COLLISION_COEF_BROADSIDE
+
+		# print value
+		print "DA::isBroadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		print "DA::isBroadCollision: aCrash(%f)" %aCrash
 
 		if aCrash <= COLLISION_THR:
 			return False
@@ -169,6 +184,10 @@ class TriAxisThread(threading.Thread):
 		if exp4 < -1:
 			exp4 = -1
 		theta = math.acos(exp4) * ROLLOVER_COEF
+
+		# print value
+		print "DA::isRollOver: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		print "DA::isRollover: theta(%f)" %theta
 
 		if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
 			LED = LEDThread()
@@ -203,13 +222,13 @@ class TriAxisThread(threading.Thread):
 				isAccident = True
 
 			sendMsg(isAccident)
-
+			
 			if self.numRef == MAX_REF:
 				self.numRef = 0
 				self.rVector = []
 			else:
 				self.numRef = self.numRef + 1
-			time.sleep(DELAY/2)
+			time.sleep(DELAY)
 
 class ButtonThread(threading.Thread):
 	def __init__(self):
