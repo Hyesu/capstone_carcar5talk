@@ -169,11 +169,14 @@ int thr_DetectAccident() {
 		old[0] = new[0] = '\0';
 
 		sleep(INTERVAL);
+		myInfo.flag = 0;
 		res = getMsg(DETECT_ACCIDENT, old, MSG_SIZE_DA);
-		if(old[0] != '0' && res < 0 && errno == EAGAIN) {
-			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
-			else if(myInfo.flag % 2)	myInfo.flag--;
+		if(res < 0 && errno != EAGAIN) {
+			perror("CarTalk::DA: getMsg");
+			return -1;
 		}
+		if(res < 0) continue;
+		myInfo.flag = 1;
 	}
 	return 0;
 }
