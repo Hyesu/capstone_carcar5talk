@@ -80,6 +80,7 @@ def init():
 	return spi, mq, sem
 
 def sendMsg(isAccident):
+	fullFlag = False
 	try:
 		sem.acquire()
 		if isAccident:
@@ -88,16 +89,18 @@ def sendMsg(isAccident):
 			mq.send("F", 0)
 		sem.release()
 	except posix_ipc.BusyError:
-		print "DetectAccident::sendMsg: da queue is full"
-		try:
-			while True:
-				mq.receive()
-		except posix_ipc.BusyError:
+		if fullFlag:
 			if isAccident:
 				mq.send("T", 0)
 			else:
 				mq.send("F", 0)
 			sem.release()
+		else:
+			print "DetectAccident::sendMsg: da queue is full"
+			fullFlag = True
+			while True:
+				mq.receive()
+
 
 class LEDThread(threading.Thread):
 	numBlink = None
@@ -136,6 +139,7 @@ class TriAxisThread(threading.Thread):
 			value = MIN[axis]
 		if value > MAX[axis]:
 			value = MAX[axis]
+
 		return value
 
 	def isHeadOnCollision(self, rVector, mVector):
@@ -144,8 +148,8 @@ class TriAxisThread(threading.Thread):
 		aCrash = math.sqrt(aCrash) * COLLISION_COEF_HEAD_ON
 
 		# print value
-		print "DA::isHeadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
-		print "DA::isHeadCollision: aCrash(%f)" %aCrash
+		#print "DA::isHeadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		#print "DA::isHeadCollision: aCrash(%f)" %aCrash
 
 		if aCrash <= COLLISION_THR:
 			return False
@@ -164,8 +168,8 @@ class TriAxisThread(threading.Thread):
 		aCrash = math.sqrt(aCrash) * COLLISION_COEF_BROADSIDE
 
 		# print value
-		print "DA::isBroadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
-		print "DA::isBroadCollision: aCrash(%f)" %aCrash
+		#print "DA::isBroadCollision: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		#print "DA::isBroadCollision: aCrash(%f)" %aCrash
 
 		if aCrash <= COLLISION_THR:
 			return False
@@ -186,8 +190,8 @@ class TriAxisThread(threading.Thread):
 		theta = math.acos(exp4) * ROLLOVER_COEF
 
 		# print value
-		print "DA::isRollOver: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
-		print "DA::isRollover: theta(%f)" %theta
+		#print "DA::isRollOver: mVector(%f, %f, %f)" %(mVector[0], mVector[1], mVector[2])
+		#print "DA::isRollover: theta(%f)" %theta
 
 		if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
 			LED = LEDThread()
@@ -245,6 +249,7 @@ class ButtonThread(threading.Thread):
 	def run(self):
 		while True:
 			isAccident = self.isPushed()
+			time.sleep(DELAY/2)
 			sendMsg(isAccident)
 	
 
@@ -253,11 +258,12 @@ class ButtonThread(threading.Thread):
 spi, mq, sem = init()
 
 TriAxis = TriAxisThread(spi)
-TriAxis.start()
-TriAxis.join()
-
 Button = ButtonThread()
+
+TriAxis.start()
 Button.start()
+
+TriAxis.join()
 Button.join()
 
 
