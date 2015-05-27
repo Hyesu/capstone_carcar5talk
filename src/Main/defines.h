@@ -65,6 +65,7 @@ typedef struct carInfo {
 static pthread_t thrid[NUM_THREAD]; 
 static char* thrName[] = {"GPS", "Detect Accident", "Network_receive", "Network_send"};
 static CarInfo myInfo;
+static int msg_size[] = {MSG_SIZE_GPS, MSG_SIZE_DA, MSG_SIZE_NET, MSG_SIZE_NET, MSG_SIZE_BLUE};
 
 static sem_t* semid[NUM_THREAD+1];
 static mqd_t mqid[NUM_THREAD+1];

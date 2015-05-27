@@ -23,8 +23,7 @@ int thr_Network_Receive();
 int updateDirInfo(const char* oldGPS);
 int updateOtherCarInfo(const char* buf, int carIdx, CarInfo* otherInfo);
 int getMACAddress();
-int getMsg1(const int id, char* old, char* new, const int msgSize);
-int getMsg2(const int id, char* buf, const int msgSize);
+int getMsg(const int id, char* buf, const int msgSize);
 int sendMsg(const int id, const char* buf);
 int makeMsgForPi(char* buf);
 int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo);
@@ -141,7 +140,7 @@ int thr_GPS() {
 	old[0] = new[0] = '\0';
 	while(1) {
 		char oldGPS[LEN_GPS + 1];
-		res = getMsg2(GPS, old, MSG_SIZE_GPS);
+		res = getMsg(GPS, old, MSG_SIZE_GPS);
 		if(res < 0 && errno == EAGAIN) {
 			sleep(INTERVAL);
 		}
@@ -170,8 +169,7 @@ int thr_DetectAccident() {
 		old[0] = new[0] = '\0';
 
 		sleep(INTERVAL);
-		//res = getMsg1(DETECT_ACCIDENT, old, new, MSG_SIZE_DA);
-		res = getMsg2(DETECT_ACCIDENT, old, MSG_SIZE_DA);
+		res = getMsg(DETECT_ACCIDENT, old, MSG_SIZE_DA);
 		if(old[0] != '0' && res < 0 && errno == EAGAIN) {
 			if(!strcmp(old, "T")) 		myInfo.flag |= 1;
 			else if(myInfo.flag % 2)	myInfo.flag--;
@@ -193,7 +191,6 @@ int thr_Network_Send() {
 				return -1;
 			}
 			printf("CarTalk::Net_S: net_s queue is full\n", buf);
-			sleep(INTERVAL);
 		}
 		sleep(INTERVAL);
 	}
@@ -209,7 +206,7 @@ int thr_Network_Receive() {
 		int res;
 
 		sleep(INTERVAL);
-		while((res = getMsg2(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
+		while((res = getMsg(NETWORK_R, buf, MSG_SIZE_NET)) > 0) {
 			if(strlen(buf) < LEN_DEFAULT_S)  continue;
 
 			if(updateOtherCarInfo(buf, numCars, otherCars) < 0) {
@@ -219,9 +216,11 @@ int thr_Network_Receive() {
 			numCars++;
 		}
 		if(res < 0 && errno != EAGAIN) {
-			perror("CarTalk::thr_Network_Receive: getMsg2 error not by empty queue");
+			perror("CarTalk::thr_Network_Receive: getMsg error not by empty queue");
 			return -1;
 		}
+
+		if(!numCars) continue;
 
 		// make msg for android to display to HUD
 		if(makeMsgForHUD(msg, numCars, otherCars) < 0) {
@@ -331,18 +330,7 @@ int getMACAddress() {
 	strcat(myInfo.id, macAddr);
 	fclose(macFile);
 }
-int getMsg1(const int id, char* old, char* new, const int msgSize) {
-	int res;
-
-	sem_wait(semid[id]);
-	// receive message; while for newest message(last message)
-	while((res = mq_receive(mqid[id], new, msgSize, NULL)) > 0){
-		strcpy(old, new);
-	}
-	sem_post(semid[id]);
-	return res;
-}
-int getMsg2(const int id, char* buf, const int msgSize) {
+int getMsg(const int id, char* buf, const int msgSize) {
 	int res;
 	
 	sem_wait(semid[id]);
@@ -352,9 +340,15 @@ int getMsg2(const int id, char* buf, const int msgSize) {
 }
 int sendMsg(const int id, const char* buf) {
 	int res;
+	char temp[msg_size[id]];
 
 	sem_wait(semid[id]);
 	res = (int) mq_send(mqid[id], buf, strlen(buf), 0);
+	if(res < 0 && errno == EAGAIN) {
+		while((res = mq_receive(mqid[id], temp, msg_size[id], NULL)) >= 0) {}
+		if(errno == EAGAIN)
+			res = (int) mq_send(mqid[id], buf, strlen(buf), 0);
+	}
 	sem_post(semid[id]);
 	return res;
 }
@@ -424,6 +418,6 @@ int makeMsgForHUD(char* buf, const int numCars, const CarInfo* otherInfo) {
 	}
 
 //debug
-printf("CarTalk::Net_R: makeMsgForHUD(%d)\n", buf);
+printf("CarTalk::Net_R: makeMsgForHUD(%s)\n", buf);
 	return 0;
 }
