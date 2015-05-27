@@ -25,8 +25,7 @@ float knot2kmhr(float knot);
 int main(int argc, char** argv) {
 	int gps;
 	struct termios options;
-//	unsigned char gprmc[GPRMC];
-	char gprmc[GPRMC];
+	unsigned char gprmc[GPRMC];
 	GPSValue *gpsAry1, *gpsAry2;
 
 
@@ -35,17 +34,10 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	init3(&gps);
-
-
 	while(1) {
 		strcpy(gprmc, "\0");
-//		if(getGPSvalue(gps, gprmc) < 0) {
-//			perror("get GPS value error");
-//			exit(1);
-//		}
-		if(getGPSvalue3(gps, gprmc) < 0) {
-			perror("GPS:: getGPSvalue3");
+		if(getGPSvalue(gps, gprmc) < 0) {
+			perror("get GPS value error");
 			exit(1);
 		}
 		if(extractGPSvalue(gprmc) < 0) {
@@ -59,19 +51,19 @@ int main(int argc, char** argv) {
 }
 
 int init(int* gps, struct termios* options, GPSValue* gpsAry1, GPSValue* gpsAry2) {
-//	if((*gps = open(DEVICE, O_RDWR | O_NOCTTY)) < 0) {
-//		perror("uart serial port open error");
-//		return -1;
-//	}
+	if((*gps = open(DEVICE, O_RDWR | O_NOCTTY)) < 0) {
+		perror("uart serial port open error");
+		return -1;
+	}
 
 
-//	tcgetattr(*gps, options);
-//	options->c_cflag = B9600 | CS8 | CLOCAL | CREAD;
-//	options->c_iflag = IGNPAR;
-//	options->c_oflag = 0;
-//	options->c_lflag = 0;
-//	tcflush(*gps, TCIFLUSH);
-//	tcsetattr(*gps, TCSANOW, options);
+	tcgetattr(*gps, options);
+	options->c_cflag = B9600 | CS8 | CLOCAL | CREAD;
+	options->c_iflag = IGNPAR;
+	options->c_oflag = 0;
+	options->c_lflag = 0;
+	tcflush(*gps, TCIFLUSH);
+	tcsetattr(*gps, TCSANOW, options);
 
 	mqid = getmsgq(MSGQ_NAME, MSG_SIZE);
 	semid = getsem(SEM_NAME);
@@ -175,17 +167,15 @@ int extractGPSvalue(const unsigned char* gprmc) {
 				i++;
 			} while(prot[GPS_SPEED + i] != ',');
 			temp[i] = '\0';
-//debug
-			gv.speed = atof(temp);
-			//gv.speed = knot2kmhr(atof(temp));
+			gv.speed = knot2kmhr(atof(temp));
 
 
 			// print value for log
-//			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
-//				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
+			printf("GPSvalue: time(%s), lat(%f)%c, lon(%f)%c, speed(%f)\n", 
+				gv.time, gv.latitude, gv.latAxis, gv.longitude, gv.lonAxis, gv.speed);
 
-			if(sendGPSvalue(gv) < 0) {
-				perror("sendGPSvalue");
+			if(sendGPSvalue(gv) < 0 && errno != EAGAIN) {
+				perror("GPS::extractGPSvalue: sendGPSvalue");
 				return -1;
 			}
 //		}	
@@ -195,6 +185,7 @@ int extractGPSvalue(const unsigned char* gprmc) {
 }
 int sendGPSvalue(const GPSValue gv) {
 	char buf[MSG_SIZE];
+	char temp[MSG_SIZE];
 	int result;
 
 	// send message to queue
@@ -203,10 +194,12 @@ int sendGPSvalue(const GPSValue gv) {
 
 	sem_wait(semid);
 	result = mq_send(mqid, buf, strlen(buf), 0);
+	if(result < 0 && errno == EAGAIN) {
+		while((result = mq_receive(mqid, temp, MSG_SIZE, NULL)) >= 0) {}
+		if(result < 0 && errno == EAGAIN)
+			result = mq_send(mqid, buf, strlen(buf), 0);
+	}
 	sem_post(semid);
-
-//debug
-printf("GPS::sendGPSvalue: buf(%s) - gps send\n", buf);
 
 	if(result < 0 && errno != EAGAIN)	return -1;
 	else					return  0;
