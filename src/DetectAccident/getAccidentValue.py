@@ -156,6 +156,7 @@ class TriAxisThread(threading.Thread):
 		else:
 			LED = LEDThread()
 			LED.start()
+			LED.join()
 			return True
 
 	def isBroadsideCollision(self, rVector, mVector):
@@ -176,6 +177,7 @@ class TriAxisThread(threading.Thread):
 		else:
 			LED = LEDThread()
 			LED.start()
+			LED.join()
 			return True
 
 	def isRollOver(self, rVector, mVector):
@@ -196,6 +198,7 @@ class TriAxisThread(threading.Thread):
 		if theta >= ROLLOVER_THR and theta <= ROLLOVER_MAX:
 			LED = LEDThread()
 			LED.start()
+			LED.join()
 			return True
 		else:
 			return False
@@ -242,6 +245,7 @@ class ButtonThread(threading.Thread):
 		if not GPIO.input(BUTTON):
 			LED = LEDThread()
 			LED.start()
+			LED.join()
 			return True
 		else:
 			return False
